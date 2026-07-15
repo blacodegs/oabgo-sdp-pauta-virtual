@@ -1,0 +1,502 @@
+/* ── 1. VARIÁVEIS ── */
+:root {
+  --oab-branco:          #ffffff;
+  --oab-azul:            #004480;
+  --oab-azul-escuro:     #002d56;
+  --oab-azul-suave:      #e6f0ff;
+  --oab-azul-md:         #1e64a1;
+  --oab-vermelho:        #ff0000;
+  --oab-vermelho-escuro: #cc0000;
+  --oab-vermelho-suave:  #ffe6e6;
+  --oab-verde:           #2e7d32;
+  --oab-grafite:         #424242;
+  --oab-cinza-txt:       #455a64;
+  --oab-cinza-forte:     #616161;
+  --oab-cinza-label:     #757575;
+  --oab-cinza-md:        #9e9e9e;
+  --oab-cinza-bg:        #d1d8db;
+  --oab-cinza-suave:     #f5f5f5;
+  --oab-fundo:           #d1d8db;
+  --fonte:               'Inter', sans-serif;
+}
+
+/* ── 2. BASE ── */
+*, *::before, *::after { box-sizing: border-box; }
+body, input, button, select, textarea { font-family: var(--fonte); -webkit-font-smoothing: antialiased; }
+body { background: var(--oab-fundo); margin: 0; padding: 0; }
+
+/* ── 3. HEADER ── */
+.oab-header {
+  position: sticky; top: 0; z-index: 1000;
+  background: var(--oab-vermelho); height: 70px;
+  display: flex; align-items: center; gap: 20px; padding: 0 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+.oab-logo { height: 36px; width: auto; }
+.oab-header-title {
+  flex: 1; text-align: center; color: var(--oab-branco);
+  font-weight: 700; font-size: 1.5rem; letter-spacing: 0.04em;
+}
+
+/* ── 4. BANNER ── */
+.page-banner {
+  background: var(--oab-azul);
+  padding: 28px 24px;
+}
+.page-banner h1 {
+  color: var(--oab-branco); font-weight: 700; font-size: 1.35rem;
+  text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px;
+}
+.banner-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+.banner-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,.85); font-size: .8rem; font-weight: 600;
+}
+.banner-meta-item i { font-size: 14px; }
+
+/* ── 5. CONTAINER ── */
+.main-container { max-width: 940px; margin: 0 auto; padding: 28px 16px 60px; }
+.autocomplete-content { position: absolute; z-index: 10000;}
+
+/* ── 6. SECTION HEADER ── */
+.section-header { display: flex; align-items: center; margin-bottom: 16px; }
+.section-title {
+  font-weight: 700; color: var(--oab-azul-escuro);
+  border-left: 4px solid var(--oab-vermelho); padding-left: 10px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin: 0;
+  display: inline-flex; align-items: center;
+}
+.badge-count {
+  background: var(--oab-azul-escuro); color: var(--oab-branco);
+  font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 50px; margin-left: 10px;
+}
+
+/* ── 7. CARD DE PROCESSO ── */
+.processo-wrapper { margin-bottom: 12px; }
+
+.lista-card {
+  background: var(--oab-branco); border-radius: 10px; padding: 14px 18px;
+  border: 1px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: box-shadow .2s, border-color .2s, transform .2s;
+}
+.lista-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.13); border-color: var(--oab-azul);
+  transform: translateY(-2px);
+}
+
+.card-header-row { display: flex; align-items: flex-start; }
+
+.ordem-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--oab-azul); color: var(--oab-branco);
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-right: 12px; margin-top: 1px;
+}
+
+.card-info { flex: 1; min-width: 0; }
+
+.card-top-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
+}
+.processo-numero { font-size: .88rem; font-weight: 700; color: var(--oab-azul-escuro); }
+
+.chip-status-voto {
+  display: inline-flex; align-items: center; padding: 2px 10px;
+  border-radius: 20px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+  background: var(--oab-branco);
+}
+.chip-tem-voto {
+  color: var(--oab-azul); border: 1px solid var(--oab-azul);
+}
+.chip-sem-voto {
+  color: var(--oab-vermelho); border: 1px solid var(--oab-vermelho);
+}
+
+.card-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
+.action-icon {
+  background: none; border: none; cursor: pointer; color: var(--oab-azul);
+  font-size: 14px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 5px; border-radius: 4px; outline: none !important;
+  transition: transform .18s, background .18s, color .18s;
+}
+.action-icon:hover        { transform: scale(1.22); background: var(--oab-azul); color: var(--oab-branco); }
+.action-icon:active       { transform: scale(.93); }
+
+/* PDF – vermelho */
+.action-icon.pdf-btn      { color: var(--oab-vermelho); }
+.action-icon.pdf-btn:hover { background: var(--oab-vermelho); color: var(--oab-branco); }
+
+/* Votar – azul */
+.action-icon.votar-btn    { color: var(--oab-azul); }
+.action-icon.votar-btn:hover { background: var(--oab-azul); color: var(--oab-branco); }
+
+.action-icon[disabled]    { opacity: .3; pointer-events: none; }
+
+/* Tooltip dos botões de ação customizado OAB */
+.material-tooltip {
+  background-color: var(--oab-azul-escuro) !important;
+  color: var(--oab-branco) !important;
+  font-size: 14px !important;
+  font-weight: 400;
+  border-radius: 6px;
+  max-width: 200px;
+  text-align: center;
+  word-wrap: break-word;
+}
+.material-tooltip::after {
+  border-top-color: var(--oab-azul-escuro) !important;
+}
+
+.dados-processo { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.dado-linha { display: flex; align-items: baseline; gap: 5px; }
+.dado-rotulo {
+  font-size: 10px; font-weight: 700; color: var(--oab-cinza-label);
+  text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0; min-width: 72px;
+}
+.dado-valor { font-size: 12px; color: var(--oab-grafite); line-height: 1.3; }
+
+.ementa-linha {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid rgba(0,68,128,.07);
+  font-size: 11px; color: var(--oab-cinza-forte); line-height: 1.55;
+}
+
+/* ── 8. FORM VOTAÇÃO ── */
+.voto-form-wrapper { display: none; }
+.voto-form-wrapper.aberto { display: block; }
+
+.voto-form-inner {
+  background: var(--oab-azul-suave); border: 1px solid var(--oab-azul);
+  border-top: none; border-radius: 0 0 10px 10px;
+  padding: 16px 20px 18px; margin-top: -3px;
+}
+
+.form-subsecao { margin-bottom: 14px; }
+.form-subsecao-titulo {
+  font-size: 11px; font-weight: 700; color: var(--oab-azul-escuro);
+  text-transform: uppercase; letter-spacing: .04em;
+  border-left: 3px solid var(--oab-vermelho); padding-left: 8px;
+  margin-bottom: 12px;
+}
+
+.voto-nome-field label {
+  display: block; font-size: 10px; font-weight: 700;
+  color: var(--oab-cinza-label); text-transform: uppercase;
+  letter-spacing: .04em; margin-bottom: 5px;
+}
+.voto-nome-field input {
+  width: 100%; max-width: 380px;
+  border: 1px solid var(--oab-cinza-md);
+  border-radius: 6px; padding: 7px 12px;
+  font-size: 13px; font-family: var(--fonte); color: var(--oab-grafite);
+  outline: none !important; background: var(--oab-branco);
+  transition: border-color .2s, box-shadow .2s;
+}
+.voto-nome-field input:focus {
+  border-color: var(--oab-azul);
+  box-shadow: 0 0 0 2px rgba(0,68,128,.12);
+}
+
+.opcoes-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--oab-cinza-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+  margin-top: 20px;
+}
+.opcoes-voto { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+
+.opcao-voto-label {
+  display: inline-flex; align-items: center;
+  background: var(--oab-branco); border: 1.5px solid var(--oab-cinza-bg);
+  border-radius: 50px; padding: 8px 18px;
+  font-size: 12px; font-weight: 600; color: var(--oab-grafite);
+  cursor: pointer; transition: all .2s ease; user-select: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.opcao-voto-label:hover {
+  border-color: var(--oab-azul); color: var(--oab-azul);
+  background: var(--oab-azul-suave);
+  box-shadow: 0 3px 8px rgba(0,68,128,0.12);
+  transform: translateY(-1px);
+}
+.opcao-voto-label.selecionada { background: var(--oab-azul); color: var(--oab-branco);border-color: var(--oab-azul); box-shadow: 0 2px 6px rgba(0,68,128,0.2); }
+.opcao-voto-label.selecionada:hover { background: var(--oab-azul-escuro); }
+.opcao-voto-label input[type="radio"] { display: none; }
+
+.votantes-lista { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; }
+
+.chip-votante {
+  display: inline-flex; align-items: center;
+  background: var(--oab-branco); border: 1px solid var(--oab-azul);
+  color: var(--oab-azul); border-radius: 20px;
+  padding: 2px 10px; font-size: 10px; font-weight: 700;
+}
+
+.votantes-vazio { font-size: 11px; color: var(--oab-cinza-md); font-style: italic; }
+
+.form-separator { border: none; border-top: 1px solid rgba(0,68,128,.15); margin: 14px 0; }
+
+.voto-form-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+
+/* ── 9. BOTÕES ── */
+.btn-oab, .btn-oab-confirm {
+  border: none; border-radius: 50px; height: 32px; padding: 0 16px;
+  font-weight: 700; font-size: 12px; font-family: var(--fonte);
+  cursor: pointer; transition: all .22s;
+  display: inline-flex; align-items: center; gap: 5px;
+  outline: none !important; box-shadow: none;
+}
+.btn-oab         { background: var(--oab-cinza-bg); color: var(--oab-azul); }
+.btn-oab:hover   { background: var(--oab-vermelho); color: var(--oab-branco); box-shadow: 0 4px 8px rgba(0,0,0,.18); }
+.btn-oab-confirm { background: var(--oab-azul); color: var(--oab-branco); }
+.btn-oab-confirm:hover    { background: var(--oab-vermelho); box-shadow: 0 4px 8px rgba(0,0,0,.18); }
+.btn-oab-confirm:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── 10. ESTADOS ── */
+.estado {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 56px 20px; text-align: center; color: var(--oab-cinza-label);
+}
+.estado i { font-size: 40px; margin-bottom: 12px; }
+.estado p { font-size: 13px; margin: 0; line-height: 1.5; }
+.estado.loading i { color: var(--oab-azul); animation: spin 1s linear infinite; }
+.estado.erro i    { color: var(--oab-vermelho); }
+.estado.vazio i   { color: var(--oab-cinza-md); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 11. MODAL BASE ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.ativo { display: flex; }
+.modal-box {
+  background: var(--oab-branco); border-radius: 14px;
+  width: 100%; max-width: 900px; max-height: 92vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.28); overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px 12px; border-bottom: 1px solid rgba(0,0,0,.07);
+  flex-shrink: 0;
+}
+.modal-header-left { border-left: 5px solid var(--oab-vermelho); padding-left: 12px; }
+.modal-eyebrow {
+  font-size: 12px; font-weight: 700; color: var(--oab-cinza-label);
+  text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 3px;
+}
+.modal-header-left h5 { font-size: 16px; font-weight: 700; color: var(--oab-azul-escuro); margin: 0; }
+.modal-close {
+  background: none; border: none; cursor: pointer; color: var(--oab-cinza-md);
+  font-size: 20px; display: flex; align-items: center;
+  padding: 4px; border-radius: 50%; outline: none !important;
+  transition: background .18s, color .18s;
+}
+.modal-close:hover { background: var(--oab-vermelho-suave); color: var(--oab-vermelho); }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-footer-bar {
+  padding: 12px 24px; border-top: 1px solid rgba(0,0,0,.07);
+  display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
+}
+
+/* ── 12. MODAL VOTOS (ModalVotos) ── */
+.mv-voto-card {
+  background: var(--oab-branco); border: 1px solid var(--oab-cinza-bg); border-radius: 12px;
+  margin-bottom: 12px; transition: border-color .2s;
+}
+.mv-voto-card:hover { border-color: var(--oab-azul); }
+.mv-voto-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; gap: 10px;
+}
+.mv-voto-info  { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.mv-voto-tipo  { font-size: 15px; font-weight: 700; color: var(--oab-azul); }
+.mv-voto-relator { font-size: 14px; color: var(--oab-cinza-forte); }
+.mv-voto-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.mv-voto-actions .action-icon i { font-size: 22px; }
+.mv-voto-body { display: none; padding: 12px 18px 14px; border-top: 1px solid var(--oab-cinza-bg); }
+.mv-voto-texto {
+  font-size: 14px; line-height: 1.7; color: var(--oab-cinza-txt);
+  white-space: pre-wrap; margin: 0;
+}
+
+/* Editor toolbar */
+.editor-wrap {
+  border: 1px solid var(--oab-cinza-bg); border-radius: 8px; margin-top: 6px;
+  overflow: hidden; transition: border-color .2s;
+}
+.editor-wrap:focus-within { border-color: var(--oab-azul); }
+.editor-toolbar {
+  display: flex; gap: 2px; padding: 4px 6px;
+  background: var(--oab-cinza-suave); border-bottom: 1px solid var(--oab-cinza-bg);
+}
+.editor-toolbar button {
+  width: 28px; height: 28px; border: none; border-radius: 6px;
+  background: transparent; color: var(--oab-cinza-forte); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; padding: 0;
+}
+.editor-toolbar button:hover { background: var(--oab-cinza-bg); color: var(--oab-azul); }
+.editor-toolbar button i { font-size: 20px; }
+.voto-editor {
+  width: 100%; min-height: 80px; overflow-y: auto;
+  font-family: var(--fonte); font-size: 15px; color: var(--oab-grafite);
+  padding: 10px; line-height: 1.6; outline: none;
+}
+.voto-editor:empty::before {
+  content: attr(data-placeholder); color: var(--oab-cinza-md); pointer-events: none;
+}
+
+/* Novo voto form */
+.mv-novo-card {
+  display: none; background: var(--oab-branco); border: 1.5px solid var(--oab-azul);
+  border-radius: 10px; padding: 18px 20px 14px; margin-top: 16px;
+  box-shadow: 0 3px 12px rgba(0,68,128,.12);
+}
+.mv-select-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.mv-select-row select, .mv-select-row input {
+  border: 1px solid var(--oab-cinza-md); border-radius: 6px;
+  padding: 8px 12px; font-size: 14px; font-family: var(--fonte);
+  color: var(--oab-grafite); outline: none; background: var(--oab-branco);
+}
+.mv-select-row select:focus, .mv-select-row input:focus {
+  border-color: var(--oab-azul); box-shadow: 0 0 0 2px rgba(0,68,128,.1);
+}
+.select-wrapper input.select-dropdown { font-size: 13px !important; height: auto !important; padding: 8px 12px !important; }
+.mv-novo-actions {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--oab-cinza-bg);
+}
+.mv-novo-actions-right { display: flex; gap: 8px; }
+.mv-btn-add-wrap { margin-top: 12px; }
+.mv-empty { text-align: center; color: var(--oab-cinza-md); padding: 24px; font-size: 14px; }
+.mv-loading { display: flex; justify-content: center; padding: 24px; }
+
+/* PDF chip */
+.chip-pdf-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  background: var(--oab-azul); color: var(--oab-branco); text-decoration: none;
+  cursor: pointer; border: none; transition: background .18s;
+}
+.chip-pdf-link:hover { background: var(--oab-azul-escuro); }
+.chip-pdf-pending {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  background: var(--oab-branco); color: var(--oab-azul); border: 1px solid var(--oab-azul);
+  cursor: pointer; transition: all .18s;
+}
+.chip-pdf-pending:hover { background: var(--oab-azul-suave); }
+
+/* ── 13. MODAL IA ── */
+.mia-modal { max-width: 400px !important; border-radius: 16px; }
+.mia-body  { padding: 20px 20px 0; }
+.mia-header {
+  display: flex; align-items: center; gap: 12px;
+  border-left: 4px solid var(--oab-vermelho); padding-left: 10px; margin-bottom: 14px;
+}
+.mia-logo-label { font-size: 11px; font-weight: 700; color: var(--oab-azul-escuro); text-transform: uppercase; letter-spacing: .06em; }
+.mia-logo-sub   { font-size: 10px; color: var(--oab-cinza-md); margin-top: 2px; }
+.mia-titulo     { font-size: 13px; font-weight: 700; color: var(--oab-grafite); margin: 0 0 6px; }
+.mia-descricao  { font-size: 12px; color: var(--oab-cinza-label); margin: 0 0 16px; line-height: 1.5; }
+.mia-footer     { padding: 10px 20px 16px; display: flex; justify-content: flex-end; gap: 10px; }
+.mia-loading    { display: none; flex-direction: column; align-items: center; padding: 24px 20px; gap: 12px; }
+.mia-loading.ativo { display: flex; }
+.mia-loading-texto { font-size: 12px; font-weight: 600; color: var(--oab-azul-escuro); }
+.mia-svg-spin   { animation: spin 2s linear infinite; }
+.mia-dots span {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--oab-azul); margin: 0 3px;
+  animation: miaPulse 1.2s ease-in-out infinite;
+}
+.mia-dots span:nth-child(2) { animation-delay: .2s; }
+.mia-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes miaPulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1.2)} }
+
+/* ── 14. TOAST ── */
+.toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 3000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  color: var(--oab-branco); padding: 11px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  display: flex; align-items: center; gap: 9px;
+  animation: slideIn .28s ease; max-width: 320px;
+}
+.toast.sucesso { background: var(--oab-verde); }
+.toast.erro    { background: var(--oab-vermelho-escuro); }
+.toast i { font-size: 16px; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+
+/* ── 15. RODAPÉ ── */
+.oab-footer-nav {
+  background: var(--oab-branco); padding: 16px 0; text-align: center;
+  border-top: 1px solid #ddd; margin-top: 20px;
+}
+
+@media (max-width: 580px) {
+  .card-top-row { flex-direction: column; align-items: flex-start; }
+  .card-actions { margin-top: 4px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+  SOBRESCRIÇÃO DE CORES DO MATERIALIZE (AZUL OAB)
+  Baseado no Global-style.html do projeto principal
+  ═══════════════════════════════════════════════════════════════ */
+
+/* ── Dropdown do select (Materialize Select) ── */
+.dropdown-content li > a, .dropdown-content li > span { color: var(--oab-azul) !important; }
+.dropdown-content li:hover { background-color: var(--oab-azul-suave) !important; }
+
+/* ── Autocomplete (usado em inputs com autocomplete) ── */
+.autocomplete-content li .highlight { color: var(--oab-azul) !important; }
+.autocomplete-content li:hover { background-color: var(--oab-azul-suave) !important; }
+
+/* ── Checkboxes e radio buttons ── */
+[type="checkbox"]:checked + span:not(.lever):before { border-right-color: var(--oab-azul) !important; border-bottom-color: var(--oab-azul) !important; }
+[type="radio"]:checked + span:after, [type="radio"].with-gap:checked + span:before, [type="radio"].with-gap:checked + span:after { background-color: var(--oab-azul) !important; border-color: var(--oab-azul) !important; }
+
+/* ── Switch (toggle) ── */
+.switch label input[type="checkbox"]:checked + .lever { background-color: rgba(0, 68, 128, 0.5) !important; }
+.switch label input[type="checkbox"]:checked + .lever:after { background-color: var(--oab-azul) !important; }
+
+/* ── Labels em campos Materialize ── */
+.input-field input:focus + label, .input-field textarea:focus + label, .input-field select:focus + label { color: var(--oab-azul) !important; }
+.input-field input.valid + label, .input-field textarea.valid + label, .input-field select.valid + label { color: var(--oab-azul) !important; }
+.input-field input:focus:invalid + label, .input-field textarea:focus:invalid + label, .input-field select:focus:invalid + label { color: var(--oab-azul) !important; }
+
+/* ── Linha inferior em foco (azul OAB) ── */
+.input-field input:focus, .input-field textarea:focus, .input-field select:focus { border-bottom: 1px solid var(--oab-azul) !important; box-shadow: 0 1px 0 0 var(--oab-azul) !important; }
+
+/* ── Linha inferior padrão (cinza, não verde) ── */
+.input-field input:not(:focus), .input-field textarea:not(:focus), .input-field select:not(:focus) { border-bottom: 1px solid var(--oab-cinza-md) !important; box-shadow: none !important; }
+
+/* ── Botões OAB (reforço) ── */
+.btn-oab, .btn-oab-confirm { border-radius: 50px; font-weight: 700; text-transform: none; transition: all 0.22s; box-shadow: none; }
+.btn-oab { background-color: var(--oab-cinza-bg); color: var(--oab-azul); }
+.btn-oab:hover { background-color: var(--oab-vermelho); color: var(--oab-branco); }
+.btn-oab-confirm { background-color: var(--oab-azul); color: var(--oab-branco); }
+.btn-oab-confirm:hover { background-color: var(--oab-vermelho); }
+
+/* ── Select wrapper (ícone de seta e linha) ── */
+.select-wrapper { margin-bottom: 0 !important; }
+.select-wrapper .caret { fill: var(--oab-azul); top: 50% !important; transform: translateY(-50%) !important;}
+.select-wrapper input.select-dropdown {
+  border-bottom-color: var(--oab-cinza-md) !important;
+  height: 2.2rem !important;        /* altura reduzida */
+  padding: 0 12px !important;       /* remove padding vertical extra */
+  margin: 0 !important;
+  line-height: 2.2rem !important;
+  box-sizing: border-box;
+}
+.select-wrapper input.select-dropdown:focus { border-bottom-color: var(--oab-azul) !important; }

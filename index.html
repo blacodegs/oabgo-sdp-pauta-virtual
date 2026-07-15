@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pauta virtual — SDP-OAB/GO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="oab-header">
+    <img class="oab-logo"
+         src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
+         alt="OAB Goiás">
+    <span class="oab-header-title">SISTEMA DE DEFESA DAS PRERROGATIVAS</span>
+  </header>
+
+  <!-- BANNER -->
+  <div class="page-banner">
+    <h1 id="bannerTitulo">PAUTA DE JULGAMENTO VIRTUAL</h1>
+    <div class="banner-meta" id="bannerMeta">
+      <span class="banner-meta-item"><i class="material-icons">sync</i> Carregando…</span>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <main class="main-container">
+    <div class="section-header">
+      <span class="section-title">
+        Processos Pautados
+        <span class="badge-count" id="badgeCount">—</span>
+      </span>
+    </div>
+    <div id="listaProcessos">
+      <div class="estado loading">
+        <i class="material-icons">autorenew</i>
+        <p>Identificando sessão ativa…</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: LISTA DE VOTOS DA FICHA -->
+  <div class="modal-overlay" id="modalVotos">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-eyebrow">Votos do processo</span>
+          <h5 id="mvTitulo">—</h5>
+        </div>
+        <button class="modal-close" onclick="fecharModal('modalVotos')">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+      <div class="modal-body" id="mvBody">
+        <div class="mv-loading"><i class="material-icons" style="animation:spin 1s linear infinite;color:var(--oab-azul)">autorenew</i></div>
+      </div>
+      <div class="modal-footer-bar">
+        <button class="btn-oab" onclick="fecharModal('modalVotos')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="oab-footer-nav">
+    <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png" alt="OAB Goiás" style="height: 100px;">
+  </footer>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
