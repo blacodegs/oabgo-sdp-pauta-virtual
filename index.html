@@ -68,14 +68,6 @@
       <!-- Coluna esquerda: botão + lista de presentes -->
       <div class="presenca-col-left">
 
-        <!-- Botão principal -->
-        <div class="presenca-cta-wrap" id="presencaCtaWrap">
-          <button class="btn-presenca" id="btnRegistrarPresenca" onclick="abrirModalPresenca()">
-            <span class="btn-presenca-icon"><i class="material-icons">touch_app</i></span>
-            <span class="btn-presenca-texto">Clique aqui para<br>registrar sua presença</span>
-          </button>
-        </div>
-
         <!-- Contagem e lista de presentes -->
         <div class="presenca-lista-wrap">
           <div class="presenca-lista-header">
@@ -85,6 +77,14 @@
           <div class="presenca-chips" id="presencaChips">
             <span class="presenca-vazio">Nenhum membro registrou presença ainda.</span>
           </div>
+        </div>
+
+        <!-- Botão principal -->
+        <div class="presenca-cta-wrap" id="presencaCtaWrap">
+          <button class="btn-presenca" id="btnRegistrarPresenca" onclick="abrirModalPresenca()">
+            <span class="btn-presenca-icon"><i class="material-icons">touch_app</i></span>
+            <span class="btn-presenca-texto">Clique aqui para<br>registrar sua presença</span>
+          </button>
         </div>
 
       </div>
@@ -98,7 +98,7 @@
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca&color=002d56&bgcolor=ffffff"
                  alt="QR Code de acesso" class="qr-imagem">
           </div>
-          <p class="qr-url" id="qrUrl">oabgo.org.br/sdp</p>
+          <p class="qr-url" id="qrUrl">https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca</p>
         </div>
       </div>
 

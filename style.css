@@ -169,10 +169,8 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .presenca-col-right { flex-shrink: 0; width: 280px; }
 
 /* Botão principal CTA */
-.presenca-cta-wrap {
-  display: flex; justify-content: center;
-  margin-bottom: 40px;
-}
+.presenca-cta-wrap { display: flex; justify-content: center; }
+
 .btn-presenca {
   display: flex; flex-direction: column; align-items: center; gap: 16px;
   background: linear-gradient(135deg, var(--oab-azul) 0%, var(--oab-azul-md) 100%);
@@ -215,6 +213,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   border-radius: 12px;
   padding: 20px 22px;
   box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  margin-bottom: 40px;
 }
 .presenca-lista-header {
   display: flex; align-items: center;
@@ -255,6 +254,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 /* QR Code card */
 .qr-card {
   background: var(--oab-branco);
+  width: 340px;
   border-radius: 16px;
   padding: 28px 24px;
   text-align: center;
@@ -263,7 +263,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   position: sticky; top: 160px;
 }
 .qr-instrucao {
-  font-size: 13px; font-weight: 600;
+  font-size: 18px; font-weight: 600;
   color: var(--oab-azul-escuro);
   margin: 0 0 16px;
   line-height: 1.4;
@@ -272,11 +272,11 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   background: var(--oab-branco);
   border: 3px solid var(--oab-azul);
   border-radius: 12px;
-  padding: 10px;
+  padding: 12px;
   display: inline-block;
   margin-bottom: 14px;
 }
-.qr-imagem { width: 200px; height: 200px; display: block; }
+.qr-imagem { width: 250px; height: 250px; display: block; }
 .qr-url {
   font-size: 11px; font-weight: 700;
   color: var(--oab-cinza-label);
