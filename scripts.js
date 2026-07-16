@@ -156,20 +156,8 @@ async function iniciarPresenca() {
   if (ctaWrap)  ctaWrap.style.display = 'none';
 
   try {
-    // 1. Busca o estado ativo do tipo "Coleta de nomes"
     var estado = await gasGet({ acao: 'estadoAtivo' });
-
-    // Filtra especificamente o tipo "Coleta de nomes"
-    // O endpoint estadoAtivo retorna o último ativo — se não for "Coleta de nomes",
-    // fazemos uma segunda chamada buscando diretamente pelo tipo
-    var sessaoId = null;
-    if (estado.tipo === 'Coleta de nomes') {
-      sessaoId = estado.sessaoId;
-    } else {
-      // Tenta buscar diretamente — o backend pode retornar outro tipo ativo
-      // Nesse caso, exibe mensagem de sessão não iniciada
-      sessaoId = null;
-    }
+    var sessaoId = estado.coletaNomes;   // ← específico para esta aba
 
     if (!sessaoId) {
       if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado vazio'; estadoEl.innerHTML = '<i class="material-icons">event_busy</i><p>Nenhuma coleta de presença ativa no momento.</p>'; }
@@ -327,15 +315,9 @@ async function iniciarVotacao() {
   try {
     // 1. Busca o estado ativo do tipo "Processo em votação"
     var estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.fichaId || estado.tipo !== 'Processo em votação') {
-      if (estadoEl) {
-        estadoEl.className = 'estado vazio';
-        estadoEl.innerHTML = '<i class="material-icons">gavel_off</i><p>Nenhum processo em votação no momento.</p>';
-      }
-      return;
-    }
+    var fichaId = estado.processoVotacao;   // ← específico para esta aba
 
-    _votacaoFichaId = estado.fichaId;
+    _votacaoFichaId = fichaId;
 
     // 2. Carrega membros + dados da votação
     var [dadosVotacao] = await Promise.all([
@@ -478,15 +460,12 @@ async function confirmarVotoIndividual() {
 
 async function iniciarPauta() {
   try {
-    const estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.sessaoId) {
-      document.getElementById('listaProcessos').innerHTML =
-        '<div class="estado vazio"><i class="material-icons">event_busy</i><p>Nenhuma sessão ativa no momento.</p></div>';
-      document.getElementById('bannerMeta').innerHTML =
-        '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
-      return;
-    }
-    _sessaoId = estado.sessaoId;
+    var estado = await gasGet({ acao: 'estadoAtivo' });
+      if (!estado.sessaoVirtual) {
+        // exibe mensagem de nenhuma sessão virtual ativa
+        return;
+      }
+      _sessaoId = estado.sessaoVirtual;
 
     // Carrega membros se necessário
     if (Object.keys(_membrosCache).length === 0) {
