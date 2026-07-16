@@ -1,27 +1,63 @@
-/* ════════════════════════════════════════════════════════════
-   CONFIGURAÇÃO E ESTADO GLOBAL
-   ════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   scripts.js — SDP-OAB/GO
+   Lógica compartilhada pelas três abas
+══════════════════════════════════════════════════════════════ */
+
+/* ── CONFIG ─────────────────────────────────────────────────── */
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx91dyMa69vT0704BsR9iPiGhLBq884oViaLtepDYF_mWCM3RzJcqyHCPcG5-Chd-Pp/exec';
 
-let _sessaoId        = null;
-let _votantesCache   = {};
+/* ── ESTADO GLOBAL ──────────────────────────────────────────── */
+let _sessaoId           = null;   // sessão da pauta virtual
+let _sessaoPresencaId   = null;   // sessão da coleta de nomes
+let _votantesCache      = {};
 let _votosPorFichaCache = {};
-let _mvFichaId       = null;
-let _mvExpandido     = null;
-let _mvPdfPendente   = null;
-let _mvFichaInfo     = {};
-let _mvVotosCache    = [];
-let _orgaoSessao     = '';
-let _membrosCache    = {};
-let _abaAtual        = 'presenca';
+let _mvFichaId          = null;
+let _mvExpandido        = null;
+let _mvPdfPendente      = null;
+let _mvFichaInfo        = {};
+let _mvVotosCache       = [];
+let _orgaoSessao        = '';
+let _membrosCache       = {};     // { "Nome": "Masculino"|"Feminino" }
+let _participantesCache = [];     // nomes já presentes na sessão
+let _abaAtiva           = 'presenca';
+let _pollingPresenca    = null;   // intervalo de polling da aba 1
 
-/* ════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
+   NAVEGAÇÃO POR ABAS
+══════════════════════════════════════════════════════════════ */
+function trocarAba(novaAba, el) {
+  // Remove classe ativa de todos
+  document.querySelectorAll('.aba-item').forEach(function(i) { i.classList.remove('ativa'); });
+  document.querySelectorAll('.aba-panel').forEach(function(p) { p.classList.remove('ativa'); });
+
+  // Ativa a aba clicada
+  if (el) el.classList.add('ativa');
+  var panel = document.getElementById('aba-' + novaAba);
+  if (panel) panel.classList.add('ativa');
+
+  _abaAtiva = novaAba;
+
+  // Inicializa a aba se ainda não foi carregada
+  if (novaAba === 'presenca' && !_sessaoPresencaId) {
+    iniciarPresenca();
+  }
+  if (novaAba === 'pauta' && !_sessaoId) {
+    iniciarPauta();
+  }
+
+  // Atualiza a URL para deep linking (?aba=presenca etc.)
+  var url = new URL(window.location.href);
+  url.searchParams.set('aba', novaAba);
+  window.history.replaceState({}, '', url.toString());
+}
+
+/* ══════════════════════════════════════════════════════════════
    UTILITÁRIOS
-   ════════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 function toast(msg, tipo) {
   tipo = tipo || 'sucesso';
-  const c = document.getElementById('toastContainer');
-  const d = document.createElement('div');
+  var c = document.getElementById('toastContainer');
+  var d = document.createElement('div');
   d.className = 'toast ' + tipo;
   d.innerHTML = '<i class="material-icons">' + (tipo === 'sucesso' ? 'check_circle' : 'error') + '</i>' + msg;
   c.appendChild(d);
@@ -30,12 +66,13 @@ function toast(msg, tipo) {
 
 function fecharModal(id) { document.getElementById(id).classList.remove('ativo'); }
 
-function esc(s) { return String(s == null ? '' : s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function esc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
 
-/* ════════════════════════════════════════════════════════════
-   REDE (JSONP + no‑cors)
-   ════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   CAMADA DE REDE
+══════════════════════════════════════════════════════════════ */
 var _jsonpSeq = 0;
+
 function jsonpGet(params) {
   return new Promise(function(resolve, reject) {
     var cbName = '__gasCallback_' + (++_jsonpSeq);
@@ -43,23 +80,27 @@ function jsonpGet(params) {
     var url    = GAS_ENDPOINT + '?' + qs + '&callback=' + cbName;
     var script = document.createElement('script');
     var timer  = setTimeout(function() { reject(new Error('Timeout JSONP')); cleanup(); }, 30000);
-    function cleanup() { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
     window[cbName] = function(data) { resolve(data); cleanup(); };
-    script.onerror  = function() { reject(new Error('Falha na requisição')); cleanup(); };
+    script.onerror = function() { reject(new Error('Falha na requisição')); cleanup(); };
     script.src = url;
     document.head.appendChild(script);
   });
 }
 
 async function gasGet(params) {
-  const data = await jsonpGet(params);
+  var data = await jsonpGet(params);
   if (data.erro) throw new Error(data.erro);
   return data;
 }
 
 async function gasGetSilent(params, fallback) {
   try {
-    const data = await jsonpGet(params);
+    var data = await jsonpGet(params);
     if (data.erro) { console.warn('gasGetSilent:', data.erro); return fallback; }
     return data;
   } catch (err) {
@@ -78,134 +119,198 @@ async function gasPost(body) {
 }
 
 async function gasPostViaGet(body) {
-  const data = await jsonpGet({ payload: JSON.stringify(body) });
+  var data = await jsonpGet({ payload: JSON.stringify(body) });
   if (data.erro) throw new Error(data.erro);
   return data;
 }
 
-/* ════════════════════════════════════════════════════════════
-   ABAS E NAVEGAÇÃO
-   ════════════════════════════════════════════════════════════ */
-function trocarAba(aba) {
-  _abaAtual = aba;
-
-  // Atualiza banner
-  if (aba === 'presenca') {
-    document.getElementById('bannerTitulo').textContent = 'REGISTRO DE PRESENÇA';
-  } else if (aba === 'votacao') {
-    document.getElementById('bannerTitulo').textContent = 'VOTAÇÃO INDIVIDUAL';
-  } else if (aba === 'pauta') {
-    document.getElementById('bannerTitulo').textContent = 'PAUTA DE JULGAMENTO VIRTUAL';
-  }
-
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('ativo'));
-  document.getElementById('aba-' + aba).classList.add('ativo');
-  document.querySelectorAll('.oab-tabs .tab a').forEach(a => {
-    a.classList.toggle('active', a.dataset.aba === aba);
-  });
-
-  if (aba === 'presenca' && !window._presencaIniciada) {
-    window._presencaIniciada = true;
-    iniciarPresenca();
-  } else if (aba === 'pauta' && !window._pautaIniciada) {
-    window._pautaIniciada = true;
-    iniciarPauta();
+/* ══════════════════════════════════════════════════════════════
+   MEMBROS — carregamento compartilhado
+══════════════════════════════════════════════════════════════ */
+async function carregarMembros() {
+  try {
+    var data = await gasGet({ acao: 'membros' });
+    _membrosCache = {};
+    (data.membros || []).forEach(function(m) {
+      if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
+    });
+    console.log('[membros] carregados:', Object.keys(_membrosCache).length);
+  } catch (err) {
+    console.warn('[membros] erro ao carregar:', err.message);
   }
 }
 
-// Inicialização segura com pequeno atraso
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const aba = params.get('aba') || 'presenca';
-  setTimeout(function() { trocarAba(aba); }, 100);
-})();
+/* ══════════════════════════════════════════════════════════════
+   ABA 1 — REGISTRAR PRESENÇA
+══════════════════════════════════════════════════════════════ */
 
-document.querySelectorAll('.oab-tabs .tab a').forEach(a => {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
-    trocarAba(this.dataset.aba);
-  });
-});
-
-/* ════════════════════════════════════════════════════════════
-   INICIALIZAÇÃO DA ABA DE PRESENÇA
-   ════════════════════════════════════════════════════════════ */
 async function iniciarPresenca() {
+  var estadoEl = document.getElementById('presencaEstado');
+  var ctaWrap  = document.getElementById('presencaCtaWrap');
+
+  if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado loading'; estadoEl.innerHTML = '<i class="material-icons">autorenew</i><p>Identificando sessão…</p>'; }
+  if (ctaWrap)  ctaWrap.style.display = 'none';
+
   try {
-    const estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.sessaoId || estado.tipo !== 'Coleta de nomes') {
-      document.getElementById('presTitulo').textContent = 'Nenhuma coleta de presença ativa no momento.';
+    // 1. Busca o estado ativo do tipo "Coleta de nomes"
+    var estado = await gasGet({ acao: 'estadoAtivo' });
+
+    // Filtra especificamente o tipo "Coleta de nomes"
+    // O endpoint estadoAtivo retorna o último ativo — se não for "Coleta de nomes",
+    // fazemos uma segunda chamada buscando diretamente pelo tipo
+    var sessaoId = null;
+    if (estado.tipo === 'Coleta de nomes') {
+      sessaoId = estado.sessaoId;
+    } else {
+      // Tenta buscar diretamente — o backend pode retornar outro tipo ativo
+      // Nesse caso, exibe mensagem de sessão não iniciada
+      sessaoId = null;
+    }
+
+    if (!sessaoId) {
+      if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado vazio'; estadoEl.innerHTML = '<i class="material-icons">event_busy</i><p>Nenhuma coleta de presença ativa no momento.</p>'; }
       return;
     }
-    _sessaoId = estado.sessaoId;
 
-    // Carrega membros se necessário
-    if (Object.keys(_membrosCache).length === 0) {
-      const membrosData = await gasGet({ acao: 'membros' });
-      _membrosCache = {};
-      (membrosData.membros || []).forEach(m => {
-        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
-      });
-    }
+    _sessaoPresencaId = sessaoId;
 
-    // Info da sessão
-    const info = await gasGet({ acao: 'infoSessao', sessaoId: _sessaoId });
-    const titulo = info.ordem + ' Sessão ' +
-      (info.orgao && info.orgao.toLowerCase().includes('pleno') ? 'Ordinária do Pleno' : 'do Órgão Deliberativo') +
-      ' do Sistema de Defesa das Prerrogativas da OAB-GO do ano de ' + info.ano;
-    document.getElementById('presTitulo').textContent = titulo;
+    // 2. Carrega dados da sessão + membros em paralelo
+    var [coletaData] = await Promise.all([
+      gasGet({ acao: 'coletaNomes', sessaoId: sessaoId }),
+      carregarMembros(),
+    ]);
 
-    // Popula select do modal
-    const select = document.getElementById('selectNomePresenca');
-    select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
-    Object.keys(_membrosCache).sort().forEach(nome => {
-      const opt = document.createElement('option');
-      opt.value = nome;
-      opt.textContent = nome;
-      select.appendChild(opt);
-    });
-    M.FormSelect.init(select, {});
+    // 3. Renderiza o banner
+    renderBannerPresenca(coletaData.sessao);
 
-    // Habilita botão gigante
-    const btn = document.getElementById('btnRegistrarPresenca');
-    btn.disabled = false;
-    btn.onclick = function() { document.getElementById('modalPresenca').classList.add('ativo'); };
+    // 4. Carrega participantes já registrados
+    await atualizarParticipantes();
 
-    // Configura botão confirmar
-    document.getElementById('btnConfirmarPresenca').onclick = confirmarPresenca;
+    // 5. Exibe a interface
+    if (estadoEl) estadoEl.style.display = 'none';
+    if (ctaWrap)  ctaWrap.style.display = 'flex';
 
-    // Banner (apenas metadados — título já foi definido em trocarAba)
-    document.getElementById('bannerMeta').innerHTML = '<span class="banner-meta-item"><i class="material-icons">gavel</i>' + (info.orgao || '') + '</span>';
+    // 6. Polling automático a cada 15s para atualizar a lista de presentes
+    if (_pollingPresenca) clearInterval(_pollingPresenca);
+    _pollingPresenca = setInterval(function() {
+      if (_abaAtiva === 'presenca' && _sessaoPresencaId) atualizarParticipantes();
+    }, 15000);
 
   } catch (err) {
-    document.getElementById('presTitulo').textContent = 'Erro: ' + err.message;
+    console.error('[presenca] erro:', err);
+    if (estadoEl) {
+      estadoEl.style.display = 'flex';
+      estadoEl.className = 'estado erro';
+      estadoEl.innerHTML = '<i class="material-icons">error_outline</i><p>Não foi possível carregar a sessão.<br>' + err.message + '</p>';
+    }
   }
+}
+
+function renderBannerPresenca(sessao) {
+  if (!sessao) return;
+
+  var tituloEl = document.getElementById('presencaTitulo');
+  var dataEl   = document.getElementById('presencaData');
+
+  if (tituloEl) tituloEl.textContent = sessao.titulo || 'Sessão do SDP-OAB/GO';
+  if (dataEl && sessao.dataFormatada) {
+    dataEl.innerHTML = '<i class="material-icons" style="font-size:16px">event</i> ' + sessao.dataFormatada;
+  }
+}
+
+async function atualizarParticipantes() {
+  if (!_sessaoPresencaId) return;
+  try {
+    var data = await gasGet({ acao: 'participantes', sessaoId: _sessaoPresencaId });
+    _participantesCache = data.participantes || [];
+    renderChipsPresentes(_participantesCache);
+  } catch (err) {
+    console.warn('[participantes] erro ao atualizar:', err.message);
+  }
+}
+
+function renderChipsPresentes(lista) {
+  var chipsEl    = document.getElementById('presencaChips');
+  var contagemEl = document.getElementById('presencaContagem');
+
+  if (contagemEl) contagemEl.textContent = lista.length;
+
+  if (!chipsEl) return;
+  if (!lista.length) {
+    chipsEl.innerHTML = '<span class="presenca-vazio">Nenhum membro registrou presença ainda.</span>';
+    return;
+  }
+
+  chipsEl.innerHTML = lista.map(function(nome) {
+    return '<span class="chip-presente"><i class="material-icons">check_circle</i>' + nome + '</span>';
+  }).join('');
+}
+
+function abrirModalPresenca() {
+  var select = document.getElementById('selectPresenca');
+  if (!select) return;
+
+  // Popula o select com os membros
+  select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
+  Object.keys(_membrosCache).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(nome) {
+    var opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    select.appendChild(opt);
+  });
+
+  // Destrói instância anterior e reinicializa
+  var oldInst = M.FormSelect.getInstance(select);
+  if (oldInst) oldInst.destroy();
+  M.FormSelect.init(select, {});
+
+  // Esconde mensagem de "já registrado"
+  var jaReg = document.getElementById('presencaJaRegistrada');
+  if (jaReg) jaReg.style.display = 'none';
+
+  document.getElementById('modalPresenca').classList.add('ativo');
 }
 
 async function confirmarPresenca() {
-  const select = document.getElementById('selectNomePresenca');
-  const nome = select.value;
-  if (!nome) { toast('Selecione seu nome.', 'erro'); return; }
-  const btn = document.getElementById('btnConfirmarPresenca');
-  btn.disabled = true; btn.textContent = 'Registrando…';
+  var select = document.getElementById('selectPresenca');
+  var nome   = select ? select.value.trim() : '';
+
+  if (!nome) { toast('Selecione seu nome na lista.', 'erro'); return; }
+
+  // Verifica se já está na lista
+  if (_participantesCache.indexOf(nome) !== -1) {
+    var jaReg = document.getElementById('presencaJaRegistrada');
+    if (jaReg) jaReg.style.display = 'block';
+    return;
+  }
+
+  var btn = document.getElementById('btnConfirmarPresenca');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="material-icons" style="font-size:16px;animation:spin 1s linear infinite">autorenew</i> Registrando…';
+
   try {
-    await gasPost({ acao: 'presenca', nome: nome, sessaoId: _sessaoId });
-    toast('Presença registrada!');
+    await gasPost({ acao: 'registrarPresenca', sessaoId: _sessaoPresencaId, nome: nome });
+
+    // Atualiza cache local otimisticamente
+    _participantesCache.push(nome);
+    renderChipsPresentes(_participantesCache);
+
     fecharModal('modalPresenca');
-    select.value = '';
-    var inst = M.FormSelect.getInstance(select);
-    if (inst) inst.destroy();
-    M.FormSelect.init(select, {});
+    toast('Presença de ' + nome + ' registrada!');
+
   } catch (err) {
-    toast('Erro: ' + err.message, 'erro');
+    console.error('[presenca] erro ao confirmar:', err);
+    toast('Erro ao registrar presença.', 'erro');
   } finally {
-    btn.disabled = false; btn.textContent = 'Confirmar presença';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="material-icons" style="font-size:16px">check</i> Confirmar presença';
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   INICIALIZAÇÃO DA PAUTA VIRTUAL
-   ════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   ABA 3 — PAUTA VIRTUAL
+══════════════════════════════════════════════════════════════ */
+
 async function iniciarPauta() {
   try {
     const estado = await gasGet({ acao: 'estadoAtivo' });
@@ -235,133 +340,6 @@ async function iniciarPauta() {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   TODAS AS DEMAIS FUNÇÕES DA PAUTA VIRTUAL  ──
-   ════════════════════════════════════════════════════════════ */
-
-
-async function carregarMembros() {
-  try {
-    const data = await gasGet({ acao: 'membros' });
-    _membrosCache = {};
-    (data.membros || []).forEach(m => {
-      if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
-    });
-  } catch (err) {
-    console.warn('Erro ao carregar membros:', err.message);
-  }
-}
-
-function getMembrosAutocompleteData() {
-  const data = {};
-  Object.keys(_membrosCache).forEach(nome => { data[nome] = null; });
-  return data;
-}
-
-/* ════════════════════════════════════════════════════════════
-   CAMADA DE REDE
-════════════════════════════════════════════════════════════ */
-var _jsonpSeq = 0;
-
-function jsonpGet(params) {
-  return new Promise(function(resolve, reject) {
-    var cbName = '__gasCallback_' + (++_jsonpSeq);
-    var qs     = new URLSearchParams(params).toString();
-    var url    = GAS_ENDPOINT + '?' + qs + '&callback=' + cbName;
-    var script = document.createElement('script');
-    var timer  = setTimeout(function() { reject(new Error('Timeout JSONP')); cleanup(); }, 30000);
-    function cleanup() { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
-    window[cbName] = function(data) { resolve(data); cleanup(); };
-    script.onerror  = function() { reject(new Error('Falha na requisição')); cleanup(); };
-    script.src = url;
-    document.head.appendChild(script);
-  });
-}
-
-async function gasGet(params) {
-  const data = await jsonpGet(params);
-  if (data.erro) throw new Error(data.erro);
-  return data;
-}
-
-async function gasGetSilent(params, fallback) {
-  try {
-    const data = await jsonpGet(params);
-    if (data.erro) { console.warn('gasGetSilent:', data.erro); return fallback; }
-    return data;
-  } catch (err) {
-    console.warn('gasGetSilent falhou:', err.message);
-    return fallback;
-  }
-}
-
-async function gasPost(body) {
-  await fetch(GAS_ENDPOINT, {
-    method : 'POST',
-    mode   : 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(body),
-  });
-}
-
-async function gasPostViaGet(body) {
-  const data = await jsonpGet({ payload: JSON.stringify(body) });
-  if (data.erro) throw new Error(data.erro);
-  return data;
-}
-
-/* ════════════════════════════════════════════════════════════
-   INICIALIZAÇÃO
-════════════════════════════════════════════════════════════ */
-function initAutocompleteOnFocus(inputEl) {
-  if (!inputEl || inputEl.hasAttribute('data-autocomplete-inited')) return;
-
-  function ativar() {
-    M.Autocomplete.init(inputEl, {
-      data: getMembrosAutocompleteData(),
-      minLength: 2,
-      limit: 10
-    });
-    inputEl.setAttribute('data-autocomplete-inited', 'true');
-    inputEl.addEventListener('blur', function() {
-      var valor = inputEl.value.trim();
-      if (valor && !_membrosCache[valor]) {
-        inputEl.value = '';
-        var instance = M.Autocomplete.getInstance(inputEl);
-        if (instance) instance.close();
-      }
-    });
-    inputEl.removeEventListener('focus', ativar);
-  }
-
-  inputEl.addEventListener('focus', ativar);
-}
-
-async function iniciar() {
-  try {
-    const estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.sessaoId) {
-      document.getElementById('listaProcessos').innerHTML =
-        '<div class="estado vazio"><i class="material-icons">event_busy</i>' +
-        '<p>Nenhuma sessão ativa no momento.</p></div>';
-      document.getElementById('bannerMeta').innerHTML =
-        '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
-      return;
-    }
-    _sessaoId = estado.sessaoId;
-    await carregarMembros();    // Carrega membros em paralelo (não bloqueia a pauta se falhar)
-    carregarPauta();
-  } catch (err) {
-    console.error('iniciar:', err);
-    document.getElementById('listaProcessos').innerHTML =
-      '<div class="estado erro"><i class="material-icons">error_outline</i>' +
-      '<p>Não foi possível identificar a sessão ativa.<br>' + err.message + '</p></div>';
-  }
-}
-
-/* ════════════════════════════════════════════════════════════
-   CARREGAR PAUTA
-════════════════════════════════════════════════════════════ */
 async function carregarPauta() {
   try {
     const [pauta, votantesData] = await Promise.all([
@@ -370,7 +348,7 @@ async function carregarPauta() {
     ]);
     _votantesCache = (votantesData && votantesData.votantes) ? votantesData.votantes : {};
     _orgaoSessao = pauta.sessao?.orgao ? String(pauta.sessao.orgao).trim().toLowerCase() : '';
-    renderBanner(pauta.sessao);
+    renderBannerPauta(pauta.sessao);
     renderPauta(pauta);
   } catch (err) {
     console.error('carregarPauta:', err);
@@ -380,22 +358,16 @@ async function carregarPauta() {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   RENDER BANNER
-════════════════════════════════════════════════════════════ */
-function renderBanner(sessao) {
+function renderBannerPauta(sessao) {
   if (!sessao) return;
-  const itens = [
-    sessao.orgao        ? '<span class="banner-meta-item"><i class="material-icons">gavel</i>'  + sessao.orgao + '</span>' : '',
-    (sessao.dataFormatada || sessao.data) ? '<span class="banner-meta-item"><i class="material-icons">event</i>Pauta iniciada em ' + (sessao.dataFormatada || sessao.data) + '</span>' : '',
-    sessao.local        ? '<span class="banner-meta-item"><i class="material-icons">place</i>'  + sessao.local + '</span>' : '',
+  var itens = [
+    sessao.orgao        ? '<span class="banner-meta-item"><i class="material-icons">gavel</i>' + sessao.orgao + '</span>' : '',
+    sessao.dataFormatada? '<span class="banner-meta-item"><i class="material-icons">event</i>Pauta iniciada em ' + sessao.dataFormatada + '</span>' : '',
+    sessao.local        ? '<span class="banner-meta-item"><i class="material-icons">place</i>' + sessao.local + '</span>' : '',
   ].filter(Boolean).join('');
   document.getElementById('bannerMeta').innerHTML = itens || '<span class="banner-meta-item">Sessão carregada</span>';
 }
 
-/* ════════════════════════════════════════════════════════════
-   RENDER LISTA DE PROCESSOS
-════════════════════════════════════════════════════════════ */
 function renderPauta(pauta) {
   const lista = document.getElementById('listaProcessos');
   const processos = pauta.processos || [];
@@ -409,9 +381,7 @@ function renderPauta(pauta) {
   processos.forEach(function(p) { lista.appendChild(criarCard(p)); });
 }
 
-/* ════════════════════════════════════════════════════════════
-   CARD DE PROCESSO
-════════════════════════════════════════════════════════════ */
+/* ── CARD DE PROCESSO ────────────────────────────────────────── */
 function criarCard(p) {
   const wrapper = document.createElement('div');
   wrapper.className = 'processo-wrapper';
@@ -497,9 +467,7 @@ function criarCard(p) {
   return wrapper;
 }
 
-/* ════════════════════════════════════════════════════════════
-   FORMULÁRIO DE VOTAÇÃO (expansível no card)
-════════════════════════════════════════════════════════════ */
+/* ── FORMULÁRIO DE VOTAÇÃO ───────────────────────────────────── */
 function criarFormVoto(idFicha) {
   const div = document.createElement('div');
   div.className = 'voto-form-wrapper';
@@ -685,9 +653,7 @@ async function confirmarVoto(idFicha) {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   MODAL DE VOTOS DA FICHA
-════════════════════════════════════════════════════════════ */
+/* ── MODAL DE VOTOS ──────────────────────────────────────────── */
 async function abrirModalVotos(fichaId, processoNum) {
   _mvFichaId    = fichaId;
   _mvExpandido  = null;
@@ -883,9 +849,7 @@ function mvFecharFormNovo() {
     btn.innerHTML = '<i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório';
     btn.style.background = '';
   }
-}
-
-function mvAnexarRelatorio(votoId) {
+}function mvAnexarRelatorio(votoId) {
   if (!votoId) { toast('ID do voto inválido.', 'erro'); return; }
   _escolherPdf(function(base64, fileName) {
     toast('Fazendo upload do relatório…');
@@ -1034,15 +998,101 @@ async function mvSalvarNovoVoto() {
   }
 }
 
-/* ── IA ── */
+/* ── MODAL IA ────────────────────────────────────────────────── */
 function mvPerguntarResumoIA(base64, votoId, targetEditorId) {
-  var token = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-  // (mantido o mesmo código do modal IA com polling, sem alterações)
-  // ... (mantenha a implementação existente, que já está longa)
+  var token = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  var container = document.createElement('div');
+  container.innerHTML =
+    '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;">' +
+      '<div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.28);">' +
+        '<div id="_miaConteudo" style="padding:20px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;border-left:4px solid var(--oab-vermelho);padding-left:10px;margin-bottom:14px;">' +
+            '<svg width="28" height="28" viewBox="0 0 192 192" fill="none"><path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/><path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/></svg>' +
+            '<div><div style="font-size:11px;font-weight:700;color:var(--oab-azul-escuro);text-transform:uppercase;letter-spacing:.06em">Gemini IA</div>' +
+            '<div style="font-size:10px;color:var(--oab-cinza-md)">Google · Inteligência Artificial</div></div>' +
+          '</div>' +
+          '<p style="font-size:13px;font-weight:700;color:var(--oab-grafite);margin:0 0 6px">Gerar resumo automático do voto?</p>' +
+          '<p id="_miaDesc" style="font-size:12px;color:var(--oab-cinza-label);margin:0 0 16px;line-height:1.5">O texto extraído do PDF será inserido no campo do voto para revisão antes de salvar.</p>' +
+        '</div>' +
+        '<div id="_miaLoading" style="display:none;flex-direction:column;align-items:center;padding:24px;gap:12px;">' +
+          '<svg width="36" height="36" viewBox="0 0 192 192" fill="none" style="animation:spin 2s linear infinite"><path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/><path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/></svg>' +
+          '<span style="font-size:12px;font-weight:600;color:var(--oab-azul-escuro)">Analisando o documento…</span>' +
+          '<span id="_miaProgresso" style="font-size:11px;color:var(--oab-cinza-md)">Aguarde, isso pode levar alguns segundos</span>' +
+          '<div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out infinite"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out .2s infinite"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out .4s infinite"></span></div>' +
+        '</div>' +
+        '<div id="_miaFooter" style="padding:10px 20px 16px;display:flex;justify-content:flex-end;gap:10px;">' +
+          '<button id="_miaBtnNao" class="btn-oab" style="font-size:11px;height:30px;">Não, obrigado</button>' +
+          '<button id="_miaBtnSim" class="btn-oab-confirm" style="font-size:11px;height:30px;">Gerar resumo</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(container);
+
+  function fechar() { if (container.parentNode) document.body.removeChild(container); }
+  function mostrarLoading(ativo) {
+    document.getElementById('_miaConteudo').style.display = ativo ? 'none' : 'block';
+    document.getElementById('_miaLoading').style.display  = ativo ? 'flex' : 'none';
+    document.getElementById('_miaFooter').style.display   = ativo ? 'none' : 'flex';
+  }
+  function mostrarErro(msg) {
+    mostrarLoading(false);
+    var desc = document.getElementById('_miaDesc'); if (desc) desc.textContent = msg||'Erro ao gerar resumo.';
+    var btnSim = document.getElementById('_miaBtnSim'); if (btnSim) btnSim.textContent = 'Tentar novamente';
+  }
+  function mostrarErro503() {
+    mostrarLoading(false);
+    var desc = document.getElementById('_miaDesc');
+    if (desc) desc.textContent = 'O serviço de IA está temporariamente sobrecarregado. Tente novamente.';
+    var footer = document.getElementById('_miaFooter');
+    if (footer) {
+      footer.style.display = 'flex';
+      footer.innerHTML =
+        '<button id="_miaBtnCancelar503" class="btn-oab" style="font-size:11px;height:30px;">Cancelar</button>' +
+        '<button class="btn-oab-confirm" id="_miaBtnRetentar" style="font-size:11px;height:30px;">Tentar novamente</button>';
+      document.getElementById('_miaBtnCancelar503').addEventListener('click', fechar);
+      document.getElementById('_miaBtnRetentar').addEventListener('click', function() {
+        mostrarLoading(true);
+        gasPost({ acao:'resumoIA', base64:base64, fichaId:votoId||'', token:token })
+          .then(function() { iniciarPolling(); })
+          .catch(function(err) { mostrarErro('Erro de rede: '+err.message); });
+      });
+    }
+  }
+  function inserirTexto(texto) {
+    fechar();
+    var ta = document.getElementById(targetEditorId||'mvNovoTexto');
+    if (ta) { ta.innerHTML = texto; ta.focus(); }
+    toast('Resumo inserido! Revise antes de salvar.');
+    if (votoId && !targetEditorId) mvToggle(votoId);
+  }
+  function iniciarPolling() {
+    var tentativas = 0, maxTentativas = 30;
+    var intervalo = setInterval(function() {
+      tentativas++;
+      var prog = document.getElementById('_miaProgresso');
+      if (prog) prog.textContent = 'Verificando resultado… (' + tentativas + '/' + maxTentativas + ')';
+      jsonpGet({ acao:'resultadoIA', token:token })
+        .then(function(res) {
+          if (res.status === 'ok')       { clearInterval(intervalo); inserirTexto((res.resumo||'').replace(/```[\s\S]*?```/g,'').replace(/`/g,'').trim()); }
+          else if (res.status === 'retentar') { clearInterval(intervalo); mostrarErro503(); }
+          else if (res.status === 'erro')     { clearInterval(intervalo); mostrarErro(res.erro||'A IA retornou um erro.'); }
+          else if (tentativas >= maxTentativas) { clearInterval(intervalo); mostrarErro('Tempo esgotado.'); }
+        })
+        .catch(function(err) { if (tentativas>=maxTentativas) { clearInterval(intervalo); mostrarErro(err.message); } });
+    }, 3000);
+  }
+  document.getElementById('_miaBtnNao').addEventListener('click', fechar);
+  document.getElementById('_miaBtnSim').addEventListener('click', function() {
+    mostrarLoading(true);
+    gasPost({ acao:'resumoIA', base64:base64, fichaId:votoId||'', token:token })
+      .then(function() { iniciarPolling(); })
+      .catch(function(err) { mostrarErro('Erro de rede: '+err.message); });
+  });
 }
 
+/* ── AÇÕES GERAIS ────────────────────────────────────────────── */
 function abrirRelatorio(url) {
-  if (!url) { toast('URL não disponível.', 'erro'); return; }
+  if (!url) { toast('URL não disponível.','erro'); return; }
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
@@ -1050,5 +1100,43 @@ document.querySelectorAll('.modal-overlay').forEach(function(o) {
   o.addEventListener('click', function(e) { if (e.target === o) fecharModal(o.id); });
 });
 
-/* ── INICIAR ── */
-iniciar();
+/* ══════════════════════════════════════════════════════════════
+   INICIALIZAÇÃO — detecta aba pela URL e inicia
+══════════════════════════════════════════════════════════════ */
+(function init() {
+  // Deep linking: ?aba=presenca | ?aba=votacao | ?aba=pauta
+  var params  = new URLSearchParams(window.location.search);
+  var abaNaUrl = params.get('aba') || 'presenca';
+  var abaItem  = document.querySelector('[data-aba="' + abaNaUrl + '"]');
+
+  if (abaItem) {
+    trocarAba(abaNaUrl, abaItem);
+  } else {
+    // Fallback: presença
+    trocarAba('presenca', document.querySelector('[data-aba="presenca"]'));
+  }
+})();
+
+function initAutocompleteOnFocus(inputEl) {
+  if (!inputEl || inputEl.hasAttribute('data-autocomplete-inited')) return;
+
+  function ativar() {
+    M.Autocomplete.init(inputEl, {
+      data: getMembrosAutocompleteData(),
+      minLength: 2,
+      limit: 10
+    });
+    inputEl.setAttribute('data-autocomplete-inited', 'true');
+    inputEl.addEventListener('blur', function() {
+      var valor = inputEl.value.trim();
+      if (valor && !_membrosCache[valor]) {
+        inputEl.value = '';
+        var instance = M.Autocomplete.getInstance(inputEl);
+        if (instance) instance.close();
+      }
+    });
+    inputEl.removeEventListener('focus', ativar);
+  }
+
+  inputEl.addEventListener('focus', ativar);
+}

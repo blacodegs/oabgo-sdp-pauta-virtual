@@ -3,66 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sessão SDP — OAB/GO</title>
+  <title>SDP — OAB/GO</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
   <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 <body>
 
-  <!-- HEADER COMUM -->
+  <!-- ══ HEADER ══════════════════════════════════════════════════ -->
   <header class="oab-header">
-    <img class="oab-logo" src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png" alt="OAB Goiás">
+    <img class="oab-logo"
+         src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
+         alt="OAB Goiás">
     <span class="oab-header-title">SISTEMA DE DEFESA DAS PRERROGATIVAS</span>
   </header>
 
-  <!-- ABAS -->
-  <div class="tabs-container">
-    <ul class="oab-tabs">
-      <li class="tab"><a href="#presenca" data-aba="presenca">Registrar Presença</a></li>
-      <li class="tab"><a href="#votacao" data-aba="votacao">Votação Individual</a></li>
-      <li class="tab"><a href="#pauta" data-aba="pauta">Pauta Virtual</a></li>
+  <!-- ══ NAVEGAÇÃO POR ABAS ══════════════════════════════════════ -->
+  <nav class="abas-nav">
+    <ul class="abas-lista">
+      <li class="aba-item ativa" data-aba="presenca" onclick="trocarAba('presenca', this)">
+        <i class="material-icons">how_to_reg</i>
+        <span>Registrar Presença</span>
+      </li>
+      <li class="aba-item" data-aba="votacao" onclick="trocarAba('votacao', this)">
+        <i class="material-icons">how_to_vote</i>
+        <span>Votação</span>
+      </li>
+      <li class="aba-item" data-aba="pauta" onclick="trocarAba('pauta', this)">
+        <i class="material-icons">gavel</i>
+        <span>Pauta Virtual</span>
+      </li>
     </ul>
-  </div>
+  </nav>
 
-  <!-- BANNER COMUM -->
-  <div class="page-banner">
-    <h1 id="bannerTitulo">—</h1>
-    <div class="banner-meta" id="bannerMeta">
-      <span class="banner-meta-item"><i class="material-icons">sync</i> Carregando…</span>
-    </div>
-  </div>
+  <!-- ══ ABA 1: REGISTRAR PRESENÇA ═══════════════════════════════ -->
+  <div class="aba-panel ativa" id="aba-presenca">
 
-  <!-- CONTEÚDO DAS ABAS -->
-  <main class="main-container">
-
-    <!-- ABA: REGISTRAR PRESENÇA -->
-    <div id="aba-presenca" class="tab-content">
-      <div id="presTitulo" class="sessao-titulo-presenca">Carregando sessão…</div>
-      <div class="qr-code" id="qrCode">QR Code<br>(em breve)</div>
-      <div style="text-align:center;">
-        <button class="btn-registrar" id="btnRegistrarPresenca" disabled>
-          CLIQUE AQUI PARA REGISTRAR SUA PRESENÇA
-        </button>
+    <!-- Banner da sessão -->
+    <div class="presenca-banner" id="presencaBanner">
+      <div class="presenca-banner-inner">
+        <div class="presenca-brasao">
+          <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
+               alt="OAB Goiás" class="brasao-img">
+        </div>
+        <div class="presenca-banner-texto">
+          <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
+          <h1 class="presenca-titulo" id="presencaTitulo">
+            Carregando dados da sessão…
+          </h1>
+          <p class="presenca-data" id="presencaData"></p>
+        </div>
       </div>
     </div>
 
-    <!-- ABA: VOTAÇÃO INDIVIDUAL -->
-    <div id="aba-votacao" class="tab-content">
+    <!-- Área principal -->
+    <div class="presenca-main">
+
+      <!-- Coluna esquerda: botão + lista de presentes -->
+      <div class="presenca-col-left">
+
+        <!-- Botão principal -->
+        <div class="presenca-cta-wrap" id="presencaCtaWrap">
+          <button class="btn-presenca" id="btnRegistrarPresenca" onclick="abrirModalPresenca()">
+            <span class="btn-presenca-icon"><i class="material-icons">touch_app</i></span>
+            <span class="btn-presenca-texto">Clique aqui para<br>registrar sua presença</span>
+          </button>
+        </div>
+
+        <!-- Contagem e lista de presentes -->
+        <div class="presenca-lista-wrap">
+          <div class="presenca-lista-header">
+            <span class="presenca-lista-titulo">Membros Presentes</span>
+            <span class="presenca-contagem" id="presencaContagem">0</span>
+          </div>
+          <div class="presenca-chips" id="presencaChips">
+            <span class="presenca-vazio">Nenhum membro registrou presença ainda.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Coluna direita: QR Code -->
+      <div class="presenca-col-right">
+        <div class="qr-card">
+          <p class="qr-instrucao">Escaneie para acessar<br>esta página</p>
+          <!-- QR Code placeholder — substitua pelo QR gerado com o endereço real -->
+          <div class="qr-imagem-wrap">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca&color=002d56&bgcolor=ffffff"
+                 alt="QR Code de acesso" class="qr-imagem">
+          </div>
+          <p class="qr-url" id="qrUrl">oabgo.org.br/sdp</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Estado de carregamento / erro -->
+    <div id="presencaEstado" class="estado loading" style="display:none;">
+      <i class="material-icons">autorenew</i>
+      <p>Identificando sessão…</p>
+    </div>
+
+  </div><!-- /aba-presenca -->
+
+  <!-- ══ ABA 2: VOTAÇÃO (placeholder) ════════════════════════════ -->
+  <div class="aba-panel" id="aba-votacao">
+    <div class="page-banner">
+      <h1>Votação</h1>
+      <div class="banner-meta">
+        <span class="banner-meta-item"><i class="material-icons">construction</i> Em construção</span>
+      </div>
+    </div>
+    <main class="main-container">
       <div class="estado vazio">
-        <i class="material-icons">construction</i>
-        <p>Em construção — breve.</p>
+        <i class="material-icons">hourglass_empty</i>
+        <p>Esta funcionalidade está sendo implementada.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ ABA 3: PAUTA VIRTUAL ════════════════════════════════════ -->
+  <div class="aba-panel" id="aba-pauta">
+    <div class="page-banner">
+      <h1 id="bannerTitulo">PAUTA DE JULGAMENTO VIRTUAL</h1>
+      <div class="banner-meta" id="bannerMeta">
+        <span class="banner-meta-item"><i class="material-icons">sync</i> Carregando…</span>
       </div>
     </div>
-
-    <!-- ABA: PAUTA VIRTUAL -->
-    <div id="aba-pauta" class="tab-content">
+    <main class="main-container">
       <div class="section-header">
         <span class="section-title">
           Processos Pautados
@@ -75,31 +149,47 @@
           <p>Identificando sessão ativa…</p>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
-  <!-- MODAL DE PRESENÇA -->
+  <!-- ══ MODAL: REGISTRAR PRESENÇA ═══════════════════════════════ -->
   <div class="modal-overlay" id="modalPresenca">
-    <div class="modal-box" style="max-width:480px;">
+    <div class="modal-box modal-presenca-box">
       <div class="modal-header">
-        <h5 style="border-left:4px solid var(--oab-vermelho);padding-left:10px;">Registrar Presença</h5>
+        <div class="modal-header-left">
+          <span class="modal-eyebrow">Sessão Presencial</span>
+          <h5>Registrar Presença</h5>
+        </div>
+        <button class="modal-close" onclick="fecharModal('modalPresenca')">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-      <div class="modal-body">
-        <div class="input-field">
-          <select id="selectNomePresenca">
+      <div class="modal-body" style="padding:24px;">
+        <p style="font-size:14px;color:var(--oab-cinza-txt);margin-bottom:20px;">
+          Selecione seu nome na lista para confirmar sua presença nesta sessão.
+        </p>
+        <div class="input-field" style="margin-bottom:8px;">
+          <select id="selectPresenca">
             <option value="" disabled selected>Escolha seu nome</option>
           </select>
-          <label>Seu nome completo</label>
+          <label>Seu nome</label>
         </div>
+        <p id="presencaJaRegistrada" style="display:none;font-size:12px;color:var(--oab-verde);font-weight:700;margin-top:8px;">
+          <i class="material-icons" style="font-size:14px;vertical-align:middle">check_circle</i>
+          Você já registrou presença nesta sessão.
+        </p>
       </div>
-      <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid rgba(0,0,0,.07);">
+      <div class="modal-footer-bar">
         <button class="btn-oab" onclick="fecharModal('modalPresenca')">Cancelar</button>
-        <button class="btn-oab-confirm" id="btnConfirmarPresenca">Confirmar presença</button>
+        <button class="btn-oab-confirm" id="btnConfirmarPresenca" onclick="confirmarPresenca()">
+          <i class="material-icons" style="font-size:16px">check</i>
+          Confirmar presença
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DE VOTOS DA FICHA (reaproveitado da pauta) -->
+  <!-- ══ MODAL: LISTA DE VOTOS DA FICHA ══════════════════════════ -->
   <div class="modal-overlay" id="modalVotos">
     <div class="modal-box">
       <div class="modal-header">
@@ -107,10 +197,14 @@
           <span class="modal-eyebrow">Votos do processo</span>
           <h5 id="mvTitulo">—</h5>
         </div>
-        <button class="modal-close" onclick="fecharModal('modalVotos')"><i class="material-icons">close</i></button>
+        <button class="modal-close" onclick="fecharModal('modalVotos')">
+          <i class="material-icons">close</i>
+        </button>
       </div>
       <div class="modal-body" id="mvBody">
-        <div class="mv-loading"><i class="material-icons" style="animation:spin 1s linear infinite;color:var(--oab-azul)">autorenew</i></div>
+        <div class="mv-loading">
+          <i class="material-icons" style="animation:spin 1s linear infinite;color:var(--oab-azul)">autorenew</i>
+        </div>
       </div>
       <div class="modal-footer-bar">
         <button class="btn-oab" onclick="fecharModal('modalVotos')">Fechar</button>
@@ -118,10 +212,13 @@
     </div>
   </div>
 
+  <!-- ══ TOAST ════════════════════════════════════════════════════ -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- ══ RODAPÉ ═══════════════════════════════════════════════════ -->
   <footer class="oab-footer-nav">
-    <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png" alt="OAB Goiás" style="height: 100px;">
+    <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png"
+         alt="OAB Goiás" style="height:80px;">
   </footer>
 
   <script src="scripts.js"></script>

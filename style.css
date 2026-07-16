@@ -1,4 +1,9 @@
-/* ── 1. VARIÁVEIS ── */
+/* ══════════════════════════════════════════════════════════════
+   style.css — SDP-OAB/GO
+   Identidade visual compartilhada pelas três abas
+══════════════════════════════════════════════════════════════ */
+
+/* ── 1. VARIÁVEIS ─────────────────────────────────────────── */
 :root {
   --oab-branco:          #ffffff;
   --oab-azul:            #004480;
@@ -20,12 +25,15 @@
   --fonte:               'Inter', sans-serif;
 }
 
-/* ── 2. BASE ── */
+/* ── 2. BASE ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
-body, input, button, select, textarea { font-family: var(--fonte); -webkit-font-smoothing: antialiased; }
+body, input, button, select, textarea {
+  font-family: var(--fonte);
+  -webkit-font-smoothing: antialiased;
+}
 body { background: var(--oab-fundo); margin: 0; padding: 0; }
 
-/* ── 3. HEADER ── */
+/* ── 3. HEADER ─────────────────────────────────────────────── */
 .oab-header {
   position: sticky; top: 0; z-index: 1000;
   background: var(--oab-vermelho); height: 70px;
@@ -35,14 +43,46 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .oab-logo { height: 36px; width: auto; }
 .oab-header-title {
   flex: 1; text-align: center; color: var(--oab-branco);
-  font-weight: 700; font-size: 1.5rem; letter-spacing: 0.04em;
+  font-weight: 700; font-size: 1rem; letter-spacing: 0.06em;
 }
 
-/* ── 4. BANNER ── */
-.page-banner {
-  background: var(--oab-azul);
-  padding: 28px 24px;
+/* ── 4. NAVEGAÇÃO POR ABAS ─────────────────────────────────── */
+.abas-nav {
+  background: var(--oab-azul-escuro);
+  position: sticky; top: 70px; z-index: 900;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
+.abas-lista {
+  display: flex; list-style: none; margin: 0; padding: 0;
+  max-width: 940px; margin: 0 auto;
+}
+.aba-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  color: rgba(255,255,255,.65);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; user-select: none;
+  border-bottom: 3px solid transparent;
+  transition: all .2s ease;
+  letter-spacing: .03em;
+}
+.aba-item i { font-size: 18px; }
+.aba-item:hover {
+  color: var(--oab-branco);
+  background: rgba(255,255,255,.06);
+}
+.aba-item.ativa {
+  color: var(--oab-branco);
+  border-bottom-color: var(--oab-vermelho);
+  background: rgba(255,255,255,.08);
+}
+
+/* ── 5. PAINÉIS DE ABA ─────────────────────────────────────── */
+.aba-panel { display: none; }
+.aba-panel.ativa { display: block; }
+
+/* ── 6. BANNER (pauta virtual e votação) ───────────────────── */
+.page-banner { background: var(--oab-azul); padding: 28px 24px; }
 .page-banner h1 {
   color: var(--oab-branco); font-weight: 700; font-size: 1.35rem;
   text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px;
@@ -54,11 +94,10 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 .banner-meta-item i { font-size: 14px; }
 
-/* ── 5. CONTAINER ── */
+/* ── 7. CONTAINER GERAL ─────────────────────────────────────── */
 .main-container { max-width: 940px; margin: 0 auto; padding: 28px 16px 60px; }
-.autocomplete-content { position: absolute; z-index: 10000;}
 
-/* ── 6. SECTION HEADER ── */
+/* ── 8. SECTION HEADER ─────────────────────────────────────── */
 .section-header { display: flex; align-items: center; margin-bottom: 16px; }
 .section-title {
   font-weight: 700; color: var(--oab-azul-escuro);
@@ -72,21 +111,194 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   border-radius: 50px; margin-left: 10px;
 }
 
-/* ── 7. CARD DE PROCESSO ── */
-.processo-wrapper { margin-bottom: 12px; }
+/* ══════════════════════════════════════════════════════════════
+   ABA 1 — REGISTRAR PRESENÇA
+══════════════════════════════════════════════════════════════ */
 
+/* Banner institucional da sessão */
+.presenca-banner {
+  background: linear-gradient(135deg, var(--oab-azul-escuro) 0%, var(--oab-azul) 100%);
+  padding: 40px 32px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.presenca-banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url('https://www.oabgo.org.br/wp-content/themes/oab/images/bg-servicos.jpg') center/cover;
+  opacity: .08;
+}
+.presenca-banner-inner {
+  position: relative;
+  max-width: 940px; margin: 0 auto;
+  display: flex; align-items: center; gap: 32px;
+}
+.presenca-brasao { flex-shrink: 0; }
+.brasao-img {
+  height: 80px; width: auto;
+  filter: brightness(0) invert(1);
+  opacity: .9;
+}
+.presenca-banner-texto { flex: 1; }
+.presenca-instancia {
+  color: rgba(255,255,255,.7);
+  font-size: .75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .08em;
+  margin: 0 0 8px;
+}
+.presenca-titulo {
+  color: var(--oab-branco);
+  font-size: 1.5rem; font-weight: 700;
+  line-height: 1.3; margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.presenca-data {
+  color: rgba(255,255,255,.75);
+  font-size: .85rem; font-weight: 600;
+  margin: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Área principal da aba */
+.presenca-main {
+  max-width: 940px; margin: 0 auto;
+  padding: 40px 24px 60px;
+  display: flex; gap: 40px; align-items: flex-start;
+}
+.presenca-col-left { flex: 1; min-width: 0; }
+.presenca-col-right { flex-shrink: 0; width: 280px; }
+
+/* Botão principal CTA */
+.presenca-cta-wrap {
+  display: flex; justify-content: center;
+  margin-bottom: 40px;
+}
+.btn-presenca {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  background: linear-gradient(135deg, var(--oab-azul) 0%, var(--oab-azul-md) 100%);
+  color: var(--oab-branco);
+  border: none; border-radius: 20px;
+  padding: 36px 48px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0,68,128,.35);
+  transition: transform .2s ease, box-shadow .2s ease;
+  width: 100%; max-width: 380px;
+  outline: none !important;
+  position: relative; overflow: hidden;
+}
+.btn-presenca::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 100%);
+}
+.btn-presenca:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,68,128,.45);
+}
+.btn-presenca:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,68,128,.35);
+}
+.btn-presenca-icon i {
+  font-size: 64px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.2));
+}
+.btn-presenca-texto {
+  font-size: 1.2rem; font-weight: 700;
+  line-height: 1.35; text-align: center;
+  letter-spacing: .02em;
+}
+
+/* Lista de presentes */
+.presenca-lista-wrap {
+  background: var(--oab-branco);
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+.presenca-lista-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--oab-azul-suave);
+}
+.presenca-lista-titulo {
+  font-size: 11px; font-weight: 700;
+  color: var(--oab-azul-escuro);
+  text-transform: uppercase; letter-spacing: .06em;
+  border-left: 3px solid var(--oab-vermelho); padding-left: 8px;
+}
+.presenca-contagem {
+  background: var(--oab-azul);
+  color: var(--oab-branco);
+  font-size: 13px; font-weight: 700;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.presenca-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  min-height: 36px;
+}
+.chip-presente {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--oab-azul-suave);
+  color: var(--oab-azul-escuro);
+  border: 1px solid rgba(0,68,128,.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px; font-weight: 600;
+}
+.chip-presente i { font-size: 13px; color: var(--oab-verde); }
+.presenca-vazio { font-size: 12px; color: var(--oab-cinza-md); font-style: italic; }
+
+/* QR Code card */
+.qr-card {
+  background: var(--oab-branco);
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1);
+  border: 1px solid rgba(0,68,128,.1);
+  position: sticky; top: 160px;
+}
+.qr-instrucao {
+  font-size: 13px; font-weight: 600;
+  color: var(--oab-azul-escuro);
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+.qr-imagem-wrap {
+  background: var(--oab-branco);
+  border: 3px solid var(--oab-azul);
+  border-radius: 12px;
+  padding: 10px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.qr-imagem { width: 200px; height: 200px; display: block; }
+.qr-url {
+  font-size: 11px; font-weight: 700;
+  color: var(--oab-cinza-label);
+  text-transform: lowercase;
+  letter-spacing: .03em; margin: 0;
+}
+
+/* Modal de presença (tamanho reduzido, centralizado) */
+.modal-presenca-box { max-width: 460px !important; }
+
+/* ── 9. CARDS DE PROCESSO (aba pauta) ──────────────────────── */
+.processo-wrapper { margin-bottom: 12px; }
 .lista-card {
   background: var(--oab-branco); border-radius: 10px; padding: 14px 18px;
-  border: 1px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,.08);
   transition: box-shadow .2s, border-color .2s, transform .2s;
 }
 .lista-card:hover {
-  box-shadow: 0 6px 18px rgba(0,0,0,0.13); border-color: var(--oab-azul);
+  box-shadow: 0 6px 18px rgba(0,0,0,.13); border-color: var(--oab-azul);
   transform: translateY(-2px);
 }
-
 .card-header-row { display: flex; align-items: flex-start; }
-
 .ordem-badge {
   width: 28px; height: 28px; border-radius: 50%;
   background: var(--oab-azul); color: var(--oab-branco);
@@ -94,64 +306,32 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-right: 12px; margin-top: 1px;
 }
-
 .card-info { flex: 1; min-width: 0; }
-
 .card-top-row {
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
 }
 .processo-numero { font-size: .88rem; font-weight: 700; color: var(--oab-azul-escuro); }
-
 .chip-status-voto {
   display: inline-flex; align-items: center; padding: 2px 10px;
   border-radius: 20px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+  text-transform: uppercase; letter-spacing: .04em;
   background: var(--oab-branco);
 }
-.chip-tem-voto {
-  color: var(--oab-azul); border: 1px solid var(--oab-azul);
-}
-.chip-sem-voto {
-  color: var(--oab-vermelho); border: 1px solid var(--oab-vermelho);
-}
-
+.chip-tem-voto  { color: var(--oab-azul);    border: 1px solid var(--oab-azul); }
+.chip-sem-voto  { color: var(--oab-vermelho); border: 1px solid var(--oab-vermelho); }
 .card-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
-
 .action-icon {
   background: none; border: none; cursor: pointer; color: var(--oab-azul);
   font-size: 14px; display: inline-flex; align-items: center; justify-content: center;
   padding: 5px; border-radius: 4px; outline: none !important;
   transition: transform .18s, background .18s, color .18s;
 }
-.action-icon:hover        { transform: scale(1.22); background: var(--oab-azul); color: var(--oab-branco); }
-.action-icon:active       { transform: scale(.93); }
-
-/* PDF – vermelho */
-.action-icon.pdf-btn      { color: var(--oab-vermelho); }
+.action-icon:hover  { transform: scale(1.22); background: var(--oab-azul); color: var(--oab-branco); }
+.action-icon:active { transform: scale(.93); }
+.action-icon.pdf-btn       { color: var(--oab-vermelho); }
 .action-icon.pdf-btn:hover { background: var(--oab-vermelho); color: var(--oab-branco); }
-
-/* Votar – azul */
-.action-icon.votar-btn    { color: var(--oab-azul); }
-.action-icon.votar-btn:hover { background: var(--oab-azul); color: var(--oab-branco); }
-
-.action-icon[disabled]    { opacity: .3; pointer-events: none; }
-
-/* Tooltip dos botões de ação customizado OAB */
-.material-tooltip {
-  background-color: var(--oab-azul-escuro) !important;
-  color: var(--oab-branco) !important;
-  font-size: 14px !important;
-  font-weight: 400;
-  border-radius: 6px;
-  max-width: 200px;
-  text-align: center;
-  word-wrap: break-word;
-}
-.material-tooltip::after {
-  border-top-color: var(--oab-azul-escuro) !important;
-}
-
+.action-icon[disabled]     { opacity: .3; pointer-events: none; }
 .dados-processo { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
 .dado-linha { display: flex; align-items: baseline; gap: 5px; }
 .dado-rotulo {
@@ -160,99 +340,57 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 .dado-valor { font-size: 12px; color: var(--oab-grafite); line-height: 1.3; }
 
-.ementa-linha {
-  margin-top: 8px; padding-top: 8px;
-  border-top: 1px solid rgba(0,68,128,.07);
-  font-size: 11px; color: var(--oab-cinza-forte); line-height: 1.55;
-}
-
-/* ── 8. FORM VOTAÇÃO ── */
+/* ── 10. FORM VOTAÇÃO (expansível) ─────────────────────────── */
 .voto-form-wrapper { display: none; }
 .voto-form-wrapper.aberto { display: block; }
-
 .voto-form-inner {
   background: var(--oab-azul-suave); border: 1px solid var(--oab-azul);
   border-top: none; border-radius: 0 0 10px 10px;
   padding: 16px 20px 18px; margin-top: -3px;
 }
-
 .form-subsecao { margin-bottom: 14px; }
 .form-subsecao-titulo {
   font-size: 11px; font-weight: 700; color: var(--oab-azul-escuro);
   text-transform: uppercase; letter-spacing: .04em;
-  border-left: 3px solid var(--oab-vermelho); padding-left: 8px;
-  margin-bottom: 12px;
+  border-left: 3px solid var(--oab-vermelho); padding-left: 8px; margin-bottom: 12px;
 }
-
-.voto-nome-field label {
-  display: block; font-size: 10px; font-weight: 700;
-  color: var(--oab-cinza-label); text-transform: uppercase;
-  letter-spacing: .04em; margin-bottom: 5px;
-}
-.voto-nome-field input {
-  width: 100%; max-width: 380px;
-  border: 1px solid var(--oab-cinza-md);
-  border-radius: 6px; padding: 7px 12px;
-  font-size: 13px; font-family: var(--fonte); color: var(--oab-grafite);
-  outline: none !important; background: var(--oab-branco);
-  transition: border-color .2s, box-shadow .2s;
-}
-.voto-nome-field input:focus {
-  border-color: var(--oab-azul);
-  box-shadow: 0 0 0 2px rgba(0,68,128,.12);
-}
-
 .opcoes-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--oab-cinza-label);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  margin-bottom: 6px;
-  margin-top: 20px;
+  display: block; font-size: 10px; font-weight: 700; color: var(--oab-cinza-label);
+  text-transform: uppercase; letter-spacing: .04em;
+  margin-bottom: 6px; margin-top: 20px;
 }
 .opcoes-voto { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
-
 .opcao-voto-label {
   display: inline-flex; align-items: center;
   background: var(--oab-branco); border: 1.5px solid var(--oab-cinza-bg);
   border-radius: 50px; padding: 8px 18px;
   font-size: 12px; font-weight: 600; color: var(--oab-grafite);
-  cursor: pointer; transition: all .2s ease; user-select: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  cursor: pointer; transition: all .2s; user-select: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .opcao-voto-label:hover {
   border-color: var(--oab-azul); color: var(--oab-azul);
-  background: var(--oab-azul-suave);
-  box-shadow: 0 3px 8px rgba(0,68,128,0.12);
-  transform: translateY(-1px);
+  background: var(--oab-azul-suave); transform: translateY(-1px);
 }
-.opcao-voto-label.selecionada { background: var(--oab-azul); color: var(--oab-branco);border-color: var(--oab-azul); box-shadow: 0 2px 6px rgba(0,68,128,0.2); }
-.opcao-voto-label.selecionada:hover { background: var(--oab-azul-escuro); }
+.opcao-voto-label.selecionada { background: var(--oab-azul); color: var(--oab-branco); border-color: var(--oab-azul); }
 .opcao-voto-label input[type="radio"] { display: none; }
-
 .votantes-lista { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; }
-
 .chip-votante {
   display: inline-flex; align-items: center;
   background: var(--oab-branco); border: 1px solid var(--oab-azul);
   color: var(--oab-azul); border-radius: 20px;
   padding: 2px 10px; font-size: 10px; font-weight: 700;
 }
-
 .votantes-vazio { font-size: 11px; color: var(--oab-cinza-md); font-style: italic; }
-
 .form-separator { border: none; border-top: 1px solid rgba(0,68,128,.15); margin: 14px 0; }
-
 .voto-form-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
 
-/* ── 9. BOTÕES ── */
+/* ── 11. BOTÕES ─────────────────────────────────────────────── */
 .btn-oab, .btn-oab-confirm {
-  border: none; border-radius: 50px; height: 32px; padding: 0 16px;
-  font-weight: 700; font-size: 12px; font-family: var(--fonte);
+  border: none; border-radius: 50px; height: 36px; padding: 0 20px;
+  font-weight: 700; font-size: 13px; font-family: var(--fonte);
   cursor: pointer; transition: all .22s;
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: 6px;
   outline: none !important; box-shadow: none;
 }
 .btn-oab         { background: var(--oab-cinza-bg); color: var(--oab-azul); }
@@ -261,7 +399,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .btn-oab-confirm:hover    { background: var(--oab-vermelho); box-shadow: 0 4px 8px rgba(0,0,0,.18); }
 .btn-oab-confirm:disabled { opacity: .45; cursor: not-allowed; }
 
-/* ── 10. ESTADOS ── */
+/* ── 12. ESTADOS ─────────────────────────────────────────────── */
 .estado {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -270,11 +408,11 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .estado i { font-size: 40px; margin-bottom: 12px; }
 .estado p { font-size: 13px; margin: 0; line-height: 1.5; }
 .estado.loading i { color: var(--oab-azul); animation: spin 1s linear infinite; }
-.estado.erro i    { color: var(--oab-vermelho); }
+.estado.erro  i   { color: var(--oab-vermelho); }
 .estado.vazio i   { color: var(--oab-cinza-md); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── 11. MODAL BASE ── */
+/* ── 13. MODAL BASE ─────────────────────────────────────────── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,.55); z-index: 2000;
@@ -289,8 +427,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px 12px; border-bottom: 1px solid rgba(0,0,0,.07);
-  flex-shrink: 0;
+  padding: 16px 24px 12px; border-bottom: 1px solid rgba(0,0,0,.07); flex-shrink: 0;
 }
 .modal-header-left { border-left: 5px solid var(--oab-vermelho); padding-left: 12px; }
 .modal-eyebrow {
@@ -311,10 +448,10 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
 }
 
-/* ── 12. MODAL VOTOS (ModalVotos) ── */
+/* ── 14. MODAL VOTOS ─────────────────────────────────────────── */
 .mv-voto-card {
-  background: var(--oab-branco); border: 1px solid var(--oab-cinza-bg); border-radius: 12px;
-  margin-bottom: 12px; transition: border-color .2s;
+  background: var(--oab-branco); border: 1px solid var(--oab-cinza-bg);
+  border-radius: 12px; margin-bottom: 12px; transition: border-color .2s;
 }
 .mv-voto-card:hover { border-color: var(--oab-azul); }
 .mv-voto-header {
@@ -324,15 +461,9 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .mv-voto-info  { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .mv-voto-tipo  { font-size: 15px; font-weight: 700; color: var(--oab-azul); }
 .mv-voto-relator { font-size: 14px; color: var(--oab-cinza-forte); }
-.mv-voto-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.mv-voto-actions .action-icon i { font-size: 22px; }
+.mv-voto-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
 .mv-voto-body { display: none; padding: 12px 18px 14px; border-top: 1px solid var(--oab-cinza-bg); }
-.mv-voto-texto {
-  font-size: 14px; line-height: 1.7; color: var(--oab-cinza-txt);
-  white-space: pre-wrap; margin: 0;
-}
-
-/* Editor toolbar */
+.mv-voto-texto { font-size: 14px; line-height: 1.7; color: var(--oab-cinza-txt); white-space: pre-wrap; margin: 0; }
 .editor-wrap {
   border: 1px solid var(--oab-cinza-bg); border-radius: 8px; margin-top: 6px;
   overflow: hidden; transition: border-color .2s;
@@ -345,21 +476,15 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .editor-toolbar button {
   width: 28px; height: 28px; border: none; border-radius: 6px;
   background: transparent; color: var(--oab-cinza-forte); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s; padding: 0;
+  display: flex; align-items: center; justify-content: center; transition: background .15s; padding: 0;
 }
 .editor-toolbar button:hover { background: var(--oab-cinza-bg); color: var(--oab-azul); }
-.editor-toolbar button i { font-size: 20px; }
 .voto-editor {
   width: 100%; min-height: 80px; overflow-y: auto;
   font-family: var(--fonte); font-size: 15px; color: var(--oab-grafite);
   padding: 10px; line-height: 1.6; outline: none;
 }
-.voto-editor:empty::before {
-  content: attr(data-placeholder); color: var(--oab-cinza-md); pointer-events: none;
-}
-
-/* Novo voto form */
+.voto-editor:empty::before { content: attr(data-placeholder); color: var(--oab-cinza-md); pointer-events: none; }
 .mv-novo-card {
   display: none; background: var(--oab-branco); border: 1.5px solid var(--oab-azul);
   border-radius: 10px; padding: 18px 20px 14px; margin-top: 16px;
@@ -371,10 +496,11 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   padding: 8px 12px; font-size: 14px; font-family: var(--fonte);
   color: var(--oab-grafite); outline: none; background: var(--oab-branco);
 }
+.mv-select-row select { flex: 1; min-width: 140px; }
+.mv-select-row input  { flex: 2; min-width: 160px; }
 .mv-select-row select:focus, .mv-select-row input:focus {
   border-color: var(--oab-azul); box-shadow: 0 0 0 2px rgba(0,68,128,.1);
 }
-.select-wrapper input.select-dropdown { font-size: 13px !important; height: auto !important; padding: 8px 12px !important; }
 .mv-novo-actions {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--oab-cinza-bg);
@@ -383,8 +509,6 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .mv-btn-add-wrap { margin-top: 12px; }
 .mv-empty { text-align: center; color: var(--oab-cinza-md); padding: 24px; font-size: 14px; }
 .mv-loading { display: flex; justify-content: center; padding: 24px; }
-
-/* PDF chip */
 .chip-pdf-link {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
@@ -400,33 +524,11 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 .chip-pdf-pending:hover { background: var(--oab-azul-suave); }
 
-/* ── 13. MODAL IA ── */
-.mia-modal { max-width: 400px !important; border-radius: 16px; }
-.mia-body  { padding: 20px 20px 0; }
-.mia-header {
-  display: flex; align-items: center; gap: 12px;
-  border-left: 4px solid var(--oab-vermelho); padding-left: 10px; margin-bottom: 14px;
+/* ── 15. TOAST ──────────────────────────────────────────────── */
+.toast-container {
+  position: fixed; bottom: 22px; right: 22px; z-index: 3000;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
 }
-.mia-logo-label { font-size: 11px; font-weight: 700; color: var(--oab-azul-escuro); text-transform: uppercase; letter-spacing: .06em; }
-.mia-logo-sub   { font-size: 10px; color: var(--oab-cinza-md); margin-top: 2px; }
-.mia-titulo     { font-size: 13px; font-weight: 700; color: var(--oab-grafite); margin: 0 0 6px; }
-.mia-descricao  { font-size: 12px; color: var(--oab-cinza-label); margin: 0 0 16px; line-height: 1.5; }
-.mia-footer     { padding: 10px 20px 16px; display: flex; justify-content: flex-end; gap: 10px; }
-.mia-loading    { display: none; flex-direction: column; align-items: center; padding: 24px 20px; gap: 12px; }
-.mia-loading.ativo { display: flex; }
-.mia-loading-texto { font-size: 12px; font-weight: 600; color: var(--oab-azul-escuro); }
-.mia-svg-spin   { animation: spin 2s linear infinite; }
-.mia-dots span {
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--oab-azul); margin: 0 3px;
-  animation: miaPulse 1.2s ease-in-out infinite;
-}
-.mia-dots span:nth-child(2) { animation-delay: .2s; }
-.mia-dots span:nth-child(3) { animation-delay: .4s; }
-@keyframes miaPulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1.2)} }
-
-/* ── 14. TOAST ── */
-.toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 3000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast {
   color: var(--oab-branco); padding: 11px 16px; border-radius: 8px;
   font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.22);
@@ -436,154 +538,45 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .toast.sucesso { background: var(--oab-verde); }
 .toast.erro    { background: var(--oab-vermelho-escuro); }
 .toast i { font-size: 16px; }
-@keyframes slideIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes slideIn { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
 
-/* ── 15. RODAPÉ ── */
+/* ── 16. RODAPÉ ─────────────────────────────────────────────── */
 .oab-footer-nav {
-  background: var(--oab-branco); padding: 16px 0; text-align: center;
-  border-top: 1px solid #ddd; margin-top: 20px;
+  background: var(--oab-branco); padding: 20px 0;
+  text-align: center; border-top: 1px solid #ddd;
 }
 
-@media (max-width: 580px) {
+/* ── 17. MATERIALIZE OVERRIDES ──────────────────────────────── */
+.dropdown-content li > a, .dropdown-content li > span { color: var(--oab-azul) !important; }
+.dropdown-content li:hover { background-color: var(--oab-azul-suave) !important; }
+.autocomplete-content { position: absolute; z-index: 10000; }
+.autocomplete-content li .highlight { color: var(--oab-azul) !important; }
+.autocomplete-content li:hover { background-color: var(--oab-azul-suave) !important; }
+.input-field input:focus + label,
+.input-field select:focus + label { color: var(--oab-azul) !important; }
+.input-field input:focus,
+.input-field select:focus {
+  border-bottom: 1px solid var(--oab-azul) !important;
+  box-shadow: 0 1px 0 0 var(--oab-azul) !important;
+}
+.select-wrapper input.select-dropdown { font-size: 14px !important; }
+.material-tooltip {
+  background-color: var(--oab-azul-escuro) !important;
+  color: var(--oab-branco) !important;
+  font-size: 13px !important;
+  border-radius: 6px;
+}
+
+/* ── 18. RESPONSIVO ─────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .presenca-main { flex-direction: column; }
+  .presenca-col-right { width: 100%; }
+  .qr-card { position: static; }
+  .presenca-banner-inner { flex-direction: column; text-align: center; }
+  .presenca-titulo { font-size: 1.15rem; }
+  .aba-item span { display: none; }
+  .aba-item { padding: 14px 20px; }
   .card-top-row { flex-direction: column; align-items: flex-start; }
   .card-actions { margin-top: 4px; }
 }
-
-/* ═══════════════════════════════════════════════════════════════
-  SOBRESCRIÇÃO DE CORES DO MATERIALIZE (AZUL OAB)
-  Baseado no Global-style.html do projeto principal
-  ═══════════════════════════════════════════════════════════════ */
-
-/* ── Dropdown do select (Materialize Select) ── */
-.dropdown-content li > a, .dropdown-content li > span { color: var(--oab-azul) !important; }
-.dropdown-content li:hover { background-color: var(--oab-azul-suave) !important; }
-
-/* ── Autocomplete (usado em inputs com autocomplete) ── */
-.autocomplete-content li .highlight { color: var(--oab-azul) !important; }
-.autocomplete-content li:hover { background-color: var(--oab-azul-suave) !important; }
-
-/* ── Checkboxes e radio buttons ── */
-[type="checkbox"]:checked + span:not(.lever):before { border-right-color: var(--oab-azul) !important; border-bottom-color: var(--oab-azul) !important; }
-[type="radio"]:checked + span:after, [type="radio"].with-gap:checked + span:before, [type="radio"].with-gap:checked + span:after { background-color: var(--oab-azul) !important; border-color: var(--oab-azul) !important; }
-
-/* ── Switch (toggle) ── */
-.switch label input[type="checkbox"]:checked + .lever { background-color: rgba(0, 68, 128, 0.5) !important; }
-.switch label input[type="checkbox"]:checked + .lever:after { background-color: var(--oab-azul) !important; }
-
-/* ── Labels em campos Materialize ── */
-.input-field input:focus + label, .input-field textarea:focus + label, .input-field select:focus + label { color: var(--oab-azul) !important; }
-.input-field input.valid + label, .input-field textarea.valid + label, .input-field select.valid + label { color: var(--oab-azul) !important; }
-.input-field input:focus:invalid + label, .input-field textarea:focus:invalid + label, .input-field select:focus:invalid + label { color: var(--oab-azul) !important; }
-
-/* ── Linha inferior em foco (azul OAB) ── */
-.input-field input:focus, .input-field textarea:focus, .input-field select:focus { border-bottom: 1px solid var(--oab-azul) !important; box-shadow: 0 1px 0 0 var(--oab-azul) !important; }
-
-/* ── Linha inferior padrão (cinza, não verde) ── */
-.input-field input:not(:focus), .input-field textarea:not(:focus), .input-field select:not(:focus) { border-bottom: 1px solid var(--oab-cinza-md) !important; box-shadow: none !important; }
-
-/* ── Botões OAB (reforço) ── */
-.btn-oab, .btn-oab-confirm { border-radius: 50px; font-weight: 700; text-transform: none; transition: all 0.22s; box-shadow: none; }
-.btn-oab { background-color: var(--oab-cinza-bg); color: var(--oab-azul); }
-.btn-oab:hover { background-color: var(--oab-vermelho); color: var(--oab-branco); }
-.btn-oab-confirm { background-color: var(--oab-azul); color: var(--oab-branco); }
-.btn-oab-confirm:hover { background-color: var(--oab-vermelho); }
-
-/* ── Select wrapper (ícone de seta e linha) ── */
-.select-wrapper { margin-bottom: 0 !important; }
-.select-wrapper .caret { fill: var(--oab-azul); top: 50% !important; transform: translateY(-50%) !important;}
-.select-wrapper input.select-dropdown {
-  border-bottom-color: var(--oab-cinza-md) !important;
-  height: 2.2rem !important;        /* altura reduzida */
-  padding: 0 12px !important;       /* remove padding vertical extra */
-  margin: 0 !important;
-  line-height: 2.2rem !important;
-  box-sizing: border-box;
-}
-.select-wrapper input.select-dropdown:focus { border-bottom-color: var(--oab-azul) !important; }
-
-/* ═══════════════════════════════════════════════════════════════
-   ESTILOS DAS ABAS E DA PÁGINA DE PRESENÇA
-   ═══════════════════════════════════════════════════════════════ */
-
-.tabs-container {
-  background: var(--oab-branco);
-  border-bottom: 1px solid var(--oab-cinza-bg);
-  padding: 0 24px;
-}
-.oab-tabs {
-  display: flex;
-  gap: 0;
-  list-style: none;
-  margin: 0 auto;
-  padding: 0;
-  max-width: 940px;
-}
-.oab-tabs .tab {
-  flex: 1;
-  text-align: center;
-}
-.oab-tabs .tab a {
-  display: block;
-  padding: 14px 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--oab-cinza-forte);
-  text-decoration: none;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-}
-.oab-tabs .tab a:hover {
-  color: var(--oab-azul);
-}
-.oab-tabs .tab a.active {
-  color: var(--oab-azul);
-  border-bottom-color: var(--oab-vermelho);
-}
-
-.tab-content {
-  display: none;
-  animation: fadeIn 0.3s;
-}
-.tab-content.ativo {
-  display: block;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Página de presença */
-.presenca-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--oab-azul-escuro);
-  text-align: center;
-  line-height: 1.3;
-  margin-bottom: 20px;
-}
-.qr-code {
-  width: 200px; height: 200px;
-  background: var(--oab-branco);
-  border: 2px solid var(--oab-azul);
-  border-radius: 10px;
-  margin: 20px auto;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--oab-cinza-md);
-}
-.btn-registrar {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--oab-azul); color: var(--oab-branco);
-  border: none; border-radius: 50px;
-  font-size: 1.5rem; font-weight: 700; font-family: var(--fonte);
-  padding: 24px 48px; cursor: pointer;
-  transition: all 0.25s; box-shadow: 0 4px 12px rgba(0,68,128,0.25);
-  text-transform: uppercase; letter-spacing: 0.05em;
-  margin: 30px 0;
-}
-.btn-registrar:hover {
-  background: var(--oab-vermelho); box-shadow: 0 8px 20px rgba(255,0,0,0.25);
-  transform: translateY(-2px);
-}
-.btn-registrar:disabled {
-  opacity: 0.5; cursor: not-allowed; background: var(--oab-cinza-md);
-}
+@keyframes miaPulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1.2)} }
