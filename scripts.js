@@ -1,23 +1,23 @@
 /* ════════════════════════════════════════════════════════════
-   CONFIG
-════════════════════════════════════════════════════════════ */
+   CONFIGURAÇÃO E ESTADO GLOBAL
+   ════════════════════════════════════════════════════════════ */
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx91dyMa69vT0704BsR9iPiGhLBq884oViaLtepDYF_mWCM3RzJcqyHCPcG5-Chd-Pp/exec';
 
-/* Estado global */
 let _sessaoId        = null;
 let _votantesCache   = {};
-let _votosPorFichaCache = {};   // { [idFicha]: [ {tipo, relator}, ... ] }
+let _votosPorFichaCache = {};
 let _mvFichaId       = null;
 let _mvExpandido     = null;
 let _mvPdfPendente   = null;
 let _mvFichaInfo     = {};
-let _mvVotosCache    = [];      // cache dos votos do modal aberto
-let _orgaoSessao = '';
-let _membrosCache = {};   // { "Nome Completo": "Masculino"|"Feminino" }
+let _mvVotosCache    = [];
+let _orgaoSessao     = '';
+let _membrosCache    = {};
+let _abaAtual        = 'presenca';
 
 /* ════════════════════════════════════════════════════════════
    UTILITÁRIOS
-════════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════ */
 function toast(msg, tipo) {
   tipo = tipo || 'sucesso';
   const c = document.getElementById('toastContainer');
@@ -31,6 +31,214 @@ function toast(msg, tipo) {
 function fecharModal(id) { document.getElementById(id).classList.remove('ativo'); }
 
 function esc(s) { return String(s == null ? '' : s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+/* ════════════════════════════════════════════════════════════
+   REDE (JSONP + no‑cors)
+   ════════════════════════════════════════════════════════════ */
+var _jsonpSeq = 0;
+function jsonpGet(params) {
+  return new Promise(function(resolve, reject) {
+    var cbName = '__gasCallback_' + (++_jsonpSeq);
+    var qs     = new URLSearchParams(params).toString();
+    var url    = GAS_ENDPOINT + '?' + qs + '&callback=' + cbName;
+    var script = document.createElement('script');
+    var timer  = setTimeout(function() { reject(new Error('Timeout JSONP')); cleanup(); }, 30000);
+    function cleanup() { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
+    window[cbName] = function(data) { resolve(data); cleanup(); };
+    script.onerror  = function() { reject(new Error('Falha na requisição')); cleanup(); };
+    script.src = url;
+    document.head.appendChild(script);
+  });
+}
+
+async function gasGet(params) {
+  const data = await jsonpGet(params);
+  if (data.erro) throw new Error(data.erro);
+  return data;
+}
+
+async function gasGetSilent(params, fallback) {
+  try {
+    const data = await jsonpGet(params);
+    if (data.erro) { console.warn('gasGetSilent:', data.erro); return fallback; }
+    return data;
+  } catch (err) {
+    console.warn('gasGetSilent falhou:', err.message);
+    return fallback;
+  }
+}
+
+async function gasPost(body) {
+  await fetch(GAS_ENDPOINT, {
+    method : 'POST',
+    mode   : 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify(body),
+  });
+}
+
+async function gasPostViaGet(body) {
+  const data = await jsonpGet({ payload: JSON.stringify(body) });
+  if (data.erro) throw new Error(data.erro);
+  return data;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ABAS E NAVEGAÇÃO
+   ════════════════════════════════════════════════════════════ */
+function trocarAba(aba) {
+  _abaAtual = aba;
+
+  // Atualiza banner
+  if (aba === 'presenca') {
+    document.getElementById('bannerTitulo').textContent = 'REGISTRO DE PRESENÇA';
+  } else if (aba === 'votacao') {
+    document.getElementById('bannerTitulo').textContent = 'VOTAÇÃO INDIVIDUAL';
+  } else if (aba === 'pauta') {
+    document.getElementById('bannerTitulo').textContent = 'PAUTA DE JULGAMENTO VIRTUAL';
+  }
+
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('ativo'));
+  document.getElementById('aba-' + aba).classList.add('ativo');
+  document.querySelectorAll('.oab-tabs .tab a').forEach(a => {
+    a.classList.toggle('active', a.dataset.aba === aba);
+  });
+
+  if (aba === 'presenca' && !window._presencaIniciada) {
+    window._presencaIniciada = true;
+    iniciarPresenca();
+  } else if (aba === 'pauta' && !window._pautaIniciada) {
+    window._pautaIniciada = true;
+    iniciarPauta();
+  }
+}
+
+// Inicialização segura com pequeno atraso
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const aba = params.get('aba') || 'presenca';
+  setTimeout(function() { trocarAba(aba); }, 100);
+})();
+
+document.querySelectorAll('.oab-tabs .tab a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    trocarAba(this.dataset.aba);
+  });
+});
+
+/* ════════════════════════════════════════════════════════════
+   INICIALIZAÇÃO DA ABA DE PRESENÇA
+   ════════════════════════════════════════════════════════════ */
+async function iniciarPresenca() {
+  try {
+    const estado = await gasGet({ acao: 'estadoAtivo' });
+    if (!estado.sessaoId || estado.tipo !== 'Coleta de nomes') {
+      document.getElementById('presTitulo').textContent = 'Nenhuma coleta de presença ativa no momento.';
+      return;
+    }
+    _sessaoId = estado.sessaoId;
+
+    // Carrega membros se necessário
+    if (Object.keys(_membrosCache).length === 0) {
+      const membrosData = await gasGet({ acao: 'membros' });
+      _membrosCache = {};
+      (membrosData.membros || []).forEach(m => {
+        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
+      });
+    }
+
+    // Info da sessão
+    const info = await gasGet({ acao: 'infoSessao', sessaoId: _sessaoId });
+    const titulo = info.ordem + ' Sessão ' +
+      (info.orgao && info.orgao.toLowerCase().includes('pleno') ? 'Ordinária do Pleno' : 'do Órgão Deliberativo') +
+      ' do Sistema de Defesa das Prerrogativas da OAB-GO do ano de ' + info.ano;
+    document.getElementById('presTitulo').textContent = titulo;
+
+    // Popula select do modal
+    const select = document.getElementById('selectNomePresenca');
+    select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
+    Object.keys(_membrosCache).sort().forEach(nome => {
+      const opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      select.appendChild(opt);
+    });
+    M.FormSelect.init(select, {});
+
+    // Habilita botão gigante
+    const btn = document.getElementById('btnRegistrarPresenca');
+    btn.disabled = false;
+    btn.onclick = function() { document.getElementById('modalPresenca').classList.add('ativo'); };
+
+    // Configura botão confirmar
+    document.getElementById('btnConfirmarPresenca').onclick = confirmarPresenca;
+
+    // Banner (apenas metadados — título já foi definido em trocarAba)
+    document.getElementById('bannerMeta').innerHTML = '<span class="banner-meta-item"><i class="material-icons">gavel</i>' + (info.orgao || '') + '</span>';
+
+  } catch (err) {
+    document.getElementById('presTitulo').textContent = 'Erro: ' + err.message;
+  }
+}
+
+async function confirmarPresenca() {
+  const select = document.getElementById('selectNomePresenca');
+  const nome = select.value;
+  if (!nome) { toast('Selecione seu nome.', 'erro'); return; }
+  const btn = document.getElementById('btnConfirmarPresenca');
+  btn.disabled = true; btn.textContent = 'Registrando…';
+  try {
+    await gasPost({ acao: 'presenca', nome: nome, sessaoId: _sessaoId });
+    toast('Presença registrada!');
+    fecharModal('modalPresenca');
+    select.value = '';
+    var inst = M.FormSelect.getInstance(select);
+    if (inst) inst.destroy();
+    M.FormSelect.init(select, {});
+  } catch (err) {
+    toast('Erro: ' + err.message, 'erro');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Confirmar presença';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   INICIALIZAÇÃO DA PAUTA VIRTUAL
+   ════════════════════════════════════════════════════════════ */
+async function iniciarPauta() {
+  try {
+    const estado = await gasGet({ acao: 'estadoAtivo' });
+    if (!estado.sessaoId) {
+      document.getElementById('listaProcessos').innerHTML =
+        '<div class="estado vazio"><i class="material-icons">event_busy</i><p>Nenhuma sessão ativa no momento.</p></div>';
+      document.getElementById('bannerMeta').innerHTML =
+        '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
+      return;
+    }
+    _sessaoId = estado.sessaoId;
+
+    // Carrega membros se necessário
+    if (Object.keys(_membrosCache).length === 0) {
+      const membrosData = await gasGet({ acao: 'membros' });
+      _membrosCache = {};
+      (membrosData.membros || []).forEach(m => {
+        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
+      });
+    }
+
+    carregarPauta();   // função original da pauta (mantida abaixo)
+  } catch (err) {
+    console.error('iniciarPauta:', err);
+    document.getElementById('listaProcessos').innerHTML =
+      '<div class="estado erro"><i class="material-icons">error_outline</i><p>Não foi possível identificar a sessão ativa.<br>' + err.message + '</p></div>';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   TODAS AS DEMAIS FUNÇÕES DA PAUTA VIRTUAL  ──
+   ════════════════════════════════════════════════════════════ */
+
 
 async function carregarMembros() {
   try {

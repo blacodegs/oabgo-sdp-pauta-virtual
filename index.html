@@ -3,52 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pauta virtual — SDP-OAB/GO</title>
+  <title>Sessão SDP — OAB/GO</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <link rel="stylesheet" href="style.css">
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- HEADER COMUM -->
   <header class="oab-header">
-    <img class="oab-logo"
-         src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
-         alt="OAB Goiás">
+    <img class="oab-logo" src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png" alt="OAB Goiás">
     <span class="oab-header-title">SISTEMA DE DEFESA DAS PRERROGATIVAS</span>
   </header>
 
-  <!-- BANNER -->
+  <!-- ABAS -->
+  <div class="tabs-container">
+    <ul class="oab-tabs">
+      <li class="tab"><a href="#presenca" data-aba="presenca">Registrar Presença</a></li>
+      <li class="tab"><a href="#votacao" data-aba="votacao">Votação Individual</a></li>
+      <li class="tab"><a href="#pauta" data-aba="pauta">Pauta Virtual</a></li>
+    </ul>
+  </div>
+
+  <!-- BANNER COMUM -->
   <div class="page-banner">
-    <h1 id="bannerTitulo">PAUTA DE JULGAMENTO VIRTUAL</h1>
+    <h1 id="bannerTitulo">—</h1>
     <div class="banner-meta" id="bannerMeta">
       <span class="banner-meta-item"><i class="material-icons">sync</i> Carregando…</span>
     </div>
   </div>
 
-  <!-- CONTEÚDO -->
+  <!-- CONTEÚDO DAS ABAS -->
   <main class="main-container">
-    <div class="section-header">
-      <span class="section-title">
-        Processos Pautados
-        <span class="badge-count" id="badgeCount">—</span>
-      </span>
+
+    <!-- ABA: REGISTRAR PRESENÇA -->
+    <div id="aba-presenca" class="tab-content">
+      <div id="presTitulo" class="sessao-titulo-presenca">Carregando sessão…</div>
+      <div class="qr-code" id="qrCode">QR Code<br>(em breve)</div>
+      <div style="text-align:center;">
+        <button class="btn-registrar" id="btnRegistrarPresenca" disabled>
+          CLIQUE AQUI PARA REGISTRAR SUA PRESENÇA
+        </button>
+      </div>
     </div>
-    <div id="listaProcessos">
-      <div class="estado loading">
-        <i class="material-icons">autorenew</i>
-        <p>Identificando sessão ativa…</p>
+
+    <!-- ABA: VOTAÇÃO INDIVIDUAL -->
+    <div id="aba-votacao" class="tab-content">
+      <div class="estado vazio">
+        <i class="material-icons">construction</i>
+        <p>Em construção — breve.</p>
+      </div>
+    </div>
+
+    <!-- ABA: PAUTA VIRTUAL -->
+    <div id="aba-pauta" class="tab-content">
+      <div class="section-header">
+        <span class="section-title">
+          Processos Pautados
+          <span class="badge-count" id="badgeCount">—</span>
+        </span>
+      </div>
+      <div id="listaProcessos">
+        <div class="estado loading">
+          <i class="material-icons">autorenew</i>
+          <p>Identificando sessão ativa…</p>
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- MODAL: LISTA DE VOTOS DA FICHA -->
+  <!-- MODAL DE PRESENÇA -->
+  <div class="modal-overlay" id="modalPresenca">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-header">
+        <h5 style="border-left:4px solid var(--oab-vermelho);padding-left:10px;">Registrar Presença</h5>
+      </div>
+      <div class="modal-body">
+        <div class="input-field">
+          <select id="selectNomePresenca">
+            <option value="" disabled selected>Escolha seu nome</option>
+          </select>
+          <label>Seu nome completo</label>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid rgba(0,0,0,.07);">
+        <button class="btn-oab" onclick="fecharModal('modalPresenca')">Cancelar</button>
+        <button class="btn-oab-confirm" id="btnConfirmarPresenca">Confirmar presença</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE VOTOS DA FICHA (reaproveitado da pauta) -->
   <div class="modal-overlay" id="modalVotos">
     <div class="modal-box">
       <div class="modal-header">
@@ -56,9 +107,7 @@
           <span class="modal-eyebrow">Votos do processo</span>
           <h5 id="mvTitulo">—</h5>
         </div>
-        <button class="modal-close" onclick="fecharModal('modalVotos')">
-          <i class="material-icons">close</i>
-        </button>
+        <button class="modal-close" onclick="fecharModal('modalVotos')"><i class="material-icons">close</i></button>
       </div>
       <div class="modal-body" id="mvBody">
         <div class="mv-loading"><i class="material-icons" style="animation:spin 1s linear infinite;color:var(--oab-azul)">autorenew</i></div>

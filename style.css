@@ -500,3 +500,90 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   box-sizing: border-box;
 }
 .select-wrapper input.select-dropdown:focus { border-bottom-color: var(--oab-azul) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ESTILOS DAS ABAS E DA PÁGINA DE PRESENÇA
+   ═══════════════════════════════════════════════════════════════ */
+
+.tabs-container {
+  background: var(--oab-branco);
+  border-bottom: 1px solid var(--oab-cinza-bg);
+  padding: 0 24px;
+}
+.oab-tabs {
+  display: flex;
+  gap: 0;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 940px;
+}
+.oab-tabs .tab {
+  flex: 1;
+  text-align: center;
+}
+.oab-tabs .tab a {
+  display: block;
+  padding: 14px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--oab-cinza-forte);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.oab-tabs .tab a:hover {
+  color: var(--oab-azul);
+}
+.oab-tabs .tab a.active {
+  color: var(--oab-azul);
+  border-bottom-color: var(--oab-vermelho);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s;
+}
+.tab-content.ativo {
+  display: block;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Página de presença */
+.presenca-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--oab-azul-escuro);
+  text-align: center;
+  line-height: 1.3;
+  margin-bottom: 20px;
+}
+.qr-code {
+  width: 200px; height: 200px;
+  background: var(--oab-branco);
+  border: 2px solid var(--oab-azul);
+  border-radius: 10px;
+  margin: 20px auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--oab-cinza-md);
+}
+.btn-registrar {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--oab-azul); color: var(--oab-branco);
+  border: none; border-radius: 50px;
+  font-size: 1.5rem; font-weight: 700; font-family: var(--fonte);
+  padding: 24px 48px; cursor: pointer;
+  transition: all 0.25s; box-shadow: 0 4px 12px rgba(0,68,128,0.25);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin: 30px 0;
+}
+.btn-registrar:hover {
+  background: var(--oab-vermelho); box-shadow: 0 8px 20px rgba(255,0,0,0.25);
+  transform: translateY(-2px);
+}
+.btn-registrar:disabled {
+  opacity: 0.5; cursor: not-allowed; background: var(--oab-cinza-md);
+}
