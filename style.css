@@ -287,7 +287,103 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 /* Modal de presença (tamanho reduzido, centralizado) */
 .modal-presenca-box { max-width: 460px !important; }
 
-/* ── 9. CARDS DE PROCESSO (aba pauta) ──────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   ABA 2 — VOTAÇÃO INDIVIDUAL
+══════════════════════════════════════════════════════════════ */
+
+.votacao-main {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+.votacao-requerente {
+  background: var(--oab-branco);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  font-size: 14px;
+  color: var(--oab-cinza-txt);
+  border-left: 4px solid var(--oab-azul);
+}
+.votacao-requerente strong {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--oab-cinza-label);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.votacao-votos {
+  margin-bottom: 40px;
+}
+
+.voto-exposicao-card {
+  background: var(--oab-branco);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.voto-exposicao-header {
+  padding: 16px 20px;
+  background: var(--oab-azul-suave);
+  border-bottom: 1px solid rgba(0,68,128,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.voto-exposicao-tipo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--oab-azul);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.voto-exposicao-relator { font-size: 13px; color: var(--oab-cinza-forte); font-weight: 600; }
+.voto-exposicao-body { padding: 16px 20px; }
+.voto-exposicao-texto {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--oab-cinza-txt);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* Formulário de votação */
+.votacao-form-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.votacao-form-card {
+  background: var(--oab-branco);
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 16px rgba(0,68,128,0.12);
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid var(--oab-azul-suave);
+}
+
+.votacao-form-titulo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--oab-azul-escuro);
+  margin: 0 0 20px;
+  border-left: 4px solid var(--oab-vermelho);
+  padding-left: 12px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ABA 3 — PAUTA VIRTUAL
+══════════════════════════════════════════════════════════════ */
+/* ── 9. CARDS DE PROCESSO ──────────────────────── */
 .processo-wrapper { margin-bottom: 12px; }
 .lista-card {
   background: var(--oab-branco); border-radius: 10px; padding: 14px 18px;

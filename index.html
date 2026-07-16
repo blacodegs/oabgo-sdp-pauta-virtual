@@ -112,21 +112,61 @@
 
   </div><!-- /aba-presenca -->
 
-  <!-- ══ ABA 2: VOTAÇÃO (placeholder) ════════════════════════════ -->
-  <div class="aba-panel" id="aba-votacao">
-    <div class="page-banner">
-      <h1>Votação</h1>
-      <div class="banner-meta">
-        <span class="banner-meta-item"><i class="material-icons">construction</i> Em construção</span>
+    <!-- ══ ABA 2: VOTAÇÃO INDIVIDUAL ═══════════════════════════════ -->
+    <div class="aba-panel" id="aba-votacao">
+
+      <!-- Banner da sessão -->
+      <div class="presenca-banner" id="votacaoBanner">
+        <div class="presenca-banner-inner">
+          <div class="presenca-brasao">
+            <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
+                alt="OAB Goiás" class="brasao-img">
+          </div>
+          <div class="presenca-banner-texto">
+            <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
+            <h1 class="presenca-titulo" id="votacaoTitulo">Votação em andamento…</h1>
+            <p class="presenca-data" id="votacaoData"></p>
+          </div>
+        </div>
       </div>
-    </div>
-    <main class="main-container">
-      <div class="estado vazio">
-        <i class="material-icons">hourglass_empty</i>
-        <p>Esta funcionalidade está sendo implementada.</p>
+
+      <!-- Conteúdo principal -->
+      <div class="votacao-main" id="votacaoMain" style="display:none;">
+
+        <!-- Requerente -->
+        <div class="votacao-requerente" id="votacaoRequerente"></div>
+
+        <!-- Exposição dos votos -->
+        <div class="votacao-votos" id="votacaoVotos"></div>
+
+        <!-- Formulário de votação -->
+        <div class="votacao-form-wrap">
+          <div class="votacao-form-card">
+            <h3 class="votacao-form-titulo">Registrar seu voto</h3>
+            <div class="input-field" style="margin-bottom:20px;">
+              <select id="votacaoSelectNome">
+                <option value="" disabled selected>Escolha seu nome</option>
+              </select>
+              <label>Seu nome completo</label>
+            </div>
+            <label class="opcoes-label">Selecione sua opção de voto</label>
+            <div class="opcoes-voto" id="votacaoOpcoes"></div>
+            <div class="voto-form-actions" style="justify-content:flex-end;">
+              <button class="btn-oab-confirm" id="btnConfirmarVotacao">
+                <i class="material-icons" style="font-size:15px">check</i> Confirmar voto
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
-  </div>
+
+      <!-- Estado de carregamento -->
+      <div id="votacaoEstado" class="estado loading">
+        <i class="material-icons">autorenew</i>
+        <p>Carregando dados do processo…</p>
+      </div>
+
+    </div><!-- /aba-votacao -->
 
   <!-- ══ ABA 3: PAUTA VIRTUAL ════════════════════════════════════ -->
   <div class="aba-panel" id="aba-pauta">

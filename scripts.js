@@ -41,6 +41,10 @@ function trocarAba(novaAba, el) {
   if (novaAba === 'presenca' && !_sessaoPresencaId) {
     iniciarPresenca();
   }
+  if (novaAba === 'votacao' && !window._votacaoIniciada) {
+    window._votacaoIniciada = true;
+    iniciarVotacao();
+  }
   if (novaAba === 'pauta' && !_sessaoId) {
     iniciarPauta();
   }
@@ -304,6 +308,167 @@ async function confirmarPresenca() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="material-icons" style="font-size:16px">check</i> Confirmar presença';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ABA 2 — VOTAÇÃO INDIVIDUAL
+══════════════════════════════════════════════════════════════ */
+
+let _votacaoFichaId = null;
+
+async function iniciarVotacao() {
+  var estadoEl = document.getElementById('votacaoEstado');
+  var mainEl   = document.getElementById('votacaoMain');
+
+  if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado loading'; }
+  if (mainEl)   mainEl.style.display = 'none';
+
+  try {
+    // 1. Busca o estado ativo do tipo "Processo em votação"
+    var estado = await gasGet({ acao: 'estadoAtivo' });
+    if (!estado.fichaId || estado.tipo !== 'Processo em votação') {
+      if (estadoEl) {
+        estadoEl.className = 'estado vazio';
+        estadoEl.innerHTML = '<i class="material-icons">gavel_off</i><p>Nenhum processo em votação no momento.</p>';
+      }
+      return;
+    }
+
+    _votacaoFichaId = estado.fichaId;
+
+    // 2. Carrega membros + dados da votação
+    var [dadosVotacao] = await Promise.all([
+      gasGet({ acao: 'infoVotacao', fichaId: _votacaoFichaId }),
+      carregarMembros()
+    ]);
+
+    if (!dadosVotacao.sucesso) throw new Error(dadosVotacao.erro || 'Erro ao carregar dados.');
+
+    // 3. Renderiza banner
+    document.getElementById('votacaoTitulo').textContent = dadosVotacao.titulo || 'Votação';
+    var dataHtml = '';
+    if (dadosVotacao.dataSessao) dataHtml += '<i class="material-icons" style="font-size:16px">event</i> ' + dadosVotacao.dataSessao;
+    if (dadosVotacao.orgao) dataHtml += (dataHtml ? ' · ' : '') + dadosVotacao.orgao;
+    document.getElementById('votacaoData').innerHTML = dataHtml;
+
+    // 4. Renderiza requerente
+    var reqEl = document.getElementById('votacaoRequerente');
+    if (reqEl && dadosVotacao.requerente) {
+      reqEl.innerHTML = '<strong>Requerente</strong>' + dadosVotacao.requerente;
+      reqEl.style.display = 'block';
+    } else if (reqEl) {
+      reqEl.style.display = 'none';
+    }
+
+    // 5. Renderiza exposição dos votos
+    renderExposicaoVotos(dadosVotacao.votos || []);
+
+    // 6. Renderiza formulário de votação
+    renderFormularioVotacao(dadosVotacao.opcoesVoto || []);
+
+    // 7. Exibe a interface
+    if (estadoEl) estadoEl.style.display = 'none';
+    if (mainEl)   mainEl.style.display = 'block';
+
+  } catch (err) {
+    console.error('[votacao] erro:', err);
+    if (estadoEl) {
+      estadoEl.className = 'estado erro';
+      estadoEl.innerHTML = '<i class="material-icons">error_outline</i><p>Não foi possível carregar os dados.<br>' + err.message + '</p>';
+    }
+  }
+}
+
+function renderExposicaoVotos(votos) {
+  var container = document.getElementById('votacaoVotos');
+  if (!container) return;
+
+  if (!votos.length) {
+    container.innerHTML = '<div class="mv-empty">Nenhum voto registrado para esta ficha.</div>';
+    return;
+  }
+
+  var html = '';
+  votos.forEach(function(v) {
+    var textoLimpo = (v.texto || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+    html +=
+      '<div class="voto-exposicao-card">' +
+        '<div class="voto-exposicao-header">' +
+          '<span class="voto-exposicao-tipo">' + (v.tipo || 'Voto').toUpperCase() + '</span>' +
+          '<span class="voto-exposicao-relator">' + (v.relator || '—') + '</span>' +
+        '</div>' +
+        '<div class="voto-exposicao-body">' +
+          '<p class="voto-exposicao-texto">' + textoLimpo + '</p>' +
+        '</div>' +
+      '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function renderFormularioVotacao(opcoes) {
+  var container = document.getElementById('votacaoOpcoes');
+  if (!container) return;
+
+  var html = '';
+  opcoes.forEach(function(opcao) {
+    html +=
+      '<label class="opcao-voto-label" onclick="selecionarVoto(this)">' +
+        '<input type="radio" name="votacaoOpcao" value="' + opcao + '">' +
+        opcao +
+      '</label>';
+  });
+  container.innerHTML = html;
+
+  // Popula o select de nome
+  var select = document.getElementById('votacaoSelectNome');
+  if (select && select.options.length <= 1) {
+    select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
+    Object.keys(_membrosCache).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(nome) {
+      var opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      select.appendChild(opt);
+    });
+    M.FormSelect.init(select, {});
+  }
+
+  // Configura botão confirmar
+  document.getElementById('btnConfirmarVotacao').onclick = confirmarVotoIndividual;
+}
+
+async function confirmarVotoIndividual() {
+  var select = document.getElementById('votacaoSelectNome');
+  var nome   = select ? select.value.trim() : '';
+  var radioSel = document.querySelector('input[name="votacaoOpcao"]:checked');
+
+  if (!nome) { toast('Selecione seu nome na lista.', 'erro'); return; }
+  if (!radioSel) { toast('Selecione uma opção de voto.', 'erro'); return; }
+
+  var btn = document.getElementById('btnConfirmarVotacao');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="material-icons" style="font-size:15px;animation:spin 1s linear infinite">autorenew</i> Registrando…';
+
+  try {
+    await gasPost({ acao: 'votar', nome: nome, voto: radioSel.value, idFicha: _votacaoFichaId });
+    toast('Voto registrado com sucesso!');
+
+    // Reseta o formulário
+    select.value = '';
+    var inst = M.FormSelect.getInstance(select);
+    if (inst) inst.destroy();
+    M.FormSelect.init(select, {});
+    document.querySelectorAll('input[name="votacaoOpcao"]').forEach(function(r) {
+      r.checked = false;
+      var p = r.closest('.opcao-voto-label');
+      if (p) p.classList.remove('selecionada');
+    });
+
+  } catch (err) {
+    toast('Erro ao registrar voto.', 'erro');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="material-icons" style="font-size:15px">check</i> Confirmar voto';
   }
 }
 
