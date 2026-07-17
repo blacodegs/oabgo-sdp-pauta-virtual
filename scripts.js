@@ -330,7 +330,7 @@ async function iniciarVotacao() {
     if (!estado.processoVotacao) {
       if (estadoEl) {
         estadoEl.className = 'estado vazio';
-        estadoEl.innerHTML = '<i class="material-icons">gavel_off</i><p>Nenhum processo em votação no momento.</p>';
+        estadoEl.innerHTML = '<i class="material-icons">how_to_vote</i><p>Nenhum processo em votação no momento.</p>';
       }
       return;
     }
@@ -481,7 +481,10 @@ async function iniciarPauta() {
   try {
     var estado = await gasGet({ acao: 'estadoAtivo' });
       if (!estado.sessaoVirtual) {
-        // exibe mensagem de nenhuma sessão virtual ativa
+        document.getElementById('listaProcessos').innerHTML =
+          '<div class="estado vazio"><i class="material-icons">event_busy</i><p>Nenhuma sessão virtual ativa no momento.</p></div>';
+        document.getElementById('bannerMeta').innerHTML =
+          '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
         return;
       }
       _sessaoId = estado.sessaoVirtual;
