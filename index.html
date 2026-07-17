@@ -18,9 +18,7 @@
 
   <!-- ══ HEADER ══════════════════════════════════════════════════ -->
   <header class="oab-header">
-    <img class="oab-logo"
-         src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
-         alt="OAB Goiás">
+    <img class="oab-logo oab-logo-dinamico" alt="OAB Goiás">
     <span class="oab-header-title">SISTEMA DE DEFESA DAS PRERROGATIVAS</span>
   </header>
 
@@ -49,8 +47,7 @@
     <div class="presenca-banner" id="presencaBanner">
       <div class="presenca-banner-inner">
         <div class="presenca-brasao">
-          <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
-               alt="OAB Goiás" class="brasao-img">
+          <img class="brasao-img oab-logo-dinamico" alt="OAB Goiás">
         </div>
         <div class="presenca-banner-texto">
           <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
@@ -85,12 +82,37 @@
           </div>
         </div>
 
-        <!-- Botão principal -->
         <div class="presenca-cta-wrap" id="presencaCtaWrap">
-          <button class="btn-presenca" id="btnRegistrarPresenca" onclick="abrirModalPresenca()">
+
+          <!-- Botão principal -->
+          <button class="btn-presenca" id="btnRegistrarPresenca" onclick="mostrarCardPresenca()">
             <span class="btn-presenca-icon"><i class="material-icons">touch_app</i></span>
             <span class="btn-presenca-texto">Clique aqui para<br>registrar sua presença</span>
           </button>
+
+          <!-- Card de presença (inicialmente oculto) -->
+          <div class="presenca-card" id="presencaCard" style="display:none;">
+            <div class="presenca-card-inner">
+              <p class="presenca-card-instrucao">Selecione seu nome na lista para confirmar sua presença nesta sessão.</p>
+              <div class="input-field" style="margin-bottom:8px;">
+                <select id="selectPresenca">
+                  <option value="" disabled selected>Escolha seu nome</option>
+                </select>
+                <label>Seu nome</label>
+              </div>
+              <p id="presencaJaRegistrada" style="display:none;font-size:12px;color:var(--oab-verde);font-weight:700;margin-top:8px;">
+                <i class="material-icons" style="font-size:14px;vertical-align:middle">check_circle</i>
+                Você já registrou presença nesta sessão.
+              </p>
+              <div class="presenca-card-actions">
+                <button class="btn-oab" onclick="fecharCardPresenca()">Cancelar</button>
+                <button class="btn-oab-confirm" id="btnConfirmarPresenca" onclick="confirmarPresenca()">
+                  <i class="material-icons" style="font-size:16px">check</i>
+                  Confirmar presença
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -101,10 +123,9 @@
           <p class="qr-instrucao">Escaneie para acessar<br>esta página</p>
           <!-- QR Code placeholder — substitua pelo QR gerado com o endereço real -->
           <div class="qr-imagem-wrap">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca&color=002d56&bgcolor=ffffff"
-                 alt="QR Code de acesso" class="qr-imagem">
+            <img id="qrImagem" alt="QR Code de acesso" class="qr-imagem">
           </div>
-          <p class="qr-url" id="qrUrl">https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca</p>
+          <p class="qr-url" id="qrUrl"></p>
         </div>
       </div>
 
@@ -119,8 +140,7 @@
       <div class="presenca-banner" id="votacaoBanner">
         <div class="presenca-banner-inner">
           <div class="presenca-brasao">
-            <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png"
-                alt="OAB Goiás" class="brasao-img">
+            <img class="brasao-img oab-logo-dinamico" alt="OAB Goiás">
           </div>
           <div class="presenca-banner-texto">
             <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
@@ -134,7 +154,7 @@
       <div class="votacao-main" id="votacaoMain" style="display:none;">
 
         <!-- Requerente -->
-        <div class="votacao-requerente" id="votacaoRequerente"></div>
+        <div class="votacao-cabecalho" id="votacaoCabecalho"></div>
 
         <!-- Exposição dos votos -->
         <div class="votacao-votos" id="votacaoVotos"></div>
@@ -170,12 +190,20 @@
 
   <!-- ══ ABA 3: PAUTA VIRTUAL ════════════════════════════════════ -->
   <div class="aba-panel" id="aba-pauta">
-    <div class="page-banner">
-      <h1 id="bannerTitulo">PAUTA DE JULGAMENTO VIRTUAL</h1>
-      <div class="banner-meta" id="bannerMeta">
-        <span class="banner-meta-item"><i class="material-icons">sync</i> Carregando…</span>
+    <!-- Banner unificado (estilo presença) -->
+    <div class="presenca-banner">
+      <div class="presenca-banner-inner">
+        <div class="presenca-brasao">
+          <img class="brasao-img oab-logo-dinamico" alt="OAB Goiás">
+        </div>
+        <div class="presenca-banner-texto">
+          <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
+          <h1 class="presenca-titulo" id="bannerTituloPauta">PAUTA DE JULGAMENTO VIRTUAL</h1>
+          <p class="presenca-data" id="bannerMeta"></p>
+        </div>
       </div>
     </div>
+
     <main class="main-container">
       <div class="section-header">
         <span class="section-title">
@@ -190,43 +218,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <!-- ══ MODAL: REGISTRAR PRESENÇA ═══════════════════════════════ -->
-  <div class="modal-overlay" id="modalPresenca">
-    <div class="modal-box modal-presenca-box">
-      <div class="modal-header">
-        <div class="modal-header-left">
-          <span class="modal-eyebrow">Sessão Presencial</span>
-          <h5>Registrar Presença</h5>
-        </div>
-        <button class="modal-close" onclick="fecharModal('modalPresenca')">
-          <i class="material-icons">close</i>
-        </button>
-      </div>
-      <div class="modal-body" style="padding:24px;">
-        <p style="font-size:14px;color:var(--oab-cinza-txt);margin-bottom:20px;">
-          Selecione seu nome na lista para confirmar sua presença nesta sessão.
-        </p>
-        <div class="input-field" style="margin-bottom:8px;">
-          <select id="selectPresenca">
-            <option value="" disabled selected>Escolha seu nome</option>
-          </select>
-          <label>Seu nome</label>
-        </div>
-        <p id="presencaJaRegistrada" style="display:none;font-size:12px;color:var(--oab-verde);font-weight:700;margin-top:8px;">
-          <i class="material-icons" style="font-size:14px;vertical-align:middle">check_circle</i>
-          Você já registrou presença nesta sessão.
-        </p>
-      </div>
-      <div class="modal-footer-bar">
-        <button class="btn-oab" onclick="fecharModal('modalPresenca')">Cancelar</button>
-        <button class="btn-oab-confirm" id="btnConfirmarPresenca" onclick="confirmarPresenca()">
-          <i class="material-icons" style="font-size:16px">check</i>
-          Confirmar presença
-        </button>
-      </div>
-    </div>
   </div>
 
   <!-- ══ MODAL: LISTA DE VOTOS DA FICHA ══════════════════════════ -->
@@ -257,8 +248,7 @@
 
   <!-- ══ RODAPÉ ═══════════════════════════════════════════════════ -->
   <footer class="oab-footer-nav">
-    <img src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png"
-         alt="OAB Goiás" style="height:80px;">
+    <img id="logoRodape" alt="OAB Goiás" style="height:80px;">
   </footer>
 
   <script src="scripts.js"></script>

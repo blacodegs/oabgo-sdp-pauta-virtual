@@ -5,6 +5,11 @@
 
 /* ── CONFIG ─────────────────────────────────────────────────── */
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx91dyMa69vT0704BsR9iPiGhLBq884oViaLtepDYF_mWCM3RzJcqyHCPcG5-Chd-Pp/exec';
+const URL_LOGO_OAB        = 'https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png';
+const URL_LOGO_RODAPE     = 'https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png';
+const URL_QR_PRESENCA     = 'https://blakodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca';
+const URL_QR_IMAGEM       = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' +
+                             encodeURIComponent(URL_QR_PRESENCA) + '&color=002d56&bgcolor=ffffff';
 
 /* ── ESTADO GLOBAL ──────────────────────────────────────────── */
 let _sessaoId           = null;   // sessão da pauta virtual
@@ -238,11 +243,15 @@ function renderChipsPresentes(lista) {
   }).join('');
 }
 
-function abrirModalPresenca() {
-  var select = document.getElementById('selectPresenca');
-  if (!select) return;
+function mostrarCardPresenca() {
+  // Esconde o botão
+  document.getElementById('btnRegistrarPresenca').style.display = 'none';
+  // Mostra o card
+  var card = document.getElementById('presencaCard');
+  card.style.display = 'block';
 
-  // Popula o select com os membros
+  // Popula o select com os membros (mesmo código do modal)
+  var select = document.getElementById('selectPresenca');
   select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
   Object.keys(_membrosCache).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(nome) {
     var opt = document.createElement('option');
@@ -250,17 +259,20 @@ function abrirModalPresenca() {
     opt.textContent = nome;
     select.appendChild(opt);
   });
-
-  // Destrói instância anterior e reinicializa
   var oldInst = M.FormSelect.getInstance(select);
   if (oldInst) oldInst.destroy();
   M.FormSelect.init(select, {});
 
   // Esconde mensagem de "já registrado"
-  var jaReg = document.getElementById('presencaJaRegistrada');
-  if (jaReg) jaReg.style.display = 'none';
+  document.getElementById('presencaJaRegistrada').style.display = 'none';
 
-  document.getElementById('modalPresenca').classList.add('ativo');
+  // Scroll suave até o card
+  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function fecharCardPresenca() {
+  document.getElementById('presencaCard').style.display = 'none';
+  document.getElementById('btnRegistrarPresenca').style.display = 'flex';
 }
 
 async function confirmarPresenca() {
@@ -287,7 +299,7 @@ async function confirmarPresenca() {
     _participantesCache.push(nome);
     renderChipsPresentes(_participantesCache);
 
-    fecharModal('modalPresenca');
+    fecharCardPresenca();
     toast('Presença de ' + nome + ' registrada!');
 
   } catch (err) {
@@ -315,9 +327,15 @@ async function iniciarVotacao() {
   try {
     // 1. Busca o estado ativo do tipo "Processo em votação"
     var estado = await gasGet({ acao: 'estadoAtivo' });
-    var fichaId = estado.processoVotacao;   // ← específico para esta aba
+    if (!estado.processoVotacao) {
+      if (estadoEl) {
+        estadoEl.className = 'estado vazio';
+        estadoEl.innerHTML = '<i class="material-icons">gavel_off</i><p>Nenhum processo em votação no momento.</p>';
+      }
+      return;
+    }
 
-    _votacaoFichaId = fichaId;
+    _votacaoFichaId = estado.processoVotacao;
 
     // 2. Carrega membros + dados da votação
     var [dadosVotacao] = await Promise.all([
@@ -327,23 +345,24 @@ async function iniciarVotacao() {
 
     if (!dadosVotacao.sucesso) throw new Error(dadosVotacao.erro || 'Erro ao carregar dados.');
 
-    // 3. Renderiza banner
+    // 3. Renderiza banner (mantido igual)
     document.getElementById('votacaoTitulo').textContent = dadosVotacao.titulo || 'Votação';
     var dataHtml = '';
     if (dadosVotacao.dataSessao) dataHtml += '<i class="material-icons" style="font-size:16px">event</i> ' + dadosVotacao.dataSessao;
     if (dadosVotacao.orgao) dataHtml += (dataHtml ? ' · ' : '') + dadosVotacao.orgao;
     document.getElementById('votacaoData').innerHTML = dataHtml;
 
-    // 4. Renderiza requerente
-    var reqEl = document.getElementById('votacaoRequerente');
-    if (reqEl && dadosVotacao.requerente) {
-      reqEl.innerHTML = '<strong>Requerente</strong>' + dadosVotacao.requerente;
-      reqEl.style.display = 'block';
-    } else if (reqEl) {
-      reqEl.style.display = 'none';
+    // 4. Renderiza cabeçalho com requerente, requerido e ementa (NOVO)
+    var cabecalhoEl = document.getElementById('votacaoCabecalho');
+    if (cabecalhoEl && dadosVotacao) {
+      var html = '';
+      if (dadosVotacao.requerente) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerente</span><span class="votacao-valor">' + dadosVotacao.requerente + '</span></div>';
+      if (dadosVotacao.requerido) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerido</span><span class="votacao-valor">' + dadosVotacao.requerido + '</span></div>';
+      if (dadosVotacao.ementa) html += '<div class="votacao-info-linha votacao-ementa"><span class="votacao-rotulo">Ementa</span><span class="votacao-valor">' + dadosVotacao.ementa + '</span></div>';
+      cabecalhoEl.innerHTML = html;
     }
 
-    // 5. Renderiza exposição dos votos
+    // 5. Renderiza exposição dos votos (já exibe relator com "Voto condutor:" se for Pleno)
     renderExposicaoVotos(dadosVotacao.votos || []);
 
     // 6. Renderiza formulário de votação
@@ -504,12 +523,13 @@ async function carregarPauta() {
 
 function renderBannerPauta(sessao) {
   if (!sessao) return;
-  var itens = [
-    sessao.orgao        ? '<span class="banner-meta-item"><i class="material-icons">gavel</i>' + sessao.orgao + '</span>' : '',
-    sessao.dataFormatada? '<span class="banner-meta-item"><i class="material-icons">event</i>Pauta iniciada em ' + sessao.dataFormatada + '</span>' : '',
-    sessao.local        ? '<span class="banner-meta-item"><i class="material-icons">place</i>' + sessao.local + '</span>' : '',
-  ].filter(Boolean).join('');
-  document.getElementById('bannerMeta').innerHTML = itens || '<span class="banner-meta-item">Sessão carregada</span>';
+  var data = sessao.dataFormatada || sessao.data || '';
+  var itens = [];
+  if (sessao.orgao) itens.push('<i class="material-icons" style="font-size:16px;">gavel</i> ' + sessao.orgao);
+  if (data)         itens.push('<i class="material-icons" style="font-size:16px;">event</i> Pauta iniciada em ' + data);
+  if (sessao.local) itens.push('<i class="material-icons" style="font-size:16px;">place</i> ' + sessao.local);
+  var el = document.getElementById('bannerMeta');
+  if (el) el.innerHTML = itens.join(' &nbsp;·&nbsp; ') || '<span class="banner-meta-item">Sessão carregada</span>';
 }
 
 function renderPauta(pauta) {
@@ -532,28 +552,35 @@ function criarCard(p) {
   wrapper.dataset.idFicha = p.idFicha || '';
 
   const temAutos = !!(p.urlAutos);
+  const temVoto = p.temVoto;
   const idFichaEsc = esc(p.idFicha);
   const processoEsc = esc(p.processo);
   const generoRelator = _membrosCache[p.relator] || 'Masculino';
   const labelRelator = generoRelator === 'Feminino' ? 'Relatora' : 'Relator';
 
   // Ícone de PDF — vermelho, com tooltip
-  const iconRelat =
-    '<button class="action-icon pdf-btn tooltipped" data-position="bottom" data-tooltip="Visualizar processo completo"' +
-    (temAutos ? ' onclick="abrirRelatorio(\'' + esc(p.urlAutos) + '\')"' : ' disabled style="opacity:.3"') + '>' +
-    '<i class="material-icons" style="font-size:19px">picture_as_pdf</i></button>';
+  const iconRelat = temAutos
+    ? '<button class="action-icon pdf-btn tooltipped" data-position="bottom" data-tooltip="Visualizar processo completo" onclick="abrirRelatorio(\'' + esc(p.urlAutos) + '\')"><i class="material-icons" style="font-size:19px">picture_as_pdf</i></button>'
+    : '<span class="tooltipped" data-position="bottom" data-tooltip="Processo não localizado">' +
+        '<button class="action-icon pdf-btn" style="opacity:.3; pointer-events:none; cursor:default;" disabled>' +
+          '<i class="material-icons" style="font-size:19px">picture_as_pdf</i>' +
+        '</button>' +
+      '</span>';
 
   // Ícone de votos da ficha
   const iconVotos =
     '<button class="action-icon tooltipped" data-position="bottom" data-tooltip="Visualizar ou juntar voto" ' +
     'onclick="abrirModalVotos(\'' + idFichaEsc + '\', \'' + processoEsc + '\')">' +
     '<i class="material-icons" style="font-size:19px">description</i></button>';
-
-  // Ícone de registrar voto
-  const iconVotar =
-    '<button class="action-icon votar-btn tooltipped" data-position="bottom" data-tooltip="Registrar voto" ' +
-    'onclick="toggleVotoForm(\'' + idFichaEsc + '\')">' +
-    '<i class="material-icons" style="font-size:19px">how_to_vote</i></button>';
+  
+  // Ícone de registrar voto (desabilitado se não há voto na ficha)
+  const iconVotar = temVoto
+    ? '<button class="action-icon votar-btn tooltipped" data-position="bottom" data-tooltip="Votar" onclick="toggleVotoForm(\'' + idFichaEsc + '\')"><i class="material-icons" style="font-size:19px">how_to_vote</i></button>'
+    : '<span class="tooltipped" data-position="bottom" data-tooltip="Nenhum voto registrado">' +
+        '<button class="action-icon votar-btn" style="opacity:.5; pointer-events:none; cursor:default;" disabled>' +
+          '<i class="material-icons" style="font-size:19px">how_to_vote</i>' +
+        '</button>' +
+      '</span>';
 
   // Determina se é Pleno (variável global _orgaoSessao já normalizada)
   const ePleno = _orgaoSessao.includes('pleno');
@@ -867,7 +894,7 @@ function mvRenderLista(votos) {
 
   html +=
     '<div class="mv-btn-add-wrap">' +
-      '<button class="btn-oab-confirm tooltipped" data-position="bottom" title="Adicionar novo voto" onclick="mvMostrarFormNovo()" style="font-size:11px">' +
+      '<button class="btn-oab-confirm" data-position="bottom" onclick="mvMostrarFormNovo()" style="font-size:11px">' +
       '<i class="material-icons" style="font-size:15px">add</i> Adicionar voto</button>' +
     '</div>';
 
@@ -902,11 +929,11 @@ function mvRenderLista(votos) {
         '<div class="voto-editor" id="mvNovoTexto" contenteditable="true" data-placeholder="Digite o voto…"></div>' +
       '</div>' +
       '<div class="mv-novo-actions">' +
-        '<button class="btn-oab-confirm tooltipped" data-position="top" title="Anexar relatório em PDF" onclick="mvAnexarPdfNovo()" style="font-size:11px;display:flex;align-items:center;gap:5px;" id="mvBtnPdf">' +
-        '<i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório</button>' +
+        '<button class="btn-oab-confirm" data-position="top" onclick="mvAnexarPdfNovo()" style="font-size:11px;display:flex;align-items:center;gap:5px;" id="mvBtnPdf">' +
+        '<i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório em PDF</button>' +
         '<div class="mv-novo-actions-right">' +
-          '<button class="btn-oab tooltipped" data-position="top" title="Cancelar" onclick="mvFecharFormNovo()">Cancelar</button>' +
-          '<button class="btn-oab-confirm tooltipped" data-position="top" title="Salvar novo voto" id="mvBtnSalvar" onclick="mvSalvarNovoVoto()">Salvar</button>' +
+          '<button class="btn-oab" data-position="top" onclick="mvFecharFormNovo()">Cancelar</button>' +
+          '<button class="btn-oab-confirm" data-position="top" id="mvBtnSalvar" onclick="mvSalvarNovoVoto()">Salvar</button>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1259,6 +1286,25 @@ document.querySelectorAll('.modal-overlay').forEach(function(o) {
     // Fallback: presença
     trocarAba('presenca', document.querySelector('[data-aba="presenca"]'));
   }
+})();
+
+(function aplicarConstantesVisuais() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Logos OAB
+    var logos = document.querySelectorAll('.oab-logo-dinamico');
+    for (var i = 0; i < logos.length; i++) {
+      logos[i].src = URL_LOGO_OAB;
+    }
+    // Rodapé
+    var logoRodape = document.getElementById('logoRodape');
+    if (logoRodape) logoRodape.src = URL_LOGO_RODAPE;
+
+    // QR Code
+    var qrImg = document.getElementById('qrImagem');
+    if (qrImg) qrImg.src = URL_QR_IMAGEM;
+    var qrUrl = document.getElementById('qrUrl');
+    if (qrUrl) qrUrl.textContent = URL_QR_PRESENCA;
+  });
 })();
 
 function initAutocompleteOnFocus(inputEl) {

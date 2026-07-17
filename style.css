@@ -283,20 +283,43 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   text-transform: lowercase;
   letter-spacing: .03em; margin: 0;
 }
-
-/* Modal de presença (tamanho reduzido, centralizado) */
-.modal-presenca-box { max-width: 460px !important; }
+/* Card de presença (substituto do modal) */
+.presenca-card { width: 100%; max-width: 500px; margin: 0 auto; }
+.presenca-card-inner {
+  background: var(--oab-branco); border-radius: 12px; padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,68,128,0.12); border: 1px solid var(--oab-azul-suave);
+}
+.presenca-card-instrucao { font-size: 14px; color: var(--oab-cinza-txt); margin: 0 0 20px; line-height: 1.5; }
+.presenca-card-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.07);
+}
 
 /* ══════════════════════════════════════════════════════════════
    ABA 2 — VOTAÇÃO INDIVIDUAL
 ══════════════════════════════════════════════════════════════ */
 
-.votacao-main {
-  max-width: 940px;
-  margin: 0 auto;
-  padding: 40px 24px 60px;
+.votacao-main { max-width: 940px; margin: 0 auto; padding: 40px 24px 60px; }
+.votacao-cabecalho {
+  background: var(--oab-branco);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--oab-azul);
 }
-
+.votacao-info-linha {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-bottom: 6px; font-size: 14px; color: var(--oab-cinza-txt);
+}
+.votacao-info-linha:last-child { margin-bottom: 0; }
+.votacao-rotulo {
+  font-size: 10px; font-weight: 700; color: var(--oab-cinza-label);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  min-width: 80px; flex-shrink: 0;
+}
+.votacao-valor { font-size: 14px; color: var(--oab-cinza-txt); }
+.votacao-ementa { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,68,128,0.1); }
 .votacao-requerente {
   background: var(--oab-branco);
   border-radius: 10px;
@@ -316,10 +339,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   letter-spacing: 0.04em;
   margin-bottom: 4px;
 }
-
-.votacao-votos {
-  margin-bottom: 40px;
-}
+.votacao-votos { margin-bottom: 40px; }
 
 .voto-exposicao-card {
   background: var(--oab-branco);
@@ -328,7 +348,6 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   overflow: hidden;
 }
-
 .voto-exposicao-header {
   padding: 16px 20px;
   background: var(--oab-azul-suave);
@@ -337,7 +356,6 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   align-items: center;
   gap: 12px;
 }
-
 .voto-exposicao-tipo {
   font-size: 14px;
   font-weight: 700;
@@ -356,13 +374,9 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 
 /* Formulário de votação */
-.votacao-form-wrap {
-  display: flex;
-  justify-content: center;
-}
-
+.votacao-form-wrap { display: flex; justify-content: center; }
 .votacao-form-card {
-  background: var(--oab-branco);
+  background: var(--oab-azul-suave);
   border-radius: 12px;
   padding: 28px 32px;
   box-shadow: 0 4px 16px rgba(0,68,128,0.12);
@@ -370,7 +384,6 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   max-width: 500px;
   border: 1px solid var(--oab-azul-suave);
 }
-
 .votacao-form-titulo {
   font-size: 16px;
   font-weight: 700;
@@ -458,7 +471,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .opcoes-voto { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
 .opcao-voto-label {
   display: inline-flex; align-items: center;
-  background: var(--oab-branco); border: 1.5px solid var(--oab-cinza-bg);
+  background: var(--oab-branco); border: 1.5px solid var(--oab-cinza-md);
   border-radius: 50px; padding: 8px 18px;
   font-size: 12px; font-weight: 600; color: var(--oab-grafite);
   cursor: pointer; transition: all .2s; user-select: none;
