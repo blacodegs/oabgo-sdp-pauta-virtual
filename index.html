@@ -11,7 +11,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <link rel="stylesheet" href="style.css">
+  
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SDP-OAB/GO">
+  <link rel="apple-touch-icon" href="images/logo-sdp-192.png">
+
+  <!-- Cor da barra de endereço (Android) -->
+  <meta name="theme-color" content="#004480">
+  <!-- ... -->
+  <script src="js/scripts.js"></script>
+  <script src="js/presenca.js"></script>
+  <script src="js/votacao.js"></script>
+  <script src="js/pauta.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
@@ -252,6 +270,17 @@
     <img id="logoRodape" alt="OAB Goiás" style="height:80px;">
   </footer>
 
-  <script src="scripts.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').then(function(registration) {
+          console.log('Service Worker registrado com sucesso:', registration.scope);
+        }).catch(function(err) {
+          console.log('Falha ao registrar o Service Worker:', err);
+        });
+      });
+    }
+  </script>
+
 </body>
 </html>

@@ -1,0 +1,29 @@
+{
+  "name": "SDP-OAB/GO — Pauta Virtual",
+  "short_name": "SDP-OAB/GO",
+  "description": "Sistema de Defesa das Prerrogativas — OAB/GO",
+  "start_url": "/oabgo-sdp-pauta-virtual/?aba=presenca",
+  "display": "standalone",
+  "background_color": "#002d56",
+  "theme_color": "#004480",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "images/logo-sdp-165.png",
+      "sizes": "165x165",
+      "type": "image/png"
+    },
+    {
+      "src": "images/logo-sdp-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/logo-sdp-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
