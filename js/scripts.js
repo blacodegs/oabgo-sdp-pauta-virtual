@@ -219,27 +219,12 @@ function initAutocompleteOnFocus(inputEl) {
   inputEl.addEventListener('focus', ativar);
 }
 
-// Procedimento para instalar o app no Android (PWA)
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById('btnInstalarAndroid');
-  if (btn) btn.style.display = 'inline-flex';
-});
-
-function instalarApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((result) => {
-      if (result.outcome === 'accepted') toast('App instalado!');
-      deferredPrompt = null;
-      document.getElementById('btnInstalarAndroid').style.display = 'none';
+// Procedimento para exibir o modal de instalação iOS
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('btnInstalarIosNav');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('modalInstalarIos').classList.add('ativo');
     });
   }
-}
-
-function mostrarModalIos() {
-  document.getElementById('modalInstalarIos').classList.add('ativo');
-}
+});
