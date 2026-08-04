@@ -218,3 +218,28 @@ function initAutocompleteOnFocus(inputEl) {
 
   inputEl.addEventListener('focus', ativar);
 }
+
+// Procedimento para instalar o app no Android (PWA)
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('btnInstalarAndroid');
+  if (btn) btn.style.display = 'inline-flex';
+});
+
+function instalarApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((result) => {
+      if (result.outcome === 'accepted') toast('App instalado!');
+      deferredPrompt = null;
+      document.getElementById('btnInstalarAndroid').style.display = 'none';
+    });
+  }
+}
+
+function mostrarModalIos() {
+  document.getElementById('modalInstalarIos').classList.add('ativo');
+}

@@ -262,11 +262,58 @@
     </div>
   </div>
 
+  <!-- Modal de Instalação iOS -->
+  <div class="modal-overlay" id="modalInstalarIos">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span style="font-size:14px;color:var(--oab-cinza-txt);">Instalação no iOS</span>
+          <h5>Adicionar à Tela de Início</h5>
+        </div>
+        <button class="modal-close" onclick="fecharModal('modalInstalarIos')">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:24px;text-align:center;">
+        <p style="font-size:14px;color:var(--oab-cinza-txt);margin-bottom:20px;">
+          Siga os passos abaixo para instalar o <strong>App de Pauta Virtual</strong> no seu iPhone ou iPad:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="background:var(--oab-azul);color:var(--oab-branco);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">1</span>
+            <span style="font-size:14px;color:var(--oab-cinza-txt);">Toque no ícone <strong>Compartilhar</strong> <i class="material-icons" style="font-size:16px;vertical-align:middle;">ios_share</i></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="background:var(--oab-azul);color:var(--oab-branco);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">2</span>
+            <span style="font-size:14px;color:var(--oab-cinza-txt);">Role e toque em <strong>"Adicionar à Tela de Início"</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="background:var(--oab-azul);color:var(--oab-branco);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">3</span>
+            <span style="font-size:14px;color:var(--oab-cinza-txt);">Confirme tocando em <strong>"Adicionar"</strong></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer-bar">
+        <button class="btn-oab-confirm" onclick="fecharModal('modalInstalarIos')">Entendi</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ TOAST ════════════════════════════════════════════════════ -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ══ RODAPÉ ═══════════════════════════════════════════════════ -->
   <footer class="oab-footer-nav">
+    <div class="install-buttons">
+      <button class="btn-oab tooltipped" data-position="top" data-tooltip="Instalar no Android" id="btnInstalarAndroid" style="display:none;" onclick="instalarApp()">
+        <i class="material-icons">android</i>
+        Instalar no Android
+      </button>
+      <button class="btn-oab tooltipped" data-position="top" data-tooltip="Instalar no iOS" id="btnInstalarIos" onclick="mostrarModalIos()">
+        <i class="material-icons">apple</i>
+        Instalar no iOS
+      </button>
+    </div>
     <img id="logoRodape" alt="OAB Goiás" style="height:80px;">
   </footer>
 
