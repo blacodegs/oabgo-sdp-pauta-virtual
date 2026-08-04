@@ -265,13 +265,13 @@ function configurarBotaoInstalacao() {
     onclickFn = function() { instalarApp(); };
   } else if (isAndroid) {
     icon = '<i class="material-icons">android</i>';
-    label = 'Instalar no Android(0)';
+    label = 'Instalar no Android';
     onclickFn = function() { instalarApp(); };
   } else {
     // iOS ou qualquer outro dispositivo não identificado
     icon = '<i class="material-icons">apple</i>';
     label = 'Instalar no iOS';
-    onclickFn = function() { mostrarModalIos(); };
+    onclickFn = mostrarModalIos;
   }
 
   btn.innerHTML = icon + ' <span>' + label + '</span>';
@@ -282,3 +282,7 @@ function configurarBotaoInstalacao() {
 // Executa ao carregar e ao redimensionar
 window.addEventListener('load', configurarBotaoInstalacao);
 window.addEventListener('resize', configurarBotaoInstalacao);
+
+function mostrarModalIos() {
+  document.getElementById('modalInstalarIos').classList.add('ativo');
+}
