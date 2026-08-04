@@ -245,11 +245,15 @@ function configurarBotaoInstalacao() {
   var btn = document.getElementById('btnInstalar');
   if (!btn) return;
 
-  var largura = window.innerWidth;
   var ua = navigator.userAgent;
+  var largura = window.innerWidth;
+
+  // iOS: modo antigo (iPhone/iPad/iPod) ou modo novo (Safari sem Chrome/Android)
+  var isIos = /iphone|ipad|ipod/.test(ua) ||
+              (/safari/i.test(ua) && !/chrome/i.test(ua) && !/android/i.test(ua));
+
   var isAndroid = /android/i.test(ua);
-  var isIos = /iphone|ipad|ipod/.test(ua);
-  var isDesktop = largura > 768; // ajuste o breakpoint se desejar
+  var isDesktop = !isIos && !isAndroid && largura > 768;
 
   var icon = '';
   var label = '';
@@ -261,17 +265,13 @@ function configurarBotaoInstalacao() {
     onclickFn = function() { instalarApp(); };
   } else if (isAndroid) {
     icon = '<i class="material-icons">android</i>';
-    label = 'Instalar no Android';
+    label = 'Instalar no Android(0)';
     onclickFn = function() { instalarApp(); };
-  } else if (isIos) {
+  } else {
+    // iOS ou qualquer outro dispositivo não identificado
     icon = '<i class="material-icons">apple</i>';
     label = 'Instalar no iOS';
     onclickFn = function() { mostrarModalIos(); };
-  } else {
-    // Outros dispositivos (ex.: celular Windows) – exibe fallback
-    icon = '<i class="material-icons">get_app</i>';
-    label = 'Instalar';
-    onclickFn = function() { toast('Para instalar, use o menu do navegador.'); };
   }
 
   btn.innerHTML = icon + ' <span>' + label + '</span>';
