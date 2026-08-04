@@ -240,3 +240,45 @@ function instalarApp() {
     toast('Para instalar, abra o menu do navegador e toque em "Adicionar à tela inicial".');
   }
 }
+
+function configurarBotaoInstalacao() {
+  var btn = document.getElementById('btnInstalar');
+  if (!btn) return;
+
+  var largura = window.innerWidth;
+  var ua = navigator.userAgent;
+  var isAndroid = /android/i.test(ua);
+  var isIos = /iphone|ipad|ipod/.test(ua);
+  var isDesktop = largura > 768; // ajuste o breakpoint se desejar
+
+  var icon = '';
+  var label = '';
+  var onclickFn = null;
+
+  if (isDesktop) {
+    icon = '<i class="material-icons">computer</i>';
+    label = 'Instalar no computador';
+    onclickFn = function() { instalarApp(); };
+  } else if (isAndroid) {
+    icon = '<i class="material-icons">android</i>';
+    label = 'Instalar no Android';
+    onclickFn = function() { instalarApp(); };
+  } else if (isIos) {
+    icon = '<i class="material-icons">apple</i>';
+    label = 'Instalar no iOS';
+    onclickFn = function() { mostrarModalIos(); };
+  } else {
+    // Outros dispositivos (ex.: celular Windows) – exibe fallback
+    icon = '<i class="material-icons">get_app</i>';
+    label = 'Instalar';
+    onclickFn = function() { toast('Para instalar, use o menu do navegador.'); };
+  }
+
+  btn.innerHTML = icon + ' <span>' + label + '</span>';
+  btn.onclick = onclickFn;
+  btn.style.display = 'inline-flex';
+}
+
+// Executa ao carregar e ao redimensionar
+window.addEventListener('load', configurarBotaoInstalacao);
+window.addEventListener('resize', configurarBotaoInstalacao);
