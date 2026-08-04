@@ -678,10 +678,12 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
     display: flex; align-items: center; gap: 4px; padding: 14px 28px; background: transparent; border: none;
     color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 600; font-family: var(--fonte); cursor: pointer;
     letter-spacing: 0.03em; border-bottom: 3px solid transparent; transition: all 0.2s ease; white-space: nowrap;
-    margin-left: auto; /* empurra para a direita */;
+    margin-left: auto; outline: none !important;
 }
 .btn-install-ios-nav i { font-size: 18px }
 .btn-install-ios-nav:hover { color: var(--oab-branco); background: rgba(255,255,255,0.08); border-bottom-color: var(--oab-vermelho) }
+.btn-install-ios-nav:focus,
+.btn-install-ios-nav:active { background: transparent !important; color: var(--oab-branco); }
 
 /* ── 18. RESPONSIVO ─────────────────────────────────────────── */
 @media (max-width: 700px) {
