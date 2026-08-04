@@ -43,25 +43,35 @@
 
   <!-- ══ NAVEGAÇÃO POR ABAS ══════════════════════════════════════ -->
   <nav class="abas-nav">
-    <ul class="abas-lista">
-      <li class="aba-item ativa" data-aba="presenca" onclick="trocarAba('presenca', this)">
-        <i class="material-icons">how_to_reg</i>
-        <span>Registrar Presença</span>
-      </li>
-      <li class="aba-item" data-aba="votacao" onclick="trocarAba('votacao', this)">
-        <i class="material-icons">how_to_vote</i>
-        <span>Votação</span>
-      </li>
-      <li class="aba-item" data-aba="pauta" onclick="trocarAba('pauta', this)">
-        <i class="material-icons">gavel</i>
-        <span>Pauta Virtual</span>
-      </li>
-    </ul>
-
-    <button class="btn-install-ios-nav" id="btnInstalarIosNav">
-      <i class="material-icons">apple</i>
-      Instalar no iOS
-    </button>
+    <div class="abas-nav-inner">
+      <ul class="abas-lista">
+        <li class="aba-item ativa" data-aba="presenca" onclick="trocarAba('presenca', this)">
+          <i class="material-icons">how_to_reg</i>
+          <span>Registrar Presença</span>
+        </li>
+        <li class="aba-item" data-aba="votacao" onclick="trocarAba('votacao', this)">
+          <i class="material-icons">how_to_vote</i>
+          <span>Votação</span>
+        </li>
+        <li class="aba-item" data-aba="pauta" onclick="trocarAba('pauta', this)">
+          <i class="material-icons">gavel</i>
+          <span>Pauta Virtual</span>
+        </li>
+      </ul>
+      <!--
+      <button class="btn-install-ios-nav" id="btnInstalarIosNav"
+              onclick="document.getElementById('modalInstalarIos').classList.add('ativo')">
+        <i class="material-icons">apple</i>
+        <span>Instalar no iOS</span>
+      </button>
+      -->
+      <button class="btn-install-ios-nav" id="btnInstalarAndroidNav"
+              onclick="instalarApp()">
+        <i class="material-icons">android</i>
+        <span>Instalar no Android</span>
+      </button>
+      
+    </div>
   </nav>
 
   <!-- ══ ABA 1: REGISTRAR PRESENÇA ═══════════════════════════════ -->

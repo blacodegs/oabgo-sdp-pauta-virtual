@@ -47,11 +47,8 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 
 /* ── 4. NAVEGAÇÃO POR ABAS ─────────────────────────────────── */
-.abas-nav {
-  background: var(--oab-azul-escuro);
-  position: relative; top: 70px; z-index: 900;
-  box-shadow: 0 2px 8px rgba(0,0,0,.25);
-}
+.abas-nav { background: var(--oab-azul-escuro); position: sticky; top: 70px; z-index: 900; box-shadow: 0 2px 8px rgba(0,0,0,.25) }
+.abas-nav-inner { display: flex; align-items: center; max-width: 940px; margin: 0 auto }
 .abas-lista {
   display: flex; list-style: none; margin: 0; padding: 0;
   max-width: 940px; margin: 0 auto;
@@ -676,12 +673,15 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   border-radius: 6px;
 }
 
+/* Botão de instalação iOS na barra de abas */
 .btn-install-ios-nav {
-    position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: transparent; border: none;
-    color: var(--oab-branco); font-size: 13px; font-weight: 700; font-family: var(--fonte); cursor: pointer; display: inline-flex;
-    align-items: center; gap: 6px; padding: 0 12px; border-radius: 20px; transition: background 0.2s; white-space: nowrap;
+    display: flex; align-items: center; gap: 4px; padding: 14px 28px; background: transparent; border: none;
+    color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 600; font-family: var(--fonte); cursor: pointer;
+    letter-spacing: 0.03em; border-bottom: 3px solid transparent; transition: all 0.2s ease; white-space: nowrap;
+    margin-left: auto; /* empurra para a direita */;
 }
-.btn-install-ios-nav:hover { background: rgba(255,255,255,0.15) }
+.btn-install-ios-nav i { font-size: 18px }
+.btn-install-ios-nav:hover { color: var(--oab-branco); background: rgba(255,255,255,0.08); border-bottom-color: var(--oab-vermelho) }
 
 /* ── 18. RESPONSIVO ─────────────────────────────────────────── */
 @media (max-width: 700px) {

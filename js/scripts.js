@@ -28,6 +28,7 @@ let _membrosCache       = {};     // { "Nome": "Masculino"|"Feminino" }
 let _participantesCache = [];     // nomes já presentes na sessão
 let _abaAtiva           = 'presenca';
 let _pollingPresenca    = null;   // intervalo de polling da aba 1
+let deferredPrompt;
 
 /* ══════════════════════════════════════════════════════════════
    NAVEGAÇÃO POR ABAS
@@ -135,6 +136,13 @@ async function gasPostViaGet(body) {
   return data;
 }
 
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  var btn = document.getElementById('btnInstalarAndroidNav');
+  if (btn) btn.style.display = 'inline-flex';
+});
+
 /* ══════════════════════════════════════════════════════════════
    MEMBROS — carregamento compartilhado
 ══════════════════════════════════════════════════════════════ */
@@ -219,12 +227,16 @@ function initAutocompleteOnFocus(inputEl) {
   inputEl.addEventListener('focus', ativar);
 }
 
-// Procedimento para exibir o modal de instalação iOS
-document.addEventListener('DOMContentLoaded', function() {
-  var btn = document.getElementById('btnInstalarIosNav');
-  if (btn) {
-    btn.addEventListener('click', function() {
-      document.getElementById('modalInstalarIos').classList.add('ativo');
+function instalarApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((result) => {
+      if (result.outcome === 'accepted') toast('App instalado!');
+      deferredPrompt = null;
+      document.getElementById('btnInstalarAndroidNav').style.display = 'none';
     });
+  } else {
+    // Fallback para quando o evento não dispara (ex.: desenvolvimento local)
+    toast('Para instalar, abra o menu do navegador e toque em "Adicionar à tela inicial".');
   }
-});
+}
