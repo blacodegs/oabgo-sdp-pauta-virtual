@@ -29,6 +29,7 @@ let _participantesCache = [];     // nomes já presentes na sessão
 let _abaAtiva           = 'presenca';
 let _pollingPresenca    = null;   // intervalo de polling da aba 1
 let deferredPrompt;
+let newWorker;
 
 /* ══════════════════════════════════════════════════════════════
    NAVEGAÇÃO POR ABAS
@@ -199,6 +200,28 @@ function definirConstantesVisuais() {
 
 // Executa imediatamente
 definirConstantesVisuais();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    reg.addEventListener('updatefound', () => {
+      newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          toast('Nova versão disponível!', 'sucesso');
+          var atualizarBtn = document.createElement('button');
+          atualizarBtn.textContent = 'Atualizar agora';
+          atualizarBtn.className = 'btn-oab-confirm';
+          atualizarBtn.onclick = function() {
+            newWorker.postMessage({ action: 'skipWaiting' });
+            window.location.reload();
+          };
+          var toastContainer = document.getElementById('toastContainer');
+          toastContainer.appendChild(atualizarBtn);
+        }
+      });
+    });
+  });
+}
 
 // Segunda tentativa após um delay (para cobrir renderização tardia de abas)
 setTimeout(definirConstantesVisuais, 500);
