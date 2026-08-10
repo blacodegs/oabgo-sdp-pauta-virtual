@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidade – Sistema de Sessões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="css/about.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
+            <img src="images/logo-sdp-512.png" alt="blacodegs" class="sidebar-logo" />
+          </a>
+          <span class="sidebar-title">Política de Privacidade</span>
+        </div>
+        <nav class="sidebar-nav">
+          <ul id="navList">
+            <!-- gerado via JS -->
+          </ul>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="guide.html">Guia do Usuário</a>
+          <a href="support.html">Suporte</a>
+          <a href="terms.html">Termos</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="content" id="mainContent">
+      <header class="content-header">
+        <h1>Política de Privacidade</h1>
+        <p class="subtitle">Como tratamos seus dados no Sistema de Sessões</p>
+      </header>
+
+      <!-- ==================== SEÇÃO 1 ==================== -->
+      <section id="introducao" class="section">
+        <h2>1. Introdução</h2>
+        <p>A <strong>blacodegs</strong> desenvolveu o <strong>Sistema de Sessões</strong> (doravante "Sistema") como uma ferramenta auxiliar para a gestão de sessões de julgamento, pautas, votos e expedientes. Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos as informações pessoais dos usuários que utilizam o Sistema, seja por meio do add-on do Google Workspace, do App de Pauta Virtual ou de qualquer outra interface integrada.</p>
+        <p>Estamos comprometidos com a transparência e com a proteção dos seus dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD – Lei nº 13.709/2018) e demais legislações aplicáveis.</p>
+        <p>Ao utilizar o Sistema, você declara ter lido e compreendido esta Política, concordando com os termos aqui estabelecidos. Caso não concorde com qualquer disposição, solicitamos que não utilize o Sistema.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 2 ==================== -->
+      <section id="dados-coletados" class="section">
+        <h2>2. Dados coletados</h2>
+
+        <h3>2.1 Dados fornecidos ativamente pelo usuário</h3>
+        <ul>
+          <li><strong>Nome completo</strong> – utilizado para identificação em listas de presença, votos, pautas e atas.</li>
+          <li><strong>E-mail institucional ou pessoal</strong> – utilizado para autenticação, registro de ações no histórico e comunicação.</li>
+          <li><strong>Cargo ou função</strong> – utilizado para composição da mesa diretora, relatorias e identificação de funções nas sessões.</li>
+          <li><strong>Gênero</strong> – utilizado apenas para adequação de pronomes e tratamento (ex.: "Relator" / "Relatora") em documentos oficiais.</li>
+          <li><strong>Conteúdos inseridos</strong> – como textos de votos, expedientes, anotações, ementas e resumos, que são registrados nas fichas e documentos da sessão.</li>
+        </ul>
+
+        <h3>2.2 Dados coletados automaticamente</h3>
+        <ul>
+          <li><strong>Dados de acesso</strong> – endereço IP, data e hora de acesso, tipo de dispositivo, navegador e sistema operacional, para fins de segurança e diagnóstico.</li>
+          <li><strong>Cookies e tecnologias similares</strong> – utilizamos cookies essenciais para manter a sessão do usuário e preferências de navegação (não utilizamos cookies para publicidade ou rastreamento externo).</li>
+          <li><strong>Logs de atividades</strong> – registro de ações realizadas no Sistema (como registrar presença, votar, editar processos, anexar PDFs), para fins de auditoria e histórico.</li>
+        </ul>
+
+        <h3>2.3 Dados de terceiros integrados</h3>
+        <ul>
+          <li><strong>Google Workspace</strong> – o Sistema é executado como um add‑on do Google Docs e Planilhas, utilizando as APIs do Google para leitura e escrita de documentos, planilhas e arquivos. O Google pode coletar dados conforme sua própria política de privacidade, e recomendamos sua leitura.</li>
+          <li><strong>Google Forms</strong> – quando formulários de votação ou lista de presença são gerados, as respostas são armazenadas em planilhas vinculadas, acessíveis apenas aos administradores do Sistema.</li>
+        </ul>
+
+        <h3>2.4 Escopos OAuth e permissões solicitadas</h3>
+        <p>O add-on do Sistema de Sessões solicita as seguintes permissões (escopos OAuth) para o funcionamento adequado. Cada permissão é essencial para uma funcionalidade específica:</p>
+        <table>
+          <thead>
+            <tr><th>Escopo</th><th>O que permite fazer</th><th>Por que é necessário</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>auth/documents</code></td>
+              <td>Acessar e editar documentos do Google Docs</td>
+              <td>Gerar e atualizar pautas, atas e fichas de processos durante as sessões.</td>
+            </tr>
+            <tr>
+              <td><code>auth/spreadsheets</code></td>
+              <td>Acessar e editar planilhas do Google Sheets</td>
+              <td>Armazenar dados estruturados (membros, processos, sessões, votos, histórico).</td>
+            </tr>
+            <tr>
+              <td><code>auth/drive</code></td>
+              <td>Acessar e gerenciar arquivos no Google Drive</td>
+              <td>Salvar PDFs, relatórios e organizar arquivos em pastas específicas (Fichas, Pautas, etc.).</td>
+            </tr>
+            <tr>
+              <td><code>auth/script.external_request</code></td>
+              <td>Fazer requisições HTTP para serviços externos</td>
+              <td>Comunicar-se com endpoints personalizados (ex.: API do App de Pauta Virtual, integrações com IA).</td>
+            </tr>
+            <tr>
+              <td><code>auth/script.container.ui</code></td>
+              <td>Exibir interfaces customizadas no Google Docs</td>
+              <td>Permitir a exibição do Painel Lateral e modais interativos dentro do Google Docs.</td>
+            </tr>
+            <tr>
+              <td><code>auth/userinfo.email</code></td>
+              <td>Visualizar o endereço de e-mail do usuário</td>
+              <td>Identificar quem realizou ações (presença, votos, edições) para fins de auditoria e histórico.</td>
+            </tr>
+            <tr>
+              <td><code>auth/userinfo.profile</code></td>
+              <td>Visualizar informações básicas do perfil (nome, foto)</td>
+              <td>Personalizar a experiência do usuário (ex.: sugerir nome automaticamente).</td>
+            </tr>
+            <tr>
+              <td><code>auth/script.send_mail</code></td>
+              <td>Enviar e-mails em nome do usuário</td>
+              <td>Notificar participantes sobre sessões, votação e resultados (apenas com autorização explícita).</td>
+            </tr>
+            <tr>
+              <td><code>auth/forms</code></td>
+              <td>Acessar e gerenciar Google Forms</td>
+              <td>Criar e configurar formulários de votação e lista de presença integrados às sessões.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Essas permissões são solicitadas apenas uma vez, durante a instalação do add-on, e nunca são usadas para finalidades além das descritas acima. Você pode revogar essas permissões a qualquer momento por meio do <a href="https://myaccount.google.com/permissions" target="_blank">Google Account Permissions</a>.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 3 ==================== -->
+      <section id="finalidades" class="section">
+        <h2>3. Finalidades do tratamento</h2>
+        <p>Os dados coletados são utilizados exclusivamente para as seguintes finalidades:</p>
+        <ul>
+          <li><strong>Gestão de sessões</strong> – organização de pautas, registro de participantes, votação e apuração de resultados.</li>
+          <li><strong>Geração de documentos oficiais</strong> – elaboração de pautas, atas, expedientes e acórdãos a partir dos dados registrados.</li>
+          <li><strong>Histórico e auditoria</strong> – manutenção de registros de todas as ações realizadas no Sistema, garantindo rastreabilidade e transparência.</li>
+          <li><strong>Comunicação com o usuário</strong> – envio de notificações sobre sessões, atualizações do Sistema e respostas a solicitações de suporte.</li>
+          <li><strong>Melhoria do Sistema</strong> – análise de uso, correção de erros e aprimoramento de funcionalidades.</li>
+        </ul>
+        <p>Não utilizamos seus dados para finalidades incompatíveis com as descritas acima, nem os compartilhamos com terceiros para fins de marketing ou publicidade.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 4 ==================== -->
+      <section id="base-legal" class="section">
+        <h2>4. Base legal para o tratamento</h2>
+        <p>O tratamento de dados pessoais realizado pelo Sistema está amparado nas seguintes bases legais previstas na LGPD:</p>
+        <ul>
+          <li><strong>Execução de contrato</strong> – quando necessário para a prestação do serviço e cumprimento das obrigações assumidas com o usuário (art. 7º, V).</li>
+          <li><strong>Cumprimento de obrigação legal ou regulatória</strong> – quando o tratamento for exigido por lei, especialmente para fins de registro e documentação oficial (art. 7º, II).</li>
+          <li><strong>Legítimo interesse</strong> – para a gestão administrativa e operacional do Sistema, desde que não prevaleçam direitos e liberdades fundamentais do titular (art. 7º, IX).</li>
+          <li><strong>Consentimento do titular</strong> – em situações específicas onde for solicitado e registrado de forma explícita (art. 7º, I).</li>
+        </ul>
+        <p>Garantimos que o tratamento será realizado sempre de forma proporcional, necessária e com respeito à sua privacidade.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 5 ==================== -->
+      <section id="compartilhamento" class="section">
+        <h2>5. Compartilhamento de dados</h2>
+        <p>O Sistema não vende, aluga ou negocia seus dados pessoais. O compartilhamento ocorre apenas nas seguintes circunstâncias:</p>
+        <ul>
+          <li><strong>Com a instituição à qual o usuário está vinculado</strong> – quando o Sistema é utilizado em ambiente institucional (ex.: OAB-GO), os dados podem ser acessados pelos administradores e gestores daquela instituição, exclusivamente para fins de gestão e controle.</li>
+          <li><strong>Com provedores de serviços essenciais</strong> – como Google (para armazenamento de documentos e planilhas) e serviços de hospedagem, sempre sob contratos que garantam a confidencialidade e segurança dos dados.</li>
+          <li><strong>Por exigência legal ou judicial</strong> – quando houver ordem de autoridade competente, ou quando necessário para proteger direitos, segurança ou propriedade.</li>
+        </ul>
+        <p>Todos os terceiros com quem compartilhamos dados são contratualmente obrigados a manter a confidencialidade e a utilizar os dados apenas para as finalidades específicas.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 6 ==================== -->
+      <section id="armazenamento" class="section">
+        <h2>6. Armazenamento e segurança</h2>
+        <h3>6.1 Onde os dados são armazenados</h3>
+        <ul>
+          <li><strong>Google Drive</strong> – documentos, planilhas e arquivos PDF são armazenados em contas Google institucionais ou pessoais, conforme configuração do administrador.</li>
+          <li><strong>Google Sheets</strong> – os dados estruturados (membros, processos, sessões, votos) são mantidos em planilhas Google, com controle de acesso restrito.</li>
+          <li><strong>Servidores da Google</strong> – todo o processamento ocorre na infraestrutura do Google, que oferece elevados padrões de segurança e conformidade.</li>
+        </ul>
+
+        <h3>6.2 Medidas de segurança</h3>
+        <p>Adotamos medidas técnicas e organizacionais para proteger seus dados contra acessos não autorizados, perda, destruição ou alteração, incluindo:</p>
+        <ul>
+          <li>Controle de acesso baseado em permissões (apenas administradores e membros autorizados têm acesso a dados sensíveis).</li>
+          <li>Criptografia em trânsito (TLS/SSL) para todas as comunicações com o Sistema.</li>
+          <li>Monitoramento de logs e atividades suspeitas.</li>
+          <li>Treinamento e conscientização da equipe sobre boas práticas de segurança.</li>
+        </ul>
+        <p>Embora adotemos medidas robustas, nenhum sistema é 100% invulnerável. Em caso de incidente de segurança, notificaremos os usuários e as autoridades competentes dentro dos prazos legais.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 7 ==================== -->
+      <section id="direitos" class="section">
+        <h2>7. Seus direitos como titular</h2>
+        <p>Nos termos da LGPD, você possui os seguintes direitos em relação aos seus dados pessoais:</p>
+        <ul>
+          <li><strong>Confirmação e acesso</strong> – saber se tratamos seus dados e, em caso positivo, obter cópia.</li>
+          <li><strong>Correção</strong> – solicitar a retificação de dados incompletos, inexatos ou desatualizados.</li>
+          <li><strong>Eliminação</strong> – solicitar a exclusão de dados tratados com seu consentimento, quando não forem mais necessários.</li>
+          <li><strong>Portabilidade</strong> – solicitar a transferência de seus dados a outro fornecedor de serviço, quando tecnicamente viável.</li>
+          <li><strong>Revogação de consentimento</strong> – a qualquer momento, nos casos em que o tratamento se baseie no consentimento.</li>
+          <li><strong>Oposição</strong> – opor-se a tratamentos realizados com base em legítimo interesse.</li>
+          <li><strong>Informação sobre compartilhamento</strong> – saber com quais terceiros seus dados são compartilhados.</li>
+        </ul>
+        <p>Para exercer seus direitos, entre em contato conosco pelos canais indicados na seção <a href="#contato">Contato</a> abaixo. Atenderemos sua solicitação no prazo máximo de 15 (quinze) dias úteis.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 8 ==================== -->
+      <section id="cookies" class="section">
+        <h2>8. Cookies e tecnologias similares</h2>
+        <p>O Sistema utiliza cookies exclusivamente para fins de funcionamento essencial:</p>
+        <ul>
+          <li><strong>Cookies de sessão</strong> – para manter sua autenticação e preferências durante a navegação.</li>
+          <li><strong>Armazenamento local</strong> – para salvar temporariamente configurações de interface (ex.: aba ativa, estado de formulários).</li>
+        </ul>
+        <p>Não utilizamos cookies de rastreamento, publicidade ou terceiros. Você pode gerenciar ou desabilitar cookies nas configurações do seu navegador, embora isso possa comprometer algumas funcionalidades do Sistema.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 9 ==================== -->
+      <section id="alteracoes" class="section">
+        <h2>9. Atualizações desta Política</h2>
+        <p>Esta Política de Privacidade pode ser atualizada periodicamente para refletir mudanças nas práticas do Sistema, na legislação ou em requisitos operacionais. Publicaremos a versão revisada nesta mesma página, com a data de vigência atualizada.</p>
+        <p>Recomendamos que você revise esta Política regularmente. Caso a atualização envolva alterações substanciais no tratamento de seus dados, notificaremos você por meio de aviso no Sistema ou por e-mail.</p>
+      </section>
+
+      <!-- ==================== SEÇÃO 10 ==================== -->
+      <section id="contato" class="section">
+        <h2>10. Contato</h2>
+        <p>Para exercer seus direitos, esclarecer dúvidas ou fazer qualquer solicitação relacionada a esta Política de Privacidade, entre em contato conosco:</p>
+
+        <div style="background:var(--oab-branco);border-radius:12px;padding:24px;margin-top:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <i class="material-icons" style="font-size:28px;color:var(--oab-azul);">email</i>
+              <div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--oab-cinza-label);letter-spacing:0.04em;">E-mail</div>
+                <div style="font-size:14px;font-weight:600;color:var(--oab-azul-escuro);"><a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <i class="material-icons" style="font-size:28px;color:var(--oab-azul);">phone</i>
+              <div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--oab-cinza-label);letter-spacing:0.04em;">WhatsApp</div>
+                <div style="font-size:14px;font-weight:600;color:var(--oab-azul-escuro);"><a href="https://wa.me/5562984057564" target="_blank">(62) 98405-7564</a></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;grid-column:1 / -1;">
+              <i class="material-icons" style="font-size:28px;color:var(--oab-azul);">location_on</i>
+              <div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--oab-cinza-label);letter-spacing:0.04em;">Endereço</div>
+                <div style="font-size:14px;font-weight:600;color:var(--oab-azul-escuro);">Rua 1121, nº 200, Setor Marista, Goiânia - GO, CEP: 74175-120</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:16px;font-size:14px;color:var(--oab-cinza-forte);">Tempo médio de resposta: até 2 dias úteis.</p>
+      </section>
+
+      <footer class="content-footer">
+        <p>© 2026 blacodegs. Todos os direitos reservados. | Última atualização: <span id="dataAtualizacao">agosto de 2026</span></p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      // Gera o sumário dinâmico a partir dos títulos das seções
+      const navList = document.getElementById('navList');
+      const sections = document.querySelectorAll('.section');
+      const items = [];
+
+      sections.forEach(section => {
+        const id = section.id;
+        const h2 = section.querySelector('h2');
+        if (h2) {
+          items.push({ id, text: h2.textContent, level: 2 });
+        }
+        const h3s = section.querySelectorAll('h3');
+        h3s.forEach(h3 => {
+          let h3Id = h3.id;
+          if (!h3Id) {
+            h3Id = h3.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            h3.id = h3Id;
+          }
+          items.push({ id: h3Id, text: h3.textContent, level: 3 });
+        });
+      });
+
+      let html = '';
+      items.forEach(item => {
+        html += `<li class="nav-item level-${item.level}"><a href="#${item.id}" data-target="${item.id}">${item.text}</a></li>`;
+      });
+      navList.innerHTML = html;
+
+      const navLinks = navList.querySelectorAll('a');
+
+      function updateActiveLink(id) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('data-target') === id);
+        });
+      }
+
+      // Scrollspy baseado na posição dos elementos
+      function onScroll() {
+        let currentId = null;
+        let minDist = Infinity;
+        const targets = document.querySelectorAll('.section h2, .section h3');
+        const scrollTop = window.scrollY + 80;
+
+        targets.forEach(el => {
+          if (!el.id) return;
+          const rect = el.getBoundingClientRect();
+          const dist = Math.abs(rect.top);
+          if (dist < minDist) {
+            minDist = dist;
+            currentId = el.id;
+          }
+        });
+
+        if (currentId) {
+          updateActiveLink(currentId);
+        }
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            onScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      // Clique nos links: ativa imediatamente e rola suavemente
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('data-target');
+          const target = document.getElementById(targetId);
+          if (target) {
+            updateActiveLink(targetId);
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Inicializa com o primeiro item
+      const firstSection = document.querySelector('.section');
+      if (firstSection) {
+        updateActiveLink(firstSection.id);
+      }
+      setTimeout(onScroll, 150);
+    })();
+  </script>
+</body>
+</html>

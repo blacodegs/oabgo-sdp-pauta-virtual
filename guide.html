@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guia do Usuário – Sistema de Sessões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="css/about.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
+            <img src="images/logo-sdp-512.png" alt="blacodegs" class="sidebar-logo" />
+          </a>
+          <span class="sidebar-title">Guia do Usuário</span>
+        </div>
+        <nav class="sidebar-nav">
+          <ul id="navList">
+            <!-- gerado via JS -->
+          </ul>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="support.html">Suporte</a>
+          <a href="privacy.html">Privacidade</a>
+          <a href="terms.html">Termos</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="content" id="mainContent">
+      <header class="content-header">
+        <h1>Guia do Usuário – Sistema de Sessões</h1>
+        <p class="subtitle">Documentação completa para membros e administradores</p>
+      </header>
+
+      <!-- ==================== MÓDULO 1 ==================== -->
+      <section id="modulo1" class="section">
+        <h2>Módulo 1: Painel Lateral</h2>
+
+        <h3>1.1 O que é o Painel Lateral</h3>
+        <p>O Painel Lateral é a central de comando da sessão. Ele fica fixo na lateral direita do Google Docs e reúne todas as informações da sessão atual: pauta de processos, participantes, mesa diretora, expediente, votos e estados das atividades (sessão virtual, coleta de nomes e votação). Por meio dele, você pode navegar entre sessões, gerar documentos, salvar votos e expedientes, e abrir formulários de votação e lista de presença.</p>
+
+        <h3>1.2 Quando Utilizar o Painel Lateral</h3>
+        <p>O Painel Lateral deve ser usado durante toda a sessão, desde a abertura da pauta até o encerramento. Ele é o ponto de partida para:</p>
+        <ul>
+          <li>Selecionar a sessão que será conduzida</li>
+          <li>Visualizar a ordem dos processos a serem julgados</li>
+          <li>Designar presidente, secretário e participantes</li>
+          <li>Registrar o expediente</li>
+          <li>Iniciar/encerrar a sessão virtual e a coleta de nomes</li>
+          <li>Abrir formulários de votação ou lista de presença</li>
+          <li>Gerar documentos e PDFs de cada ficha</li>
+        </ul>
+        <p>Sempre que você precisar consultar ou alterar dados da sessão, utilize o Painel Lateral.</p>
+
+        <h3>1.3 Como Acessar o Painel Lateral</h3>
+        <ol>
+          <li>Abra o documento do Google Docs correspondente à sessão (geralmente criado automaticamente ao iniciar uma nova sessão).</li>
+          <li>No menu superior, clique em <strong>Extensões &gt; SDP &gt; Abrir painel lateral</strong>.</li>
+          <li>O painel será carregado com os dados da sessão mais recente.</li>
+        </ol>
+        <p><strong>Observação:</strong> A primeira vez que você acessar, o Google pode solicitar autorizações. Clique em <strong>Permitir</strong> para que o painel funcione corretamente.</p>
+
+        <h3>1.4 Estrutura da Tela do Painel Lateral</h3>
+        <p>O Painel Lateral é dividido nas seguintes áreas (de cima para baixo):</p>
+        <table>
+          <thead><tr><th>Área</th><th>Descrição</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Cabeçalho vermelho</strong></td><td>Exibe o nome da sessão (ex.: "Órgão Deliberativo") e a data. Ao clicar no cabeçalho, você pode trocar para outra sessão.</td></tr>
+            <tr><td><strong>Pauta</strong></td><td>Lista de fichas (processos) da sessão. Cada ficha mostra: número de ordem e número do processo; requerente, relator e procurador (ou voto condutor, se for sessão do Pleno); indicadores de "tem voto?" e status da apuração (apurado, adiado ou não apurado). Ao clicar em uma ficha, o documento é gerado automaticamente e a ficha fica destacada.</td></tr>
+            <tr><td><strong>Mesa Diretora</strong></td><td>Campos para Presidente e Secretário. Ao digitar, o sistema sugere nomes de membros cadastrados.</td></tr>
+            <tr><td><strong>Participantes</strong></td><td>Lista de membros que participam da votação. É possível adicionar ou remover nomes, e enviar a lista para o documento. O botão <strong>Preparar lista de presença</strong> ativa a coleta de nomes e abre um formulário Google Forms para que os participantes registrem presença.</td></tr>
+            <tr><td><strong>Procuradores</strong></td><td>Aparece apenas para sessões do Órgão Deliberativo. Permite adicionar ou remover procuradores da sessão.</td></tr>
+            <tr><td><strong>Expediente</strong></td><td>Campo de texto para anotar o expediente da sessão (documentos lidos, comunicações, etc.). O texto é salvo automaticamente quando você sai do campo.</td></tr>
+            <tr><td><strong>Menu lateral direito</strong></td><td>Barra azul que aparece ao passar o mouse na borda direita. Contém atalhos rápidos para abrir outros módulos (Processos, Sessões, Membros, Subseções) e para acessar a Pauta Virtual Web (versão online da pauta).</td></tr>
+            <tr><td><strong>Botão flutuante (FAB)</strong></td><td>Círculo vermelho no canto inferior direito. Ao passar o mouse, exibe cinco ações: Gerar PDF, Salvar ficha, Expediente e apuração, Gerenciar votos e Formulário de votação.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>1.5 Funcionalidades do Painel Lateral</h3>
+        <ul>
+          <li><strong>Trocar de Sessão:</strong> Clique no cabeçalho vermelho e escolha outra sessão na lista.</li>
+          <li><strong>Selecionar uma Ficha:</strong> Clique no card da ficha para abrir o documento correspondente.</li>
+          <li><strong>Adicionar Membro:</strong> Na seção Participantes, digite o nome no campo <strong>Novo participante</strong> e pressione <strong>Enter</strong>.</li>
+          <li><strong>Remover Membro:</strong> Clique no <strong>X</strong> ao lado do nome no chip do participante.</li>
+          <li><strong>Enviar Participantes para o Documento:</strong> Clique no ícone de upload (seta para cima) ao lado do título "Participantes".</li>
+          <li><strong>Buscar Participantes do Formulário:</strong> Clique no ícone de download (seta para baixo) para importar nomes da aba de respostas do Google Forms.</li>
+          <li><strong>Ativar/Desativar Sessão Virtual:</strong> Clique no botão <strong>Iniciar sessão virtual</strong> (azul) ou <strong>Encerrar sessão virtual</strong> (vermelho), localizado abaixo da pauta.</li>
+          <li><strong>Ativar/Desativar Coleta de Nomes:</strong> Clique no botão <strong>Preparar lista de presença</strong> (azul) ou <strong>Encerrar coleta de nomes</strong> (vermelho), na seção Participantes.</li>
+          <li><strong>Iniciar/Encerrar Votação:</strong> No botão flutuante, clique em <strong>Formulário de votação</strong> (azul) ou <strong>Encerrar votação</strong> (vermelho). A cor do botão e do tooltip muda conforme o estado.</li>
+          <li><strong>Gerar PDF:</strong> Acesse o botão flutuante e clique no ícone de PDF. O arquivo será salvo na pasta correta e você receberá um link.</li>
+          <li><strong>Salvar Ficha:</strong> Após editar o expediente e o voto no documento, clique em <strong>Salvar ficha</strong> para atualizar a planilha.</li>
+          <li><strong>Abrir Expedientes:</strong> No botão flutuante, clique em <strong>Expediente e apuração</strong> para gerenciar a deliberação dos votos.</li>
+        </ul>
+
+        <h3>1.6 Passo a Passo para Tarefas Comuns</h3>
+        <h4>1.6.1 Selecionar a Sessão Correta</h4>
+        <ol>
+          <li>No cabeçalho vermelho, clique sobre o nome da sessão atual.</li>
+          <li>Uma lista suspensa aparecerá com todas as sessões cadastradas.</li>
+          <li>Clique na sessão desejada. A pauta e os campos serão atualizados automaticamente.</li>
+        </ol>
+        <h4>1.6.2 Adicionar um Participante</h4>
+        <ol>
+          <li>Na seção Participantes, localize o campo com a indicação "Insira o nome e tecle enter...".</li>
+          <li>Digite o nome do membro. O sistema sugerirá nomes cadastrados.</li>
+          <li>Pressione <strong>Enter</strong>. O nome aparecerá como um chip (etiqueta) na lista.</li>
+        </ol>
+        <h4>1.6.3 Remover um Participante</h4>
+        <ol>
+          <li>Na lista de participantes, localize o chip do membro.</li>
+          <li>Clique no ícone <strong>X</strong> (fechar) ao lado do nome.</li>
+          <li>O membro será removido da lista.</li>
+        </ol>
+        <h4>1.6.4 Ativar a Sessão Virtual</h4>
+        <ol>
+          <li>Role a página até o final da seção Pauta.</li>
+          <li>Clique no botão <strong>Iniciar sessão virtual</strong>.</li>
+          <li>O botão mudará para <strong>Encerrar sessão virtual</strong> e ficará vermelho, indicando que a sessão virtual está ativa.</li>
+          <li>Para encerrar, clique novamente no botão.</li>
+        </ol>
+        <h4>1.6.5 Preparar Lista de Presença</h4>
+        <ol>
+          <li>Na seção Participantes, clique no botão <strong>Preparar lista de presença</strong>.</li>
+          <li>O sistema abrirá um modal com o link para o Google Forms de presença.</li>
+          <li>Copie o link e compartilhe com os membros.</li>
+          <li>O botão mudará para <strong>Encerrar coleta de nomes</strong> e ficará vermelho.</li>
+          <li>Para encerrar, clique em <strong>Encerrar coleta de nomes</strong>.</li>
+        </ol>
+        <h4>1.6.6 Gerar um Formulário de Votação</h4>
+        <ol>
+          <li>Selecione uma ficha (clique no card correspondente).</li>
+          <li>Passe o mouse sobre o botão flutuante (FAB) e clique em <strong>Formulário de votação</strong>.</li>
+          <li>O sistema abrirá uma janela com o link pré-preenchido do Google Forms, contendo as opções de voto daquela ficha.</li>
+          <li>Copie o link e compartilhe com os votantes.</li>
+          <li>O botão mudará para <strong>Encerrar votação</strong> e ficará vermelho.</li>
+          <li>Para encerrar, clique em <strong>Encerrar votação</strong>.</li>
+        </ol>
+        <h4>1.6.7 Salvar Expediente e Voto</h4>
+        <ol>
+          <li>No documento do Google Docs, edite o texto do expediente e/ou do voto.</li>
+          <li>Volte ao Painel Lateral e clique no botão flutuante.</li>
+          <li>Clique em <strong>Salvar ficha</strong>.</li>
+          <li>O sistema extrairá o conteúdo do documento e atualizará a planilha.</li>
+        </ol>
+        <h4>1.6.8 Gerar PDF da Ficha</h4>
+        <ol>
+          <li>Selecione a ficha desejada (clique no card).</li>
+          <li>No botão flutuante, clique em <strong>Gerar PDF</strong>.</li>
+          <li>O sistema converterá o documento ativo para PDF e o salvará na pasta apropriada (Pleno ou Deliberativo).</li>
+          <li>Uma mensagem de sucesso será exibida.</li>
+        </ol>
+
+        <h3>1.7 Dicas e Observações do Painel Lateral</h3>
+        <ul>
+          <li><strong>Cor dos botões de atividade:</strong> Azul = atividade inativa (pronta para iniciar); Vermelho = atividade ativa (em andamento).</li>
+          <li><strong>Apenas uma atividade de cada tipo por vez:</strong> se você iniciar uma nova votação em outra ficha, a votação anterior será automaticamente encerrada. O mesmo ocorre com a coleta de nomes e a sessão virtual.</li>
+          <li><strong>Autocomplete nos campos:</strong> ao digitar o nome de um membro, o sistema sugere nomes cadastrados. Basta pressionar Enter para completar o nome.</li>
+          <li><strong>Salvamento automático:</strong> o expediente e os campos da mesa diretora são salvos automaticamente quando você sai do campo (perde o foco). Não é necessário clicar em um botão separado para salvá-los.</li>
+          <li><strong>Atualização da pauta:</strong> se você suspeitar que a pauta está desatualizada, clique no ícone de recarregar (seta circular) ao lado do título "Pauta" para forçar a atualização.</li>
+          <li><strong>Link para autos:</strong> ao passar o mouse sobre uma ficha, aparece um ícone de PDF (vermelho) ao lado do número do processo. Clique nele para abrir os autos do processo (se disponíveis).</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 2 ==================== -->
+      <section id="modulo2" class="section">
+        <h2>Módulo 2: Gestão de Sessões, Pautas, Votos e Documentos</h2>
+
+        <h3>2.1 O que é o Módulo de Sessões</h3>
+        <p>O módulo centraliza todas as ações relacionadas a uma sessão em um único local: criação, edição, organização da pauta, votação, inclusão de participantes e geração de documentos finais (pauta e ata). Ele substitui planilhas e documentos avulsos, mantendo os dados sempre atualizados e sincronizados automaticamente com a base de dados do sistema.</p>
+
+        <h3>2.2 Quando Utilizar o Módulo de Sessões</h3>
+        <ul>
+          <li><strong>Antes da sessão:</strong> para criar a sessão, definir data, órgão e participantes, e montar a pauta de processos.</li>
+          <li><strong>Durante a sessão:</strong> para consultar a pauta, registrar votos e anexar relatórios em PDF.</li>
+          <li><strong>Após a sessão:</strong> para gerar a pauta oficial (em formato de texto) e a ata (documento do Google Docs), e revisar as informações registradas.</li>
+        </ul>
+
+        <h3>2.3 Estrutura da Tela do Módulo de Sessões</h3>
+        <p>Ao abrir o módulo, você verá uma janela principal com os seguintes elementos:</p>
+        <table>
+          <thead><tr><th>Elemento</th><th>Descrição</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Barra de pesquisa</strong></td><td>No topo, permite localizar sessões por data, órgão ou local.</td></tr>
+            <tr><td><strong>Lista de sessões</strong></td><td>Exibe todas as sessões cadastradas em cards (blocos informativos). Cada card mostra: data da sessão; órgão (Pleno ou Órgão Deliberativo); local; presidente e secretário; número de processos pautados.</td></tr>
+            <tr><td><strong>Botão flutuante "Nova Sessão"</strong></td><td>Ícone de + que abre o formulário para criar uma nova sessão.</td></tr>
+            <tr><td><strong>Ícones de ação em cada card</strong></td><td>Pauta: gera a pauta da sessão em formato de texto; Ata: gera a ata oficial como um documento do Google Docs; Fichas: expande o card para visualizar e gerenciar os processos pautados; Editar: abre o formulário para alterar os dados da sessão; Excluir: remove a sessão (apenas se não houver votos registrados).</td></tr>
+          </tbody>
+        </table>
+
+        <h4>2.3.1 Painel Expandido de Fichas</h4>
+        <p>Ao clicar no ícone Fichas, o card se expande e exibe um painel dividido em duas colunas:</p>
+        <ul>
+          <li><strong>Coluna esquerda:</strong> lista os processos pautados (fichas), com número de ordem, número do processo, requerente e outras informações. Você pode arrastar os itens para reordená-los.</li>
+          <li><strong>Coluna direita:</strong> exibe os detalhes da ficha selecionada, incluindo relator, expediente, lista de votos e participantes daquela ficha.</li>
+        </ul>
+
+        <h3>2.4 Funcionalidades do Módulo de Sessões</h3>
+        <ul>
+          <li><strong>Gerenciar sessões:</strong> criar, editar e excluir (desde que não haja votos).</li>
+          <li><strong>Gerenciar a pauta (fichas):</strong> ver, reordenar, editar relator e expediente, excluir ficha (sem votos).</li>
+          <li><strong>Gerenciar votos:</strong> adicionar, editar, excluir, anexar PDF, abrir/remover PDF.</li>
+          <li><strong>Gerenciar participantes:</strong> adicionar/remover membros específicos da ficha.</li>
+          <li><strong>Gerar pauta e ata:</strong> pauta em texto (com links para autos) e ata como documento Google Docs.</li>
+        </ul>
+
+        <h3>2.5 Passo a Passo para Tarefas Comuns</h3>
+        <h4>2.5.1 Criar uma Nova Sessão</h4>
+        <ol>
+          <li>No canto inferior direito, clique no botão <strong>+</strong>.</li>
+          <li>Preencha os dados: Data da Sessão, Órgão, Local / Sala, Presidente e Secretário(a).</li>
+          <li>Clique em <strong>Salvar</strong>. A nova sessão aparecerá na lista.</li>
+        </ol>
+        <h4>2.5.2 Adicionar Processos à Pauta</h4>
+        <ol>
+          <li>Localize a sessão e clique em <strong>Fichas</strong> para expandir.</li>
+          <li>No painel esquerdo, clique em <strong>Pincel Mágico</strong> (varinha mágica).</li>
+          <li>No modal, cole uma lista de números de processo (um por linha) e clique em <strong>Processar e Adicionar</strong>.</li>
+          <li>Os processos serão adicionados à pauta, respeitando a ordem.</li>
+        </ol>
+        <h4>2.5.3 Reordenar a Pauta</h4>
+        <p>Com o card expandido, arraste os cartões de processo para a posição desejada. A ordem é atualizada automaticamente.</p>
+        <h4>2.5.4 Registrar um Voto</h4>
+        <ol>
+          <li>Na ficha desejada, vá até <strong>Votos registrados</strong>.</li>
+          <li>Clique em <strong>+</strong>.</li>
+          <li>Preencha Tipo de Voto, Votante (Membro), Voto (texto), Placar e Resultado (opcional).</li>
+          <li>Anexe um PDF se desejar.</li>
+          <li>Clique em <strong>Salvar Voto</strong>.</li>
+        </ol>
+        <h4>2.5.5 Editar um Voto Existente</h4>
+        <p>Clique sobre o voto para expandir, altere os campos e clique em <strong>Salvar</strong>.</p>
+        <h4>2.5.6 Anexar um Relatório PDF a um Voto</h4>
+        <p>Expanda o voto, clique em <strong>Anexar PDF</strong>, selecione o arquivo. O sistema fará upload e renomeará automaticamente.</p>
+        <h4>2.5.7 Gerar a Pauta</h4>
+        <p>No card da sessão, clique no ícone <strong>Pauta</strong>. Uma janela com o texto da pauta será aberta. Você pode copiar ou imprimir.</p>
+        <h4>2.5.8 Gerar a Ata</h4>
+        <p>Clique no ícone <strong>Ata</strong>. O sistema gerará um documento Google Docs com todos os dados da sessão, que será aberto automaticamente.</p>
+        <h4>2.5.9 Excluir uma Sessão</h4>
+        <p>Clique no ícone <strong>Excluir</strong> (lixeira) e confirme. Se houver votos, a exclusão será bloqueada.</p>
+
+        <h3>2.6 Dicas e Observações do Módulo de Sessões</h3>
+        <ul>
+          <li>Salvamento automático para relator, expediente e participantes.</li>
+          <li>A ordem da pauta é respeitada na pauta e ata geradas.</li>
+          <li>PDFs são substituídos automaticamente se o nome for o mesmo.</li>
+          <li>Participantes são específicos de cada ficha.</li>
+          <li>Pauta e ata usam templates específicos para cada órgão.</li>
+          <li>Hiperlinks para autos são gerados automaticamente quando disponíveis.</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 3 ==================== -->
+      <section id="modulo3" class="section">
+        <h2>Módulo 3: Gerenciamento de Votos de Fichas</h2>
+
+        <h3>3.1 O que é o Módulo de Votos</h3>
+        <p>Este módulo permite visualizar, editar e adicionar votos de uma ficha de votação, incluindo a anexação de relatórios em PDF e a geração automática de resumos por inteligência artificial. Todas as alterações são salvas na planilha de dados e, quando necessário, o documento principal é atualizado automaticamente.</p>
+
+        <h3>3.2 Quando Utilizar o Módulo de Votos</h3>
+        <p>Utilize este módulo sempre que precisar consultar ou modificar os votos de uma ficha já criada, seja durante a preparação da pauta, durante a sessão de julgamento ou após a deliberação, para incluir informações adicionais (como o relatório do relator) e registrar o voto final.</p>
+
+        <h3>3.3 Estrutura da Tela do Módulo de Votos</h3>
+        <p>O módulo é aberto como uma janela sobreposta (modal) à tela do Google Docs. Ele é dividido nas seguintes áreas:</p>
+        <ul>
+          <li><strong>Título do processo:</strong> exibe o número do processo.</li>
+          <li><strong>Lista de votos:</strong> cada voto é um card com tipo, relator e botão para anexar/abrir PDF.</li>
+          <li><strong>Card expandido:</strong> ao clicar, revela editor de texto com formatação e botão Salvar.</li>
+          <li><strong>Botão Adicionar voto (+):</strong> abre formulário para novo voto.</li>
+          <li><strong>Formulário de novo voto:</strong> campos para tipo, relator, conteúdo e anexo de PDF.</li>
+        </ul>
+
+        <h3>3.4 Funcionalidades do Módulo de Votos</h3>
+        <ul>
+          <li>Visualização e edição de votos existentes.</li>
+          <li>Editor de texto com negrito, itálico e sublinhado.</li>
+          <li>Anexo de relatório PDF (upload automático para pasta correta).</li>
+          <li>Substituição automática de PDF com mesmo nome.</li>
+          <li>Geração de resumo por IA a partir do PDF anexado.</li>
+          <li>Atualização automática do documento principal após salvar.</li>
+        </ul>
+
+        <h3>3.5 Passo a Passo para Tarefas Comuns</h3>
+        <h4>3.5.1 Visualizar os Votos de uma Ficha</h4>
+        <p>No painel lateral, clique no ícone de votos (urna) ao lado da ficha. O modal exibirá a lista de votos.</p>
+        <h4>3.5.2 Editar um Voto Existente</h4>
+        <p>Clique sobre o voto para expandir, edite relator e conteúdo, use os botões de formatação e clique em <strong>Salvar</strong>.</p>
+        <h4>3.5.3 Adicionar um Novo Voto</h4>
+        <p>Clique em <strong>+</strong>, preencha os campos, anexe PDF (opcional) e clique em <strong>Salvar</strong>.</p>
+        <h4>3.5.4 Anexar um Relatório em PDF a um Voto Existente</h4>
+        <p>No card do voto, clique em <strong>Relatório</strong>, selecione o PDF. Após upload, o botão vira link para abrir o PDF.</p>
+        <h4>3.5.5 Gerar Resumo por Inteligência Artificial</h4>
+        <p>Após anexar um PDF, o sistema pergunta se deseja gerar resumo. Clique em <strong>Gerar resumo</strong> e aguarde. O resumo será inserido no editor de voto.</p>
+
+        <h3>3.6 Dicas e Observações do Módulo de Votos</h3>
+        <ul>
+          <li>Lembre-se de clicar em <strong>Salvar</strong> após editar.</li>
+          <li>A formatação é preservada no documento final.</li>
+          <li>O nome do arquivo PDF segue o padrão: <code>[nº processo]_relatório_[relator]_[data].pdf</code>.</li>
+          <li>Os PDFs são salvos em pastas diferentes conforme o órgão da sessão (Pleno ou Deliberativo).</li>
+          <li>O documento principal é atualizado automaticamente após cada salvamento.</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 4 ==================== -->
+      <section id="modulo4" class="section">
+        <h2>Módulo 4: Apuração de Votos e Expedientes</h2>
+
+        <h3>4.1 O que é o Módulo de Apuração de Votos e Expedientes</h3>
+        <p>Permite que os membros do colegiado e os funcionários realizem a apuração final dos votos de uma ficha de julgamento, definam o resultado da votação (unanimidade, maioria, empate com desempate do presidente) e gerem o texto do expediente que será inserido no documento oficial da sessão. O módulo também registra automaticamente o histórico da deliberação e atualiza o status do processo.</p>
+
+        <h3>4.2 Quando Utilizar o Módulo de Apuração de Votos e Expedientes</h3>
+        <p>Este módulo deve ser utilizado após a coleta dos votos, seja por meio do arraste manual dos membros para os cards de voto ou pela importação das respostas de um formulário externo. Ele é o passo final do processo de votação, que antecede a inserção do expediente no Google Docs da sessão.</p>
+        <p>Também é utilizado quando se deseja alterar o expediente de uma ficha já apurada (ex.: conceder vistas, adiar o julgamento ou registrar a retirada de pauta), sem modificar os votos já coletados.</p>
+
+        <h3>4.3 Estrutura da Tela do Módulo de Apuração de Votos e Expedientes</h3>
+        <p>O modal é dividido em três seções principais:</p>
+        <ul>
+          <li><strong>Seção de expediente e decisão:</strong> dropdown com expedientes predefinidos, campo para nome do membro que pediu vistas (quando aplicável) e checkbox de desagravo público (apenas para Órgão Deliberativo).</li>
+          <li><strong>Seção de lista de votos:</strong> cards de cada voto, com tipo, relator, placar e resultado (chip colorido). Chips com nomes dos membros podem ser arrastados entre os cards.</li>
+          <li><strong>Seção de membros votantes:</strong> chips dos membros que ainda não votaram, que podem ser arrastados para os cards de voto.</li>
+        </ul>
+        <p>Botões de ação: <strong>Cancelar</strong>, <strong>Inserir</strong>, <strong>Apurar formulário</strong> (importa respostas do Google Forms) e <strong>Adicione todos ao voto</strong> (move todos os disponíveis para o único card de voto).</p>
+
+        <h3>4.4 Funcionalidades do Módulo de Apuração de Votos e Expedientes</h3>
+        <ul>
+          <li><strong>Apuração manual:</strong> arraste os chips da lista de votantes para os cards de voto. O placar e o resultado são recalculados em tempo real.</li>
+          <li><strong>Apuração por formulário externo:</strong> importe respostas do Google Forms e distribua automaticamente os votos.</li>
+          <li><strong>Seleção de expediente:</strong> escolha um expediente predefinido no dropdown; o texto é traduzido com placeholders da ficha.</li>
+          <li><strong>Adição de desagravo público:</strong> marque a opção para incluir texto de desagravo (apenas para Órgão Deliberativo).</li>
+          <li><strong>Inserção no documento:</strong> ao clicar em <strong>Inserir</strong>, o sistema salva a apuração, registra o histórico, insere o expediente no Google Docs e fecha o modal.</li>
+          <li><strong>Registro automático de histórico:</strong> todas as ações geram um registro na aba tabHistorico.</li>
+        </ul>
+
+        <h3>4.5 Passo a Passo para Tarefas Comuns</h3>
+        <h4>4.5.1 Apurar Votos Manualmente</h4>
+        <ol>
+          <li>Abra o modal de expediente para a ficha desejada.</li>
+          <li>Na seção <strong>Membros votantes</strong>, arraste o chip do membro para o card de voto correspondente.</li>
+          <li>O chip desaparece da lista de disponíveis e aparece no card, incrementando o placar.</li>
+          <li>Repita para todos os membros.</li>
+          <li>Observe o resultado (atualizado automaticamente).</li>
+          <li>Em caso de empate, o nome do presidente aparecerá em vermelho; arraste-o para desempatar.</li>
+        </ol>
+        <h4>4.5.2 Apurar Votos por Formulário Externo</h4>
+        <ol>
+          <li>Abra o modal de expediente.</li>
+          <li>Clique em <strong>Apurar formulário</strong>.</li>
+          <li>Aguarde o sistema buscar as respostas do Google Forms associado.</li>
+          <li>Os votos são distribuídos automaticamente nos cards.</li>
+          <li>Ajuste manualmente se necessário.</li>
+        </ol>
+        <h4>4.5.3 Selecionar e Aplicar um Expediente do Dropdown</h4>
+        <ol>
+          <li>No modal, no dropdown <strong>Selecione o Expediente / Decisão</strong>, escolha a opção desejada.</li>
+          <li>Se for "Expediente voto não apreciado vista", informe o nome do membro.</li>
+          <li>O texto do expediente é traduzido automaticamente.</li>
+          <li>Clique em <strong>Inserir</strong> para aplicar ao documento (a apuração existente será resetada).</li>
+        </ol>
+        <h4>4.5.4 Inserir a Apuração e o Expediente no Documento</h4>
+        <ol>
+          <li>Após finalizar a apuração, verifique o resultado.</li>
+          <li>Marque o checkbox de desagravo público se for o caso (apenas Órgão Deliberativo).</li>
+          <li>Clique em <strong>Inserir</strong>.</li>
+          <li>O sistema salva os votos, atualiza a ficha, registra histórico, gera o documento e atualiza o status do processo.</li>
+          <li>O modal é fechado e o documento atualizado é exibido.</li>
+        </ol>
+
+        <h3>4.6 Dicas e Observações do Módulo de Apuração de Votos e Expedientes</h3>
+        <ul>
+          <li><strong>Tipos de sessão:</strong> No Órgão Deliberativo, o resultado gera expediente e status "Concluso". No Pleno, gera acórdão e status "Na secretaria".</li>
+          <li><strong>Adição de todos a um único voto:</strong> aparece apenas quando há um único voto e membros disponíveis; agiliza a apuração unânime.</li>
+          <li><strong>Persistência dos dados:</strong> apenas ao clicar em <strong>Inserir</strong> os dados são salvos na planilha.</li>
+          <li><strong>Empates e desempate:</strong> o presidente é destacado em vermelho para desempatar.</li>
+          <li><strong>Expedientes e histórico:</strong> cada ação gera registro em tabHistorico.</li>
+          <li><strong>Autorização e e-mail do usuário:</strong> o sistema tenta obter o e-mail do usuário para registrar no histórico; caso não consiga, registra "Usuario desconhecido".</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 5 ==================== -->
+      <section id="modulo5" class="section">
+        <h2>Módulo 5: Gestão de Membros</h2>
+
+        <h3>5.1 O que é o Módulo de Gestão de Membros</h3>
+        <p>O módulo permite cadastrar, editar, excluir e pesquisar os membros do sistema. Ele mantém atualizadas as informações de nome, e-mail, gênero e cargo de cada integrante, além de oferecer sincronização automática com a lista oficial publicada no site da instituição.</p>
+
+        <h3>5.2 Quando Utilizar o Módulo de Gestão de Membros</h3>
+        <ul>
+          <li>Cadastrar um novo membro no sistema.</li>
+          <li>Atualizar dados de um membro existente (e-mail, cargo, gênero).</li>
+          <li>Verificar a composição atual do colegiado.</li>
+          <li>Sincronizar a lista de membros com a página oficial após uma nomeação ou posse.</li>
+          <li>Recuperar membros que foram excluídos anteriormente.</li>
+        </ul>
+
+        <h3>5.3 Estrutura da Tela do Módulo de Gestão de Membros</h3>
+        <p>O módulo é aberto em uma janela modal (sobreposição) e apresenta:</p>
+        <ul>
+          <li><strong>Barra de pesquisa no topo:</strong> campo de busca e contador de membros.</li>
+          <li><strong>Lista de membros:</strong> cards com nome, cargo, e-mail e ícones de editar/excluir.</li>
+          <li><strong>Botão flutuante (FAB):</strong> opções para Inserir gênero, Atualizar com site oficial, Recuperar membros excluídos e Adicionar membro.</li>
+          <li><strong>Modal de cadastro/edição:</strong> campos Nome Completo, Gênero, E-mail e Cargo.</li>
+          <li><strong>Modal de confirmação:</strong> antes de excluir um membro.</li>
+        </ul>
+
+        <h3>5.4 Funcionalidades do Módulo de Gestão de Membros</h3>
+        <ul>
+          <li>Cadastrar membro (com formatação automática de nome).</li>
+          <li>Editar membro.</li>
+          <li>Excluir membro (arquivamento automático).</li>
+          <li>Pesquisar membros por nome, cargo ou e-mail.</li>
+          <li>Sincronizar com site oficial (substitui a lista atual).</li>
+          <li>Inserir gênero em lote para membros sem gênero.</li>
+          <li>Recuperar membros excluídos (reinsere com cargo "Aguardando posse ou desligado").</li>
+          <li>Preenchimento automático de e-mail e gênero ao digitar nome de membro arquivado.</li>
+        </ul>
+
+        <h3>5.5 Passo a Passo para Tarefas Comuns</h3>
+        <h4>5.5.1 Abrir o Módulo</h4>
+        <p>No Google Docs, acesse <strong>Complementos &gt; SDP &gt; Membros</strong>.</p>
+        <h4>5.5.2 Pesquisar um Membro</h4>
+        <p>Digite no campo de busca; a lista é filtrada em tempo real.</p>
+        <h4>5.5.3 Cadastrar um Novo Membro</h4>
+        <p>Clique no FAB (+) &gt; Adicionar membro, preencha os campos e clique em <strong>Salvar Registro</strong>.</p>
+        <h4>5.5.4 Editar um Membro Existente</h4>
+        <p>Clique no ícone de editar (lápis) no card, altere os dados e salve.</p>
+        <h4>5.5.5 Excluir um Membro</h4>
+        <p>Clique no ícone de excluir (lixeira) e confirme na janela de confirmação.</p>
+        <h4>5.5.6 Sincronizar com o Site Oficial</h4>
+        <p>No FAB, escolha <strong>Atualizar com site</strong>. O sistema baixa a lista oficial e substitui a atual.</p>
+        <h4>5.5.7 Inserir Gênero em Lote</h4>
+        <p>No FAB, escolha <strong>Inserir gênero</strong>. O sistema percorre membros sem gênero; use teclas F/M ou botões para atribuir.</p>
+        <h4>5.5.8 Recuperar Membros Excluídos</h4>
+        <p>No FAB, escolha <strong>Recuperar membros excluídos</strong>. O sistema reinsere membros arquivados.</p>
+
+        <h3>5.6 Dicas e Observações do Módulo de Gestão de Membros</h3>
+        <ul>
+          <li>Preenchimento automático de e-mail e gênero a partir do arquivo.</li>
+          <li>Formatação de nomes: iniciais maiúsculas e preposições minúsculas.</li>
+          <li>Cargo "Aguardando posse ou desligado" para membros recuperados.</li>
+          <li>Sincronização com o site oficial preserva e-mails e gêneros existentes.</li>
+          <li>Exclusão não é definitiva: membros são arquivados.</li>
+          <li>Autocomplete de cargos para padronização.</li>
+          <li>Contador mostra o total de membros visíveis.</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 6 ==================== -->
+      <section id="modulo6" class="section">
+        <h2>Módulo 6: Gestão de Processos</h2>
+
+        <h3>6.1 O que é o Módulo de Gestão de Processos</h3>
+        <p>Este módulo permite cadastrar, consultar, editar e organizar os processos que tramitam no sistema, além de controlar o status de cada processo e incluí-los em pautas de sessões.</p>
+
+        <h3>6.2 Quando Utilizar o Módulo de Gestão de Processos</h3>
+        <ul>
+          <li>Cadastrar um novo processo.</li>
+          <li>Consultar os dados de um processo já cadastrado.</li>
+          <li>Atualizar as informações de um processo.</li>
+          <li>Alterar o status de um processo.</li>
+          <li>Ver o histórico de movimentações.</li>
+          <li>Incluir um processo na pauta de uma sessão.</li>
+          <li>Selecionar vários processos e adicioná-los à pauta de uma só vez.</li>
+          <li>Importar uma lista de processos em massa a partir de uma captura de tela.</li>
+        </ul>
+
+        <h3>6.3 Estrutura da Tela do Módulo de Gestão de Processos</h3>
+        <p>A tela principal é composta por:</p>
+        <ul>
+          <li><strong>Barra superior vermelha:</strong> logo, campo de Pesquisa e Contador de processos.</li>
+          <li><strong>Lista de processos em cards:</strong> cada card exibe número, status, requerente, requerido, procurador, local, último evento e botões de ação (visualizar/editar, histórico, incluir na pauta, alterar status, excluir).</li>
+          <li><strong>FAB (botão flutuante):</strong> opções para Novo Processo, Importar em massa, Sincronizar lista e Adicionar seleção à pauta.</li>
+          <li><strong>Card expandido de edição:</strong> substitui a lista quando um processo é aberto para edição.</li>
+        </ul>
+
+        <h3>6.4 Funcionalidades do Módulo de Gestão de Processos</h3>
+        <ul>
+          <li>Cadastro e edição de processos.</li>
+          <li>Pesquisa e filtro por número, requerente, procurador ou status.</li>
+          <li>Controle de status (Concluso, Na secretaria, etc.) com registro automático no histórico.</li>
+          <li>Histórico de eventos (visualização e exclusão do último evento do tipo Andamento).</li>
+          <li>Inclusão em pauta (um ou vários selecionados).</li>
+          <li>Seleção múltipla para ações em lote.</li>
+          <li>Importação em massa a partir de captura de tela (com IA).</li>
+          <li>Assistente IA para extrair dados de petição (requerido, cidade, ementa, resumo).</li>
+        </ul>
+
+        <h3>6.5 Passo a Passo para Tarefas Comuns</h3>
+        <h4>6.5.1 Cadastrar um Novo Processo</h4>
+        <p>Clique no FAB &gt; Novo Processo, preencha Número do Processo e Requerente (obrigatórios), e clique em <strong>Salvar</strong>.</p>
+        <h4>6.5.2 Visualizar e Editar um Processo</h4>
+        <p>No card, clique no ícone de Visualizar/Editar (olho), edite os campos e clique em <strong>Salvar</strong>.</p>
+        <h4>6.5.3 Alterar o Status de um Processo</h4>
+        <p>Clique no ícone de alteração de status (varia conforme o status atual), escolha o novo status e confirme.</p>
+        <h4>6.5.4 Incluir um Processo na Pauta</h4>
+        <p>Para um único: clique no ícone <strong>Incluir na pauta</strong>. Para múltiplos: selecione os cards e use o FAB &gt; Adicionar seleção à pauta. Escolha a sessão e confirme.</p>
+        <h4>6.5.5 Selecionar Múltiplos Processos</h4>
+        <p>Clique em qualquer área do card para ativar o checkbox. Marque os desejados; a barra superior mostra contagem e opções.</p>
+        <h4>6.5.6 Importar Processos em Massa</h4>
+        <p>No FAB, escolha <strong>Cadastrar processos em massa</strong>. Cole a captura de tela (Ctrl+V), aguarde a IA extrair, defina o status e clique em <strong>Importar</strong>.</p>
+        <h4>6.5.7 Visualizar o Histórico e Excluir um Evento</h4>
+        <p>Clique no ícone <strong>Ver histórico</strong> (relógio). O último evento do tipo Andamento pode ser excluído clicando na lixeira.</p>
+        <h4>6.5.8 Usar o Assistente IA para Extrair Dados de uma Petição</h4>
+        <p>No card expandido, clique no ícone <strong>Assistente IA</strong> (estrela mágica), cole o texto da petição, clique em <strong>Iniciar Extração Inteligente</strong> e aguarde o preenchimento automático.</p>
+
+        <h3>6.6 Dicas e Observações do Módulo de Gestão de Processos</h3>
+        <ul>
+          <li>O campo de pesquisa filtra em tempo real.</li>
+          <li>Processos vinculados a pautas não podem ser excluídos.</li>
+          <li>A exclusão de evento do histórico só é permitida para o último evento do tipo Andamento.</li>
+          <li>Para sessões do Pleno, o sistema busca automaticamente o último voto aprovado para preencher o voto do relator na nova ficha.</li>
+          <li>O assistente IA requer pelo menos 30 caracteres no texto colado.</li>
+          <li>A importação em massa reconhece tabelas a partir de imagens; use boa resolução e contraste.</li>
+        </ul>
+      </section>
+
+      <!-- ==================== MÓDULO 7 ==================== -->
+      <section id="modulo7" class="section">
+        <h2>Módulo 7: App de Pauta Virtual</h2>
+
+        <h3>7.1 O que é o App de Pauta Virtual</h3>
+        <p>O App de Pauta Virtual é uma ferramenta que permite aos membros acompanhar sessões, registrar presença e votar em processos diretamente pelo celular, tablet ou computador. Ele substitui formulários externos e oferece uma experiência simples e rápida durante as sessões presenciais e virtuais.</p>
+        <p>O aplicativo funciona em qualquer navegador moderno e pode ser instalado na tela inicial do seu dispositivo, funcionando como um aplicativo nativo.</p>
+
+        <h3>7.2 Como Acessar o App de Pauta Virtual</h3>
+        <p>A página principal está disponível em: <a href="https://blakodegs.github.io/oabgo-sdp-pauta-virtual/" target="_blank">https://blakodegs.github.io/oabgo-sdp-pauta-virtual/</a></p>
+
+        <h3>7.3 Navegação por Abas</h3>
+        <p>Na parte superior da tela, logo abaixo da barra vermelha, há três abas:</p>
+        <table>
+          <thead><tr><th>Aba</th><th>Função</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Registrar Presença</strong></td><td>Registra sua presença na sessão presencial em andamento.</td></tr>
+            <tr><td><strong>Votação</strong></td><td>Vota no processo que está em discussão no momento.</td></tr>
+            <tr><td><strong>Pauta Virtual</strong></td><td>Acompanha todos os processos pautados para a sessão virtual.</td></tr>
+          </tbody>
+        </table>
+        <p>Cada aba é ativada automaticamente de acordo com o que o presidente da sessão iniciou. Você também pode alternar manualmente clicando nos nomes das abas.</p>
+
+        <h3>7.4 Aba "Registrar Presença"</h3>
+        <h4>7.4.1 Quando Usar</h4>
+        <p>Quando o presidente inicia a coleta de presença em uma sessão presencial, a página exibe automaticamente o título da sessão e um botão grande para registro.</p>
+        <h4>7.4.2 Como Registrar sua Presença</h4>
+        <ol>
+          <li>Acesse a página (pelo QR Code exibido na tela do plenário ou pelo link direto).</li>
+          <li>Na aba <strong>Registrar Presença</strong>, clique no botão "Clique aqui para registrar sua presença".</li>
+          <li>Um formulário será exibido. Selecione seu nome na lista.</li>
+          <li>Clique em "Confirmar presença".</li>
+          <li>Seu nome aparecerá na lista de membros presentes, que é atualizada automaticamente a cada 15 segundos.</li>
+        </ol>
+
+        <h3>7.5 Aba "Votação"</h3>
+        <h4>7.5.1 Quando Usar</h4>
+        <p>Quando o presidente coloca um processo em votação, a aba Votação é ativada automaticamente. A página exibirá os detalhes do processo (requerente, requerido, ementa) e os votos já cadastrados com seus respectivos relatores.</p>
+        <h4>7.5.2 Como Votar</h4>
+        <ol>
+          <li>Na aba <strong>Votação</strong>, localize o formulário de registro de voto.</li>
+          <li>Selecione seu nome na lista.</li>
+          <li>Escolha uma das opções de voto disponíveis (incluindo "Abstenho-me").</li>
+          <li>Clique em "Confirmar voto".</li>
+          <li>Seu voto será registrado imediatamente.</li>
+        </ol>
+
+        <h3>7.6 Aba "Pauta Virtual"</h3>
+        <h4>7.6.1 Quando Usar</h4>
+        <p>Durante uma sessão virtual, a aba Pauta Virtual lista todos os processos que serão julgados. Cada processo é exibido em um card com as principais informações: número, requerente, requerido, relator, procurador e ementa.</p>
+        <h4>7.6.2 Ações Disponíveis em Cada Processo</h4>
+        <ul>
+          <li><strong>Ícone de PDF (vermelho):</strong> abre o documento completo do processo para consulta. Se apagado, significa que o documento ainda não está disponível.</li>
+          <li><strong>Ícone de documento (azul):</strong> abre uma janela com os votos já registrados, permitindo visualizar, anexar relatórios e adicionar novos votos.</li>
+          <li><strong>Ícone de voto (azul):</strong> permite registrar seu voto diretamente no card. Se desabilitado, é porque ainda não há nenhum voto cadastrado.</li>
+        </ul>
+
+        <h3>7.7 Instalando o App no seu Dispositivo</h3>
+        <h4>7.7.1 No Android</h4>
+        <ol>
+          <li>Acesse a página pelo Chrome ou Edge.</li>
+          <li>Na parte superior, clique em "Instalar no Android".</li>
+          <li>Confirme a instalação.</li>
+          <li>O ícone do app será adicionado à tela inicial.</li>
+          <li>Se o botão não estiver disponível, abra o menu do navegador (três pontos) e toque em "Adicionar à tela inicial".</li>
+        </ol>
+        <h4>7.7.2 No iPhone ou iPad</h4>
+        <ol>
+          <li>Acesse a página pelo Safari.</li>
+          <li>Na parte superior, clique em "Instalar no iOS".</li>
+          <li>Siga as instruções: toque no ícone de compartilhar, role e toque em "Adicionar à Tela de Início", confirme tocando em "Adicionar".</li>
+          <li>O ícone aparecerá na tela inicial.</li>
+        </ol>
+        <h4>7.7.3 No Computador</h4>
+        <ol>
+          <li>Acesse a página pelo Chrome ou Edge.</li>
+          <li>Clique em "Instalar no computador".</li>
+          <li>Um atalho será criado na área de trabalho.</li>
+        </ol>
+
+        <h3>7.8 Dicas Importantes do App de Pauta Virtual</h3>
+        <ul>
+          <li>Mantenha a página aberta durante toda a sessão para acompanhar as atualizações em tempo real.</li>
+          <li>Se a página parecer desatualizada, feche e abra novamente.</li>
+          <li>O QR Code exibido na aba Registrar Presença pode ser escaneado para acesso rápido.</li>
+          <li>Em caso de dúvidas, entre em contato com o suporte.</li>
+        </ul>
+      </section>
+
+      <footer class="content-footer">
+        <p>© 2026 blacodegs. Todos os direitos reservados.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const navList = document.getElementById('navList');
+      const sections = document.querySelectorAll('.section');
+      const items = [];
+
+      sections.forEach(section => {
+        const id = section.id;
+        const h2 = section.querySelector('h2');
+        if (h2) {
+          items.push({ id, text: h2.textContent, level: 2 });
+        }
+        const h3s = section.querySelectorAll('h3');
+        h3s.forEach(h3 => {
+          let h3Id = h3.id;
+          if (!h3Id) {
+            h3Id = h3.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            h3.id = h3Id;
+          }
+          items.push({ id: h3Id, text: h3.textContent, level: 3 });
+        });
+      });
+
+      let html = '';
+      items.forEach(item => {
+        html += `<li class="nav-item level-${item.level}"><a href="#${item.id}" data-target="${item.id}">${item.text}</a></li>`;
+      });
+      navList.innerHTML = html;
+
+      const navLinks = navList.querySelectorAll('a');
+
+      function updateActiveLink(id) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('data-target') === id);
+        });
+      }
+
+      function onScroll() {
+        let currentId = null;
+        let minDist = Infinity;
+        const targets = document.querySelectorAll('.section h2, .section h3');
+        const scrollTop = window.scrollY + 80;
+
+        targets.forEach(el => {
+          if (!el.id) return;
+          const rect = el.getBoundingClientRect();
+          const dist = Math.abs(rect.top);
+          if (dist < minDist) {
+            minDist = dist;
+            currentId = el.id;
+          }
+        });
+
+        if (currentId) {
+          updateActiveLink(currentId);
+        }
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            onScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('data-target');
+          const target = document.getElementById(targetId);
+          if (target) {
+            updateActiveLink(targetId);
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      const firstSection = document.querySelector('.section');
+      if (firstSection) {
+        updateActiveLink(firstSection.id);
+      }
+      setTimeout(onScroll, 150);
+    })();
+  </script>
+</body>
+</html>

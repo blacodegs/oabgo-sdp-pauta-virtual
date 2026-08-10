@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suporte – Sistema de Sessões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="css/about.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <a href="index.html" style="display:flex; align-items:center; text-decoration:none;">
+            <img src="images/logo-sdp-512.png" alt="blacodegs" class="sidebar-logo" />
+          </a>
+          <span class="sidebar-title">Suporte</span>
+        </div>
+        <nav class="sidebar-nav">
+          <ul>
+            <li class="nav-item level-2"><a href="#ajuda" data-target="ajuda">Como obter ajuda</a></li>
+            <li class="nav-item level-2"><a href="#faq" data-target="faq">Perguntas Frequentes</a></li>
+            <li class="nav-item level-3"><a href="#faq-geral" data-target="faq-geral">Geral</a></li>
+            <li class="nav-item level-3"><a href="#faq-painel" data-target="faq-painel">Painel Lateral</a></li>
+            <li class="nav-item level-3"><a href="#faq-pauta" data-target="faq-pauta">Pauta Virtual</a></li>
+            <li class="nav-item level-3"><a href="#faq-processos" data-target="faq-processos">Processos e Votos</a></li>
+            <li class="nav-item level-2"><a href="#contato" data-target="contato">Contato</a></li>
+          </ul>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="guide.html">Guia do Usuário</a>
+          <a href="privacy.html">Privacidade</a>
+          <a href="terms.html">Termos</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="content" id="mainContent">
+      <header class="content-header">
+        <h1>Central de Suporte</h1>
+        <p class="subtitle">Tire suas dúvidas e encontre ajuda para utilizar o Sistema de Sessões</p>
+      </header>
+
+      <!-- ==================== SEÇÃO 1: COMO OBTER AJUDA ==================== -->
+      <section id="ajuda" class="section">
+        <h2>Como obter ajuda</h2>
+
+        <div class="support-card urgent">
+          <h3><i class="material-icons">error_outline</i> Emergências e problemas críticos</h3>
+          <p>Se você está enfrentando um problema que impede a realização de uma sessão, votação ou coleta de presença, entre em contato imediatamente pelos canais abaixo:</p>
+          <div class="contact-grid">
+            <div class="contact-item">
+              <i class="material-icons">phone</i>
+              <div class="info">
+                <span class="label">WhatsApp</span>
+                <span class="value"><a href="https://wa.me/5562984057564" target="_blank">(62) 98405-7564</a></span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="material-icons">email</i>
+              <div class="info">
+                <span class="label">E-mail</span>
+                <span class="value"><a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a></span>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top:12px;font-size:13px;color:var(--oab-cinza-forte);"><strong>Horário de atendimento:</strong> Segunda a sexta, das 8h às 18h (exceto feriados).</p>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="material-icons">help_outline</i> Dúvidas gerais e orientações</h3>
+          <p>Para questões sobre o funcionamento do sistema, procedimentos, cadastros e orientações de uso, você pode:</p>
+          <ul>
+            <li>Consultar o <a href="guide.html">Guia do Usuário</a> completo, que detalha todos os módulos e funcionalidades;</li>
+            <li>Enviar um e-mail para <a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a> com sua dúvida;</li>
+            <li>Entrar em contato pelo WhatsApp <strong>(62) 98405-7564</strong>;</li>
+            <li>Procurar o responsável pelo sistema na sua unidade ou subseção.</li>
+          </ul>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="material-icons">bug_report</i> Reportar erro ou problema técnico</h3>
+          <p>Ao identificar um erro, falha de exibição, comportamento inesperado ou qualquer problema técnico no sistema, por favor, reporte com o máximo de detalhes possível:</p>
+          <ol>
+            <li><strong>Descreva o problema</strong> – o que você estava fazendo, o que esperava que acontecesse e o que aconteceu.</li>
+            <li><strong>Informe o módulo</strong> – qual parte do sistema estava utilizando (Painel Lateral, Pauta Virtual, Módulo de Processos, etc.).</li>
+            <li><strong>Indique a data e hora</strong> – isso ajuda a rastrear logs e identificar a causa.</li>
+            <li><strong>Anexe uma captura de tela</strong> se possível.</li>
+          </ol>
+          <p>Envie o relatório para <a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a> com o assunto "Reporte de erro – [breve descrição]".</p>
+        </div>
+      </section>
+
+      <!-- ==================== SEÇÃO 2: FAQ ==================== -->
+      <section id="faq" class="section">
+        <h2>Perguntas Frequentes (FAQ)</h2>
+
+        <!-- Subseção: Geral -->
+        <h3 id="faq-geral">Geral</h3>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> O que é o Sistema de Sessões?
+          </p>
+          <div class="faq-answer">
+            <p>É um sistema que auxilia na gestão de sessões de julgamento, permitindo o registro de pautas, votos, participantes e geração de atas e expedientes de forma automatizada.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Quem pode acessar o sistema?
+          </p>
+          <div class="faq-answer">
+            <p>O sistema é restrito a membros autorizados, funcionários e demais colaboradores. O acesso é feito via Google Workspace com credenciais institucionais ou por links específicos fornecidos pela administração.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> O sistema funciona em dispositivos móveis?
+          </p>
+          <div class="faq-answer">
+            <p>Sim! O App de Pauta Virtual foi desenvolvido para ser responsivo e funciona perfeitamente em smartphones e tablets, com versões para Android e iOS. Você também pode instalar o app na tela inicial do seu dispositivo.</p>
+          </div>
+        </div>
+
+        <!-- Subseção: Painel Lateral -->
+        <h3 id="faq-painel">Painel Lateral</h3>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> O Painel Lateral não carrega ou aparece em branco. O que fazer?
+          </p>
+          <div class="faq-answer">
+            <p>Verifique se você está com a extensão instalada e se o documento do Google Docs é o correto. Caso o problema persista, tente:</p>
+            <ol>
+              <li>Atualizar a página (F5);</li>
+              <li>Reabrir o painel pelo menu <strong>Extensões &gt; SDP &gt; Abrir painel lateral</strong>;</li>
+              <li>Sair e entrar novamente na sua conta Google;</li>
+              <li>Verificar se o escopo de autorizações foi concedido.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Como adicionar um participante que não aparece na lista de sugestões?
+          </p>
+          <div class="faq-answer">
+            <p>O autocomplete sugere apenas membros cadastrados no sistema. Se o participante não aparecer, acesse o <strong>Módulo de Membros</strong> e cadastre-o primeiro. Depois, volte ao Painel Lateral e digite novamente o nome.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Como encerrar uma votação ou coleta de nomes antes do tempo?
+          </p>
+          <div class="faq-answer">
+            <p>No Painel Lateral, localize o botão correspondente (que estará vermelho, indicando atividade ativa) e clique em <strong>Encerrar votação</strong> ou <strong>Encerrar coleta de nomes</strong>. A atividade será interrompida imediatamente.</p>
+          </div>
+        </div>
+
+        <!-- Subseção: Pauta Virtual -->
+        <h3 id="faq-pauta">Pauta Virtual</h3>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> A Pauta Virtual mostra "Nenhuma sessão virtual ativa". O que significa?
+          </p>
+          <div class="faq-answer">
+            <p>Significa que o presidente da sessão ainda não iniciou a sessão virtual no Painel Lateral. Aguarde a ativação ou entre em contato com a mesa diretora para iniciar.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> O ícone de PDF do processo está apagado. Como acessar os autos?
+          </p>
+          <div class="faq-answer">
+            <p>O ícone apagado indica que o documento completo do processo ainda não foi disponibilizado na pasta de autos digitais. Entre em contato com a administração para solicitar o envio do arquivo.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Tentei votar, mas o botão "Confirmar voto" ficou desabilitado.
+          </p>
+          <div class="faq-answer">
+            <p>Certifique-se de que você selecionou seu nome na lista e escolheu uma opção de voto. Se ambos estiverem preenchidos e o botão continuar desabilitado, recarregue a página e tente novamente. Se o problema persistir, reporte à equipe de suporte.</p>
+          </div>
+        </div>
+
+        <!-- Subseção: Processos e Votos -->
+        <h3 id="faq-processos">Processos e Votos</h3>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Como excluir um processo que foi cadastrado por engano?
+          </p>
+          <div class="faq-answer">
+            <p>No <strong>Módulo de Processos</strong>, localize o processo. Se ele não estiver vinculado a nenhuma pauta (ficha de votação), você poderá excluí-lo clicando no ícone de lixeira. Se estiver vinculado, primeiro remova-o da pauta ou exclua a ficha correspondente.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> Anexei um PDF no voto, mas o resumo por IA não apareceu.
+          </p>
+          <div class="faq-answer">
+            <p>Após o upload do PDF, o sistema pergunta se você deseja gerar o resumo. Se você respondeu "Não" ou a janela não apareceu, você pode tentar novamente:</p>
+            <ol>
+              <li>Abra o voto no modal de gerenciamento;</li>
+              <li>Remova o PDF anexado (clique no ícone de lixeira);</li>
+              <li>Reanexe o PDF e aguarde a pergunta;</li>
+              <li>Clique em <strong>Gerar resumo</strong>.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons">chevron_right</i> O que significa o status "Com vistas"?
+          </p>
+          <div class="faq-answer">
+            <p>O status "Com vistas" indica que um pedido de vista foi solicitado por um membro do colegiado e o julgamento do processo foi suspenso para análise. O sistema registra automaticamente essa movimentação no histórico e na ficha do processo.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SEÇÃO 3: CONTATO ==================== -->
+      <section id="contato" class="section">
+        <h2>Contato</h2>
+
+        <div class="support-card">
+          <h3><i class="material-icons">location_on</i> Endereço</h3>
+          <p><strong>Sistema de Defesa das Prerrogativas</strong><br />
+          Rua 1121, nº 200, Setor Marista<br />
+          Goiânia – GO, CEP: 74175-120</p>
+          <p><strong>Suporte técnico</strong><br />
+          WhatsApp: <a href="https://wa.me/5562984057564" target="_blank"><strong>(62) 98405-7564</strong></a><br />
+          E-mail: <a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a></p>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="material-icons">people</i> Equipe de suporte</h3>
+          <p>Para questões técnicas, desenvolvimento, melhorias e correções, entre em contato com a equipe responsável pelo sistema:</p>
+          <ul>
+            <li><strong>E-mail:</strong> <a href="mailto:edicarlos.mail@gmail.com">edicarlos.mail@gmail.com</a></li>
+            <li><strong>WhatsApp:</strong> (62) 98405-7564</li>
+          </ul>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="material-icons">schedule</i> Horário de atendimento</h3>
+          <ul>
+            <li><strong>Presencial:</strong> Segunda a sexta, das 8h às 12h e das 13h às 18h.</li>
+            <li><strong>WhatsApp e e-mail:</strong> Segunda a sexta, das 8h às 18h.</li>
+            <li><strong>Plantão emergencial:</strong> Em caso de sessão fora do horário comercial, o suporte pode ser acionado via WhatsApp (62) 98405-7564.</li>
+          </ul>
+        </div>
+
+        <div style="background:var(--oab-azul-suave);border-radius:12px;padding:20px 24px;margin-top:24px;border-left:4px solid var(--oab-azul);">
+          <p style="margin:0;font-size:14px;color:var(--oab-azul-escuro);">
+            <strong><i class="material-icons" style="font-size:16px;vertical-align:middle;">info</i> Dica:</strong>
+            Antes de entrar em contato, consulte o <a href="guide.html">Guia do Usuário</a> completo – ele contém respostas para a maioria das dúvidas sobre o funcionamento do sistema.
+          </p>
+        </div>
+      </section>
+
+      <footer class="content-footer">
+        <p>© 2026 blacodegs. Todos os direitos reservados.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Toggle FAQ (expande/recolhe resposta)
+    function toggleFaq(el) {
+      const answer = el.nextElementSibling;
+      const icon = el.querySelector('i');
+      if (answer) {
+        answer.classList.toggle('open');
+        if (answer.classList.contains('open')) {
+          icon.textContent = 'expand_more';
+        } else {
+          icon.textContent = 'chevron_right';
+        }
+      }
+    }
+
+    // Scrollspy simples para o sumário
+    (function() {
+      const navLinks = document.querySelectorAll('.sidebar-nav a');
+      
+      function updateActiveLink(id) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('data-target') === id);
+        });
+      }
+
+      const targets = document.querySelectorAll('.section h2, .section h3');
+      function onScroll() {
+        let currentId = null;
+        let minDist = Infinity;
+        const scrollTop = window.scrollY + 80;
+        targets.forEach(el => {
+          if (!el.id) return;
+          const rect = el.getBoundingClientRect();
+          const dist = Math.abs(rect.top);
+          if (dist < minDist) {
+            minDist = dist;
+            currentId = el.id;
+          }
+        });
+        if (currentId) {
+          updateActiveLink(currentId);
+        }
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            onScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('data-target');
+          const target = document.getElementById(targetId);
+          if (target) {
+            updateActiveLink(targetId);
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      const firstSection = document.querySelector('.section');
+      if (firstSection) {
+        const firstId = firstSection.id;
+        navLinks.forEach(link => {
+          if (link.getAttribute('data-target') === firstId) {
+            link.classList.add('active');
+          }
+        });
+      }
+      setTimeout(onScroll, 200);
+    })();
+  </script>
+</body>
+</html>
