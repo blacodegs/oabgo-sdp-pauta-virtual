@@ -50,13 +50,30 @@ async function carregarPauta() {
 
 function renderBannerPauta(sessao) {
   if (!sessao) return;
+
   var data = sessao.dataFormatada || sessao.data || '';
   var itens = [];
-  if (sessao.orgao) itens.push('<i class="material-icons" style="font-size:16px;">gavel</i> ' + sessao.orgao);
-  if (data)         itens.push('<i class="material-icons" style="font-size:16px;">event</i> Pauta iniciada em ' + data);
-  if (sessao.local) itens.push('<i class="material-icons" style="font-size:16px;">place</i> ' + sessao.local);
+  var ano = data ? data.split('/')[2] : '';   // extrai o ano de dd/mm/yyyy
+
+  // Ordem da sessão (ex.: 13ª Sessão)
+  if (sessao.ordemOrdinal) {
+    itens.push('<span class="banner-meta-item"><i class="material-icons" style="font-size:16px;">gavel</i> ' + sessao.ordemOrdinal + ' Sessão virtual do ano de ' + ano + '</span>');
+  }
+
+  // Órgão da sessão
+  if (sessao.orgao) {
+    itens.push('<span class="banner-meta-item"><i class="material-icons" style="font-size:16px;">gavel</i> ' + sessao.orgao + '</span>');
+  }
+
+  // Data de início da pauta
+  if (data) {
+    itens.push('<span class="banner-meta-item"><i class="material-icons" style="font-size:16px;">event</i> Pauta iniciada em ' + data + '</span>');
+  }
+
   var el = document.getElementById('bannerMeta');
-  if (el) el.innerHTML = itens.join(' &nbsp;·&nbsp; ') || '<span class="banner-meta-item">Sessão carregada</span>';
+  if (el) {
+    el.innerHTML = itens.join(' &nbsp;·&nbsp; ') || '<span class="banner-meta-item">Sessão carregada</span>';
+  }
 }
 
 function renderPauta(pauta) {

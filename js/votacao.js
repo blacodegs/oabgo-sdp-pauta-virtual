@@ -13,6 +13,7 @@ async function iniciarVotacao() {
   if (mainEl)   mainEl.style.display = 'none';
 
   try {
+    // 1. Busca o estado ativo do tipo "Processo em votação"
     var estado = await gasGet({ acao: 'estadoAtivo' });
     if (!estado.processoVotacao) {
       if (estadoEl) {
@@ -24,6 +25,7 @@ async function iniciarVotacao() {
 
     _votacaoFichaId = estado.processoVotacao;
 
+    // 2. Carrega membros + dados da votação
     var [dadosVotacao] = await Promise.all([
       gasGet({ acao: 'infoVotacao', fichaId: _votacaoFichaId }),
       carregarMembros()
@@ -31,12 +33,31 @@ async function iniciarVotacao() {
 
     if (!dadosVotacao.sucesso) throw new Error(dadosVotacao.erro || 'Erro ao carregar dados.');
 
+    // 3. Renderiza o banner da sessão (título + metadados)
     document.getElementById('votacaoTitulo').textContent = dadosVotacao.titulo || 'Votação';
+
+    var infoSessao = dadosVotacao.sessaoInfo || {};
     var dataHtml = '';
-    if (dadosVotacao.dataSessao) dataHtml += '<i class="material-icons" style="font-size:16px">event</i> ' + dadosVotacao.dataSessao;
-    if (dadosVotacao.orgao) dataHtml += (dataHtml ? ' · ' : '') + dadosVotacao.orgao;
+
+    // 3.1 Ordem da sessão (ex.: 13ª Sessão)
+    if (infoSessao.ordemOrdinal) {
+      dataHtml += '<i class="material-icons" style="font-size:16px">gavel</i> ' + infoSessao.ordemOrdinal + ' Sessão';
+    }
+
+    // 3.2 Data da sessão
+    if (dadosVotacao.dataSessao) {
+      dataHtml += (dataHtml ? ' &nbsp;·&nbsp; ' : '') +
+        '<i class="material-icons" style="font-size:16px">event</i> ' + dadosVotacao.dataSessao;
+    }
+
+    // 3.3 Órgão da sessão
+    if (dadosVotacao.orgao) {
+      dataHtml += (dataHtml ? ' &nbsp;·&nbsp; ' : '') + dadosVotacao.orgao;
+    }
+
     document.getElementById('votacaoData').innerHTML = dataHtml;
 
+    // 4. Renderiza cabeçalho do processo (requerente, requerido, ementa)
     var cabecalhoEl = document.getElementById('votacaoCabecalho');
     if (cabecalhoEl && dadosVotacao) {
       var html = '';
@@ -46,9 +67,13 @@ async function iniciarVotacao() {
       cabecalhoEl.innerHTML = html;
     }
 
+    // 5. Renderiza exposição dos votos
     renderExposicaoVotos(dadosVotacao.votos || []);
+
+    // 6. Renderiza formulário de votação
     renderFormularioVotacao(dadosVotacao.opcoesVoto || []);
 
+    // 7. Exibe a interface
     if (estadoEl) estadoEl.style.display = 'none';
     if (mainEl)   mainEl.style.display = 'block';
 
