@@ -336,7 +336,7 @@ function mvRenderLista(votos) {
         ? '<a href="' + v.url + '" target="_blank" class="chip-pdf-link tooltipped" data-position="bottom" title="Abrir relatório"><i class="material-icons" style="font-size:12px">picture_as_pdf</i>Relatório</a>'
         : '<button class="chip-pdf-pending tooltipped" data-position="bottom" title="Anexar relatório" onclick="mvAnexarRelatorio(\'' + esc(v.id) + '\')"><i class="material-icons" style="font-size:12px">picture_as_pdf</i>Relatório</button>';
 
-      var textoSanitizado = v.texto.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').trim();
+      var textoHtml = v.texto || '';
 
       html +=
         '<div class="mv-voto-card" data-mvid="' + esc(v.id) + '">' +
@@ -346,7 +346,7 @@ function mvRenderLista(votos) {
               '<button class="action-icon tooltipped" data-position="bottom" title="Expandir texto do voto" onclick="mvToggle(\'' + esc(v.id) + '\')"><i class="material-icons" style="font-size:18px">expand_more</i></button>' +
             '</div>' +
           '</div>' +
-          '<div class="mv-voto-body" id="mvbody-' + esc(v.id) + '"><p class="mv-voto-texto">' + textoSanitizado + '</p></div>' +
+          '<div class="mv-voto-body" id="mvbody-' + esc(v.id) + '"><p class="mv-voto-texto">' + textoHtml + '</p></div>' +
         '</div>';
     });
   }
