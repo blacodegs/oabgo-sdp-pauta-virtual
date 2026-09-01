@@ -406,6 +406,21 @@ function mvRenderLista(votos) {
 
   body.innerHTML = html;
 
+  // Aplica limpeza no texto colado no editor de novo voto
+  var editorNovo = document.getElementById('mvNovoTexto');
+  if (editorNovo) {
+    editorNovo.addEventListener('paste', function(e) {
+      e.preventDefault();
+
+      // Obtém o texto puro do clipboard
+      var textoColado = (e.clipboardData || window.clipboardData).getData('text/plain');
+      var textoLimpo = limparTextoColado(textoColado);
+
+      // Insere o texto limpo no local do cursor
+      document.execCommand('insertText', false, textoLimpo);
+    });
+  }
+
   var tooltips = body.querySelectorAll('.tooltipped');
   M.Tooltip.init(tooltips, { enterDelay: 200, exitDelay: 100 });
 }
@@ -766,4 +781,33 @@ function removerVotante(idFicha) {
     listaEl.innerHTML = '';
     listaEl.style.display = 'none';
   }
+}
+
+/**
+ * Limpa o texto colado no editor, removendo quebras, tabulações e espaços
+ * desnecessários, preservando espaçamentos entre palavras.
+ * @param {string} texto - texto bruto do clipboard
+ * @returns {string} texto limpo
+ */
+function limparTextoColado(texto) {
+  if (!texto) return '';
+
+  var limpo = texto;
+
+  // 1. Remove tabulações (substitui por espaço)
+  limpo = limpo.replace(/\t+/g, ' ');
+
+  // 2. Remove hifenização + quebra de linha + espaços (ex.: "de-\nnado")
+  limpo = limpo.replace(/\s*-\s*[\r\n]+\s*/g, '');
+
+  // 3. Substitui qualquer quebra de linha (simples ou múltipla) por um espaço
+  limpo = limpo.replace(/[\r\n]+/g, ' ');
+
+  // 4. Colapsa espaços múltiplos em um único
+  limpo = limpo.replace(/[ ]{2,}/g, ' ');
+
+  // 5. Remove espaços extras no início e no fim
+  limpo = limpo.trim();
+
+  return limpo;
 }

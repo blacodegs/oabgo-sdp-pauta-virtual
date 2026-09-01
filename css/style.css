@@ -571,7 +571,8 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .mv-voto-relator { font-size: 14px; color: var(--oab-cinza-forte); }
 .mv-voto-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
 .mv-voto-body { display: none; padding: 12px 18px 14px; border-top: 1px solid var(--oab-cinza-bg); }
-.mv-voto-texto { font-size: 14px; line-height: 1.7; color: var(--oab-cinza-txt); white-space: pre-wrap; margin: 0; }
+.mv-voto-texto { font-size: 14px; line-height: 1.7; color: var(--oab-cinza-txt); white-space: pre-wrap;
+  margin: 0; text-align: justify !important; }
 .editor-wrap {
   border: 1px solid var(--oab-cinza-bg); border-radius: 8px; margin-top: 6px;
   overflow: hidden; transition: border-color .2s;
@@ -588,15 +589,13 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 .editor-toolbar button:hover { background: var(--oab-cinza-bg); color: var(--oab-azul); }
 .voto-editor {
-  width: 100%; min-height: 80px; overflow-y: auto;
-  font-family: var(--fonte); font-size: 15px; color: var(--oab-grafite);
-  padding: 10px; line-height: 1.6; outline: none;
+  width: 100%; min-height: 80px; overflow-y: auto; text-align: justify; font-family: var(--fonte);
+  font-size: 15px; color: var(--oab-grafite); padding: 10px; line-height: 1.6; outline: none;
 }
 .voto-editor:empty::before { content: attr(data-placeholder); color: var(--oab-cinza-md); pointer-events: none; }
 .mv-novo-card {
-  display: none; background: var(--oab-branco); border: 1.5px solid var(--oab-azul);
-  border-radius: 10px; padding: 18px 20px 14px; margin-top: 16px;
-  box-shadow: 0 3px 12px rgba(0,68,128,.12);
+  display: none; background: var(--oab-branco); border: 1.5px solid var(--oab-azul); border-radius: 10px; 
+  padding: 18px 20px 14px; margin-top: 16px; box-shadow: 0 3px 12px rgba(0,68,128,.12);
 }
 .mv-select-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .mv-select-row select, .mv-select-row input {

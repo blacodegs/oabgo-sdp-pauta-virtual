@@ -4,6 +4,7 @@
 ══════════════════════════════════════════════════════════════ */
 
 let _votacaoFichaId = null;
+let _pollingVotantesVotacao = null;
 
 async function iniciarVotacao() {
   var estadoEl = document.getElementById('votacaoEstado');
@@ -73,7 +74,25 @@ async function iniciarVotacao() {
     // 6. Renderiza formulário de votação
     renderFormularioVotacao(dadosVotacao.opcoesVoto || []);
 
-    // 7. Exibe a interface
+    // 7. Extrai o idSessao a partir do sessaoInfo
+    var idSessao = (dadosVotacao.sessaoInfo && dadosVotacao.sessaoInfo.id) ? dadosVotacao.sessaoInfo.id : '';
+
+    // 8. Carrega membros que já votaram pela primeira vez e inicia polling
+    if (idSessao) {
+      await atualizarVotantesVotacao(idSessao);
+
+      // Inicia polling automático a cada 15 segundos
+      if (_pollingVotantesVotacao) clearInterval(_pollingVotantesVotacao);
+      _pollingVotantesVotacao = setInterval(function() {
+        if (_abaAtiva === 'votacao' && _votacaoFichaId && idSessao) {
+          atualizarVotantesVotacao(idSessao);
+        }
+      }, 15000);
+    } else {
+      console.warn('[votacao] idSessao não encontrado em dadosVotacao.');
+    }
+
+    // 9. Exibe a interface
     if (estadoEl) estadoEl.style.display = 'none';
     if (mainEl)   mainEl.style.display = 'block';
 
@@ -126,24 +145,24 @@ function renderFormularioVotacao(opcoes) {
   });
   container.innerHTML = html;
 
-  var select = document.getElementById('votacaoSelectNome');
-  if (select && select.options.length <= 1) {
-    select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
-    Object.keys(_membrosCache).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(nome) {
-      var opt = document.createElement('option');
-      opt.value = nome;
-      opt.textContent = nome;
-      select.appendChild(opt);
-    });
-    M.FormSelect.init(select, {});
+  // Limpa o campo de busca e oculta chip/lista
+  var input = document.getElementById('votacaoSelectNome');
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-nome-selecionado');
+    input.style.display = 'block';
   }
+  var chipEl = document.getElementById('votante-chip-votacao');
+  if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
+  var listaEl = document.getElementById('lista-votantes-votacao');
+  if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
 
   document.getElementById('btnConfirmarVotacao').onclick = confirmarVotoIndividual;
 }
 
 async function confirmarVotoIndividual() {
-  var select = document.getElementById('votacaoSelectNome');
-  var nome   = select ? select.value.trim() : '';
+  var input = document.getElementById('votacaoSelectNome');
+  var nome = input ? (input.getAttribute('data-nome-selecionado') || '').trim() : '';
   var radioSel = document.querySelector('input[name="votacaoOpcao"]:checked');
 
   if (!nome) { toast('Selecione seu nome na lista.', 'erro'); return; }
@@ -157,10 +176,17 @@ async function confirmarVotoIndividual() {
     await gasPost({ acao: 'votar', nome: nome, voto: radioSel.value, idFicha: _votacaoFichaId });
     toast('Voto registrado com sucesso!');
 
-    select.value = '';
-    var inst = M.FormSelect.getInstance(select);
-    if (inst) inst.destroy();
-    M.FormSelect.init(select, {});
+    // Limpa o campo e a lista
+    if (input) {
+      input.value = '';
+      input.removeAttribute('data-nome-selecionado');
+      input.style.display = 'block';
+    }
+    var chipEl = document.getElementById('votante-chip-votacao');
+    if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
+    var listaEl = document.getElementById('lista-votantes-votacao');
+    if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
+
     document.querySelectorAll('input[name="votacaoOpcao"]').forEach(function(r) {
       r.checked = false;
       var p = r.closest('.opcao-voto-label');
@@ -173,4 +199,113 @@ async function confirmarVotoIndividual() {
     btn.disabled = false;
     btn.innerHTML = '<i class="material-icons" style="font-size:15px">check</i> Confirmar voto';
   }
+}
+
+function filtrarVotantesVotacao() {
+  var input = document.getElementById('votacaoSelectNome');
+  var listaEl = document.getElementById('lista-votantes-votacao');
+  if (!input || !listaEl) return;
+
+  var termo = input.value.trim().toLowerCase();
+  var nomes = Object.keys(_membrosCache).sort(function(a, b) { return a.localeCompare(b, 'pt-BR'); });
+
+  if (!termo) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+    return;
+  }
+
+  var filtrados = nomes.filter(function(nome) { return nome.toLowerCase().indexOf(termo) !== -1; });
+
+  if (filtrados.length === 0) {
+    listaEl.innerHTML = '<div class="votante-opcao" style="color:var(--oab-cinza-md);font-style:italic;">Nenhum membro encontrado</div>';
+    listaEl.style.display = 'block';
+    return;
+  }
+
+  var html = '';
+  filtrados.forEach(function(nome) {
+    html +=
+      '<label class="votante-opcao">' +
+        '<input type="radio" name="votacao-votante" value="' + nome + '" onchange="selecionarVotanteVotacao(this.value)">' +
+        '<span>' + nome + '</span>' +
+      '</label>';
+  });
+  listaEl.innerHTML = html;
+  listaEl.style.display = 'block';
+}
+
+function selecionarVotanteVotacao(nome) {
+  var input = document.getElementById('votacaoSelectNome');
+  var chipEl = document.getElementById('votante-chip-votacao');
+  var listaEl = document.getElementById('lista-votantes-votacao');
+
+  if (input) {
+    input.value = nome;
+    input.setAttribute('data-nome-selecionado', nome);
+    input.style.display = 'none';
+  }
+
+  if (chipEl) {
+    chipEl.innerHTML =
+      '<span class="chip-nome">' + nome + '</span>' +
+      '<span class="chip-remover" onclick="removerVotanteVotacao()" title="Remover">×</span>';
+    chipEl.style.display = 'inline-flex';
+  }
+
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+}
+
+function removerVotanteVotacao() {
+  var input = document.getElementById('votacaoSelectNome');
+  var chipEl = document.getElementById('votante-chip-votacao');
+  var listaEl = document.getElementById('lista-votantes-votacao');
+
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-nome-selecionado');
+    input.style.display = 'block';
+    input.focus();
+  }
+
+  if (chipEl) {
+    chipEl.innerHTML = '';
+    chipEl.style.display = 'none';
+  }
+
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+}
+
+async function atualizarVotantesVotacao(sessaoId) {
+  if (!sessaoId || !_votacaoFichaId) return;
+  try {
+    var data = await gasGet({ acao: 'votantes', sessaoId: sessaoId });
+    var votantes = (data && data.votantes) ? (data.votantes[_votacaoFichaId] || []) : [];
+    renderChipsVotantesVotacao(votantes);
+  } catch (err) {
+    console.warn('[votacao] erro ao atualizar votantes:', err.message);
+  }
+}
+
+function renderChipsVotantesVotacao(lista) {
+  var chipsEl    = document.getElementById('votacaoChips');
+  var contagemEl = document.getElementById('votacaoContagem');
+
+  if (contagemEl) contagemEl.textContent = lista.length;
+  if (!chipsEl) return;
+
+  if (!lista.length) {
+    chipsEl.innerHTML = '<span class="presenca-vazio">Nenhum voto registrado ainda.</span>';
+    return;
+  }
+
+  chipsEl.innerHTML = lista.map(function(nome) {
+    return '<span class="chip-presente"><i class="material-icons">check_circle</i>' + nome + '</span>';
+  }).join('');
 }

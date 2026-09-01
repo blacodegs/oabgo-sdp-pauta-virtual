@@ -87,19 +87,21 @@ function mostrarCardPresenca() {
   var card = document.getElementById('presencaCard');
   card.style.display = 'block';
 
-  var select = document.getElementById('selectPresenca');
-  select.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
-  Object.keys(_membrosCache).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(nome) {
-    var opt = document.createElement('option');
-    opt.value = nome;
-    opt.textContent = nome;
-    select.appendChild(opt);
-  });
-  var oldInst = M.FormSelect.getInstance(select);
-  if (oldInst) oldInst.destroy();
-  M.FormSelect.init(select, {});
+  // Limpa o campo de busca e oculta chip/lista
+  var input = document.getElementById('selectPresenca');
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-nome-selecionado');
+    input.style.display = 'block';
+  }
+  var chipEl = document.getElementById('votante-chip-presenca');
+  if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
+  var listaEl = document.getElementById('lista-presenca');
+  if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
 
+  // Esconde mensagem de "já registrado"
   document.getElementById('presencaJaRegistrada').style.display = 'none';
+
   card.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 
@@ -109,8 +111,8 @@ function fecharCardPresenca() {
 }
 
 async function confirmarPresenca() {
-  var select = document.getElementById('selectPresenca');
-  var nome   = select ? select.value.trim() : '';
+  var input = document.getElementById('selectPresenca');
+  var nome = input ? (input.getAttribute('data-nome-selecionado') || '').trim() : '';
 
   if (!nome) { toast('Selecione seu nome na lista.', 'erro'); return; }
 
@@ -136,5 +138,86 @@ async function confirmarPresenca() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="material-icons" style="font-size:16px">check</i> Confirmar presença';
+  }
+}
+
+function filtrarPresenca() {
+  var input = document.getElementById('selectPresenca');
+  var listaEl = document.getElementById('lista-presenca');
+  if (!input || !listaEl) return;
+
+  var termo = input.value.trim().toLowerCase();
+  var nomes = Object.keys(_membrosCache).sort(function(a, b) { return a.localeCompare(b, 'pt-BR'); });
+
+  if (!termo) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+    return;
+  }
+
+  var filtrados = nomes.filter(function(nome) { return nome.toLowerCase().indexOf(termo) !== -1; });
+
+  if (filtrados.length === 0) {
+    listaEl.innerHTML = '<div class="votante-opcao" style="color:var(--oab-cinza-md);font-style:italic;">Nenhum membro encontrado</div>';
+    listaEl.style.display = 'block';
+    return;
+  }
+
+  var html = '';
+  filtrados.forEach(function(nome) {
+    html +=
+      '<label class="votante-opcao">' +
+        '<input type="radio" name="presenca-votante" value="' + nome + '" onchange="selecionarPresenca(this.value)">' +
+        '<span>' + nome + '</span>' +
+      '</label>';
+  });
+  listaEl.innerHTML = html;
+  listaEl.style.display = 'block';
+}
+
+function selecionarPresenca(nome) {
+  var input = document.getElementById('selectPresenca');
+  var chipEl = document.getElementById('votante-chip-presenca');
+  var listaEl = document.getElementById('lista-presenca');
+
+  if (input) {
+    input.value = nome;
+    input.setAttribute('data-nome-selecionado', nome);
+    input.style.display = 'none';
+  }
+
+  if (chipEl) {
+    chipEl.innerHTML =
+      '<span class="chip-nome">' + nome + '</span>' +
+      '<span class="chip-remover" onclick="removerPresenca()" title="Remover">×</span>';
+    chipEl.style.display = 'inline-flex';
+  }
+
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+}
+
+function removerPresenca() {
+  var input = document.getElementById('selectPresenca');
+  var chipEl = document.getElementById('votante-chip-presenca');
+  var listaEl = document.getElementById('lista-presenca');
+
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-nome-selecionado');
+    input.style.display = 'block';
+    input.focus();
+  }
+
+  if (chipEl) {
+    chipEl.innerHTML = '';
+    chipEl.style.display = 'none';
+  }
+
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
   }
 }

@@ -62,6 +62,12 @@ function trocarAba(novaAba, el) {
   var url = new URL(window.location.href);
   url.searchParams.set('aba', novaAba);
   window.history.replaceState({}, '', url.toString());
+
+  // Limpa o polling da votação se não estiver na aba de votação
+  if (novaAba !== 'votacao' && window._pollingVotantesVotacao) {
+    clearInterval(window._pollingVotantesVotacao);
+    window._pollingVotantesVotacao = null;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
