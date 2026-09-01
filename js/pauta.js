@@ -225,6 +225,7 @@ async function toggleVotoForm(idFicha) {
     var nomeInput = document.getElementById('nome-' + idFicha);
     if (nomeInput) {
       nomeInput.value = '';
+      nomeInput.removeAttribute('data-nome-selecionado');
       nomeInput.style.display = 'block';
     }
 
@@ -284,10 +285,9 @@ function selecionarVoto(label) {
 
 async function confirmarVoto(idFicha) {
   const nomeInput = document.getElementById('nome-' + idFicha);
-  const nome      = nomeInput ? nomeInput.value.trim() : '';
-  const radioSel  = document.querySelector('input[name="voto-' + idFicha + '"]:checked');
+  const nome = nomeInput ? (nomeInput.getAttribute('data-nome-selecionado') || '').trim() : '';
+  const radioSel = document.querySelector('input[name="voto-' + idFicha + '"]:checked');
 
-  // Validações
   if (!nome) {
     if (nomeInput) nomeInput.focus();
     toast('Selecione seu nome na lista.', 'erro');
@@ -726,14 +726,17 @@ function selecionarVotante(idFicha, nome) {
   var listaEl = document.getElementById('lista-votantes-' + idFicha);
   var chipEl = document.getElementById('votante-chip-' + idFicha);
 
-  // Esconde input e lista
-  if (input) input.style.display = 'none';
+  if (input) {
+    input.value = nome;  // preenche o input (mas não será usado na confirmação)
+    input.setAttribute('data-nome-selecionado', nome); // armazena o nome correto
+    input.style.display = 'none';
+  }
+
   if (listaEl) {
     listaEl.innerHTML = '';
     listaEl.style.display = 'none';
   }
 
-  // Mostra o chip com o nome selecionado
   if (chipEl) {
     chipEl.innerHTML =
       '<span class="chip-nome">' + nome + '</span>' +
@@ -749,6 +752,7 @@ function removerVotante(idFicha) {
 
   if (input) {
     input.value = '';
+    input.removeAttribute('data-nome-selecionado'); // limpa o nome armazenado
     input.style.display = 'block';
     input.focus();
   }
