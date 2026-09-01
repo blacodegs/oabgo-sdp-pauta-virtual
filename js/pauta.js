@@ -168,9 +168,11 @@ function criarFormVoto(idFicha) {
     '<div class="voto-form-inner">' +
       '<div class="form-subsecao">' +
         '<p class="form-subsecao-titulo">Registrar Voto</p>' +
-        '<div class="input-field" style="margin-top:20px; margin-bottom:12px; width:100%; max-width:380px;">' +
-          '<select id="nome-' + idFicha + '"><option value="" disabled selected>Escolha seu nome</option></select>' +
-          '<label>Seu nome completo</label>' +
+        '<div class="votante-search-wrap">' +
+          '<label class="votante-search-label">Seu nome completo</label>' +
+          '<input type="text" id="nome-' + idFicha + '" class="votante-search-input" autocomplete="off" placeholder="Digite aqui e selecione o seu nome na lista…" oninput="filtrarVotantes(\'' + idFicha + '\')">' +
+          '<div id="votante-chip-' + idFicha + '" class="votante-chip" style="display:none;"></div>' +
+          '<div class="votante-lista" id="lista-votantes-' + idFicha + '" style="display:none;"></div>' +
         '</div>' +
         '<label class="opcoes-label">Selecione sua opção de voto</label>' +
         '<div class="opcoes-voto" id="opcoes-' + idFicha + '"></div>' +
@@ -213,35 +215,43 @@ function renderOpcoesVoto(idFicha, votos) {
 async function toggleVotoForm(idFicha) {
   const form   = document.getElementById('form-' + idFicha);
   const aberto = form.classList.contains('aberto');
+
   document.querySelectorAll('.voto-form-wrapper.aberto').forEach(function(f) { f.classList.remove('aberto'); });
+
   if (!aberto) {
     form.classList.add('aberto');
 
-    var selectNome = document.getElementById('nome-' + idFicha);
-    if (selectNome && selectNome.options.length <= 1) {
-      selectNome.innerHTML = '<option value="" disabled selected>Escolha seu nome</option>';
-      var nomes = Object.keys(_membrosCache).sort();
-      nomes.forEach(function(nome) {
-        var opt = document.createElement('option');
-        opt.value = nome;
-        opt.textContent = nome;
-        selectNome.appendChild(opt);
-      });
-      setTimeout(function() {
-        var oldInstance = M.FormSelect.getInstance(selectNome);
-        if (oldInstance) oldInstance.destroy();
-        M.FormSelect.init(selectNome, {});
-      }, 100);
-    }
-
+    // Limpa e reexibe o campo de busca
     var nomeInput = document.getElementById('nome-' + idFicha);
     if (nomeInput) {
-      nomeInput.removeAttribute('data-autocomplete-inited');
-      initAutocompleteOnFocus(nomeInput);
+      nomeInput.value = '';
+      nomeInput.style.display = 'block';
+    }
+
+    // Remove qualquer chip de nome selecionado
+    var chipEl = document.getElementById('votante-chip-' + idFicha);
+    if (chipEl) {
+      chipEl.innerHTML = '';
+      chipEl.style.display = 'none';
+    }
+
+    // Limpa a lista de votantes
+    var listaEl = document.getElementById('lista-votantes-' + idFicha);
+    if (listaEl) {
+      listaEl.innerHTML = '';
+      listaEl.style.display = 'none';
+    }
+
+    // Configura o filtro de votantes
+    if (nomeInput) {
+      nomeInput.addEventListener('input', function() {
+        filtrarVotantes(idFicha);
+      });
     }
 
     atualizarVotantes(idFicha);
 
+    // Busca os votos da ficha para montar opções dinâmicas
     try {
       const res = await gasGet({ acao: 'votos', fichaId: idFicha });
       _votosPorFichaCache[idFicha] = res.votos || [];
@@ -273,12 +283,20 @@ function selecionarVoto(label) {
 }
 
 async function confirmarVoto(idFicha) {
-  const nomeSelect = document.getElementById('nome-' + idFicha);
-  const nome       = nomeSelect ? nomeSelect.value.trim() : '';
-  const radioSel   = document.querySelector('input[name="voto-' + idFicha + '"]:checked');
+  const nomeInput = document.getElementById('nome-' + idFicha);
+  const nome      = nomeInput ? nomeInput.value.trim() : '';
+  const radioSel  = document.querySelector('input[name="voto-' + idFicha + '"]:checked');
 
-  if (!nome) { if (nomeSelect) nomeSelect.focus(); toast('Selecione seu nome na lista.', 'erro'); return; }
-  if (!radioSel) { toast('Selecione uma opção de voto.', 'erro'); return; }
+  // Validações
+  if (!nome) {
+    if (nomeInput) nomeInput.focus();
+    toast('Selecione seu nome na lista.', 'erro');
+    return;
+  }
+  if (!radioSel) {
+    toast('Selecione uma opção de voto.', 'erro');
+    return;
+  }
 
   const btn = document.getElementById('btnConf-' + idFicha);
   btn.disabled = true;
@@ -287,21 +305,26 @@ async function confirmarVoto(idFicha) {
   try {
     await gasPost({ acao: 'votar', nome: nome, voto: radioSel.value, idFicha: idFicha });
     toast('Voto registrado com sucesso!');
+
+    // Fecha o formulário
     document.getElementById('form-' + idFicha).classList.remove('aberto');
 
-    if (nomeSelect) {
-      nomeSelect.value = '';
-      var instance = M.FormSelect.getInstance(nomeSelect);
-      if (instance) instance.destroy();
-      M.FormSelect.init(nomeSelect, {});
+    // Limpa o campo de nome e a lista de votantes
+    if (nomeInput) nomeInput.value = '';
+    var listaEl = document.getElementById('lista-votantes-' + idFicha);
+    if (listaEl) {
+      listaEl.innerHTML = '';
+      listaEl.style.display = 'none';
     }
 
+    // Limpa as opções de voto
     document.querySelectorAll('input[name="voto-' + idFicha + '"]').forEach(function(r) {
       r.checked = false;
       var p = r.closest('.opcao-voto-label');
       if (p) p.classList.remove('selecionada');
     });
 
+    // Atualiza chips de votantes
     var novaLista = (_votantesCache[idFicha] || []).concat([nome]);
     _votantesCache[idFicha] = novaLista;
     var el = document.getElementById('votantes-' + idFicha);
@@ -649,4 +672,94 @@ function mvPerguntarResumoIA(base64, votoId, targetEditorId) {
 function abrirRelatorio(url) {
   if (!url) { toast('URL não disponível.','erro'); return; }
   window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/**
+ * Filtra a lista de votantes com base no texto digitado.
+ * Exibe apenas os nomes que contêm o termo buscado.
+ * @param {string} idFicha
+ */
+function filtrarVotantes(idFicha) {
+  var input = document.getElementById('nome-' + idFicha);
+  var listaEl = document.getElementById('lista-votantes-' + idFicha);
+  if (!input || !listaEl) return;
+
+  var termo = input.value.trim().toLowerCase();
+  var nomes = Object.keys(_membrosCache).sort(function(a, b) { return a.localeCompare(b, 'pt-BR'); });
+
+  // Se campo vazio, esconde a lista
+  if (!termo) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+    return;
+  }
+
+  var filtrados = nomes.filter(function(nome) {
+    return nome.toLowerCase().indexOf(termo) !== -1;
+  });
+
+  if (filtrados.length === 0) {
+    listaEl.innerHTML = '<div class="votante-opcao" style="color:var(--oab-cinza-md);font-style:italic;">Nenhum membro encontrado</div>';
+    listaEl.style.display = 'block';
+    return;
+  }
+
+  var html = '';
+  filtrados.forEach(function(nome) {
+    html +=
+      '<label class="votante-opcao">' +
+        '<input type="radio" name="votante-' + idFicha + '" value="' + nome + '" onchange="selecionarVotante(\'' + idFicha + '\', this.value)">' +
+        '<span>' + nome + '</span>' +
+      '</label>';
+  });
+  listaEl.innerHTML = html;
+  listaEl.style.display = 'block';
+}
+
+/**
+ * Define o nome selecionado no input de busca e esconde a lista.
+ * @param {string} idFicha
+ * @param {string} nome
+ */
+function selecionarVotante(idFicha, nome) {
+  var input = document.getElementById('nome-' + idFicha);
+  var listaEl = document.getElementById('lista-votantes-' + idFicha);
+  var chipEl = document.getElementById('votante-chip-' + idFicha);
+
+  // Esconde input e lista
+  if (input) input.style.display = 'none';
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+
+  // Mostra o chip com o nome selecionado
+  if (chipEl) {
+    chipEl.innerHTML =
+      '<span class="chip-nome">' + nome + '</span>' +
+      '<span class="chip-remover" onclick="removerVotante(\'' + idFicha + '\')" title="Remover">×</span>';
+    chipEl.style.display = 'inline-flex';
+  }
+}
+
+function removerVotante(idFicha) {
+  var input = document.getElementById('nome-' + idFicha);
+  var chipEl = document.getElementById('votante-chip-' + idFicha);
+  var listaEl = document.getElementById('lista-votantes-' + idFicha);
+
+  if (input) {
+    input.value = '';
+    input.style.display = 'block';
+    input.focus();
+  }
+
+  if (chipEl) {
+    chipEl.innerHTML = '';
+    chipEl.style.display = 'none';
+  }
+
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
 }
