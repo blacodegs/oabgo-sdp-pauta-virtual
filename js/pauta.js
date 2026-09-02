@@ -169,7 +169,7 @@ function criarFormVoto(idFicha) {
       '<div class="form-subsecao">' +
         '<p class="form-subsecao-titulo">Registrar Voto</p>' +
         '<div class="votante-search-wrap">' +
-          '<label class="votante-search-label">Seu nome completo</label>' +
+          '<label class="votante-search-label">Quem está votando?</label>' +
           '<input type="text" id="nome-' + idFicha + '" class="votante-search-input" autocomplete="off" placeholder="Digite aqui e selecione o seu nome na lista…" oninput="filtrarVotantes(\'' + idFicha + '\')">' +
           '<div id="votante-chip-' + idFicha + '" class="votante-chip" style="display:none;"></div>' +
           '<div class="votante-lista" id="lista-votantes-' + idFicha + '" style="display:none;"></div>' +
@@ -395,10 +395,20 @@ function mvRenderLista(votos) {
     '<div class="mv-btn-add-wrap"><button class="btn-oab-confirm" onclick="mvMostrarFormNovo()" style="font-size:11px"><i class="material-icons" style="font-size:15px">add</i> Adicionar voto</button></div>' +
     '<div class="mv-novo-card" id="mvNovoCard">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:var(--oab-azul-escuro);border-left:3px solid var(--oab-vermelho);padding-left:8px;text-transform:uppercase;letter-spacing:.05em">Novo voto</span><button class="modal-close tooltipped" data-position="bottom" title="Fechar formulário" onclick="mvFecharFormNovo()"><i class="material-icons">close</i></button></div>' +
-      '<div class="mv-select-row">' +
-        '<div class="input-field" style="flex:0 0 160px; margin:0;"><select id="mvNovoTipo"><option value="Voto do relator">Voto do relator</option><option value="Voto divergente">Voto divergente</option></select><label>Tipo</label></div>' +
-        '<div class="input-field" style="flex:1; margin:0;"><select id="mvNovoRelator"><option value="" disabled selected>Escolha o relator</option></select><label>Relator</label></div>' +
-      '</div>' +
+            '<div class="mv-select-row">' +
+              '<div class="votante-search-wrap" style="flex:0 0 180px; max-width:180px;">' +
+                '<label class="votante-search-label">Tipo de voto</label>' +
+                '<input type="text" id="mvNovoTipo" class="votante-search-input" autocomplete="off" placeholder="Selecione o tipo…" onfocus="mostrarOpcoesTipoVoto()">' +
+                '<div id="votante-chip-tipo" class="votante-chip" style="display:none;"></div>' +
+                '<div class="votante-lista" id="lista-tipo-voto" style="display:none;"></div>' +
+              '</div>' +
+              '<div class="votante-search-wrap" style="flex:1; min-width:200px;">' +
+                '<label class="votante-search-label">Relator</label>' +
+                '<input type="text" id="mvNovoRelator" class="votante-search-input" autocomplete="off" placeholder="Digite para buscar o relator…" oninput="filtrarRelatoresNovoVoto()">' +
+                '<div id="votante-chip-relator" class="votante-chip" style="display:none;"></div>' +
+                '<div class="votante-lista" id="lista-relatores" style="display:none;"></div>' +
+              '</div>' +
+            '</div>' +
       '<label style="font-size:10px;color:var(--oab-cinza-label);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Voto</label>' +
       '<div class="editor-wrap"><div class="editor-toolbar" onmousedown="event.preventDefault()"><button class="tooltipped" data-position="top" title="Negrito" onclick="document.execCommand(\'bold\')"><i class="material-icons" style="font-size:16px">format_bold</i></button><button class="tooltipped" data-position="top" title="Itálico" onclick="document.execCommand(\'italic\')"><i class="material-icons" style="font-size:16px">format_italic</i></button><button class="tooltipped" data-position="top" title="Sublinhado" onclick="document.execCommand(\'underline\')"><i class="material-icons" style="font-size:16px">format_underlined</i></button></div><div class="voto-editor" id="mvNovoTexto" contenteditable="true" data-placeholder="Digite o voto…"></div></div>' +
       '<div class="mv-novo-actions"><button class="btn-oab-confirm" data-position="top" onclick="mvAnexarPdfNovo()" style="font-size:11px;display:flex;align-items:center;gap:5px;" id="mvBtnPdf"><i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório em PDF</button><div class="mv-novo-actions-right"><button class="btn-oab" data-position="top" onclick="mvFecharFormNovo()">Cancelar</button><button class="btn-oab-confirm" data-position="top" id="mvBtnSalvar" onclick="mvSalvarNovoVoto()">Salvar</button></div></div>' +
@@ -442,27 +452,47 @@ function mvMostrarFormNovo() {
   var card = document.getElementById('mvNovoCard');
   if (!card) return;
 
-  var selectRelator = document.getElementById('mvNovoRelator');
-  if (selectRelator) {
-    selectRelator.innerHTML = '<option value="" disabled selected>Escolha o relator</option>';
-    Object.keys(_membrosCache).sort().forEach(function(nome) {
-      var opt = document.createElement('option');
-      opt.value = nome;
-      opt.textContent = nome;
-      selectRelator.appendChild(opt);
-    });
-    var oldRel = M.FormSelect.getInstance(selectRelator);
-    if (oldRel) oldRel.destroy();
-    M.FormSelect.init(selectRelator, {});
+  // Limpa e reexibe o campo de tipo de voto
+  var inputTipo = document.getElementById('mvNovoTipo');
+  if (inputTipo) {
+    inputTipo.style.display = 'block';
+    inputTipo.value = '';
+    inputTipo.removeAttribute('data-tipo-selecionado');
   }
+  var chipTipo = document.getElementById('votante-chip-tipo');
+  if (chipTipo) { chipTipo.innerHTML = ''; chipTipo.style.display = 'none'; }
+  var listaTipo = document.getElementById('lista-tipo-voto');
+  if (listaTipo) { listaTipo.innerHTML = ''; listaTipo.style.display = 'none'; }
 
-  var selectTipo = document.getElementById('mvNovoTipo');
-  if (selectTipo) {
-    var temRelator = _mvVotosCache.some(function(v) { return (v.tipovoto || v.tipo || '').toLowerCase().indexOf('voto do relator') !== -1; });
-    selectTipo.value = temRelator ? 'Voto divergente' : 'Voto do relator';
-    var oldTipo = M.FormSelect.getInstance(selectTipo);
-    if (oldTipo) oldTipo.destroy();
-    M.FormSelect.init(selectTipo, {});
+  // Limpa e reexibe o campo de relator
+  var inputRelator = document.getElementById('mvNovoRelator');
+  if (inputRelator) {
+    inputRelator.style.display = 'block';
+    inputRelator.value = '';
+    inputRelator.removeAttribute('data-relator-selecionado');
+  }
+  var chipRelator = document.getElementById('votante-chip-relator');
+  if (chipRelator) { chipRelator.innerHTML = ''; chipRelator.style.display = 'none'; }
+  var listaRelator = document.getElementById('lista-relatores');
+  if (listaRelator) { listaRelator.innerHTML = ''; listaRelator.style.display = 'none'; }
+
+  // Pré‑seleciona o tipo de voto com base no cache
+  var temRelator = _mvVotosCache.some(function(v) {
+    return (v.tipovoto || v.tipo || '').toLowerCase().indexOf('voto do relator') !== -1;
+  });
+
+  if (inputTipo) {
+    var tipoPreSelecionado = temRelator ? 'Voto divergente' : 'Voto do relator';
+    inputTipo.value = tipoPreSelecionado;
+    inputTipo.setAttribute('data-tipo-selecionado', tipoPreSelecionado);
+    inputTipo.style.display = 'none';
+
+    if (chipTipo) {
+      chipTipo.innerHTML =
+        '<span class="chip-nome">' + tipoPreSelecionado + '</span>' +
+        '<span class="chip-remover" onclick="removerTipoVotoNovo()" title="Remover">×</span>';
+      chipTipo.style.display = 'inline-flex';
+    }
   }
 
   card.style.display = 'block';
@@ -567,45 +597,65 @@ function _escolherPdf(callback) {
 }
 
 async function mvSalvarNovoVoto() {
-  var tipo    = document.getElementById('mvNovoTipo').value;
-  var relator = (document.getElementById('mvNovoRelator').value || '').trim();
+  var inputTipo = document.getElementById('mvNovoTipo');
+  var tipo = inputTipo ? (inputTipo.getAttribute('data-tipo-selecionado') || '').trim() : '';
+
+  var inputRelator = document.getElementById('mvNovoRelator');
+  var relator = inputRelator ? (inputRelator.getAttribute('data-relator-selecionado') || '').trim() : '';
+
   var editor  = document.getElementById('mvNovoTexto');
   var textoHtml  = editor ? editor.innerHTML.trim() : '';
   var textoPlano = editor ? editor.textContent.trim() : '';
 
-  if (!relator || !textoPlano) { toast('Preencha relator e texto do voto.', 'erro'); return; }
+  if (!tipo)     { toast('Selecione o tipo de voto.', 'erro'); return; }
+  if (!relator)  { toast('Selecione o relator.', 'erro'); return; }
+  if (!textoPlano) { toast('Preencha o texto do voto.', 'erro'); return; }
 
   var btn = document.getElementById('mvBtnSalvar');
-  btn.disabled = true; btn.textContent = 'Salvando…';
+  btn.disabled = true;
+  btn.textContent = 'Salvando…';
 
   try {
-    const res = await gasPostViaGet({ acao: 'novoVoto', fichaId: _mvFichaId, tipovoto: tipo, relator: relator, voto: textoHtml });
+    const res = await gasPostViaGet({
+      acao: 'novoVoto',
+      fichaId: _mvFichaId,
+      tipovoto: tipo,
+      relator: relator,
+      voto: textoHtml,
+    });
+
     if (!res.sucesso) throw new Error(res.erro || 'Erro desconhecido');
     var novoVotoId = res.id || '';
     toast('Voto adicionado!');
 
     if (_mvPdfPendente && novoVotoId) {
       toast('Enviando relatório…');
-      var relatorNovo = (document.getElementById('mvNovoRelator') || {}).value || '';
-      relatorNovo = relatorNovo.trim() || ((_mvFichaInfo && _mvFichaInfo.relator) ? _mvFichaInfo.relator : '');
+      var relatorNovo = relator.trim() || ((_mvFichaInfo && _mvFichaInfo.relator) ? _mvFichaInfo.relator : '');
       await new Promise(function(resolve) {
-        mvExecutarUpload(_mvPdfPendente.base64, _mvPdfPendente.fileName, novoVotoId, relatorNovo,
+        mvExecutarUpload(
+          _mvPdfPendente.base64,
+          _mvPdfPendente.fileName,
+          novoVotoId,
+          relatorNovo,
           function(url) { toast('Relatório anexado!'); resolve(); },
           function(erro) { toast('Erro no upload do PDF: ' + erro, 'erro'); resolve(); }
         );
       });
     }
 
-    btn.disabled = false; btn.textContent = 'Salvar';
+    btn.disabled = false;
+    btn.textContent = 'Salvar';
     mvFecharFormNovo();
 
     const resVotos = await gasGet({ acao:'votos', fichaId: _mvFichaId });
     _mvFichaInfo = (resVotos.fichaInfo && typeof resVotos.fichaInfo === 'object') ? resVotos.fichaInfo : _mvFichaInfo;
     _mvVotosCache = resVotos.votos || [];
     mvRenderLista(resVotos.votos || []);
+
   } catch (err) {
     toast('Erro ao salvar: ' + err.message, 'erro');
-    btn.disabled = false; btn.textContent = 'Salvar';
+    btn.disabled = false;
+    btn.textContent = 'Salvar';
   }
 }
 
@@ -810,4 +860,137 @@ function limparTextoColado(texto) {
   limpo = limpo.trim();
 
   return limpo;
+}
+
+function mostrarOpcoesTipoVoto() {
+  var listaEl = document.getElementById('lista-tipo-voto');
+  if (!listaEl) return;
+
+  var opcoes = ['Voto do relator', 'Voto divergente'];
+  var html = '';
+  opcoes.forEach(function(opcao) {
+    html +=
+      '<label class="votante-opcao">' +
+        '<input type="radio" name="novo-voto-tipo" value="' + opcao + '" onchange="selecionarTipoVotoNovo(this.value)">' +
+        '<span>' + opcao + '</span>' +
+      '</label>';
+  });
+  listaEl.innerHTML = html;
+  listaEl.style.display = 'block';
+
+  // Fecha a lista quando clicar fora
+  setTimeout(function() {
+    document.addEventListener('click', function fechar(e) {
+      if (!listaEl.contains(e.target) && e.target.id !== 'mvNovoTipo') {
+        listaEl.style.display = 'none';
+        document.removeEventListener('click', fechar);
+      }
+    });
+  }, 100);
+}
+
+function selecionarTipoVotoNovo(opcao) {
+  var input = document.getElementById('mvNovoTipo');
+  var chipEl = document.getElementById('votante-chip-tipo');
+  var listaEl = document.getElementById('lista-tipo-voto');
+
+  if (input) {
+    input.value = opcao;
+    input.setAttribute('data-tipo-selecionado', opcao);
+    input.style.display = 'none';
+  }
+  if (chipEl) {
+    chipEl.innerHTML =
+      '<span class="chip-nome">' + opcao + '</span>' +
+      '<span class="chip-remover" onclick="removerTipoVotoNovo()" title="Remover">×</span>';
+    chipEl.style.display = 'inline-flex';
+  }
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+}
+
+function removerTipoVotoNovo() {
+  var input = document.getElementById('mvNovoTipo');
+  var chipEl = document.getElementById('votante-chip-tipo');
+  var listaEl = document.getElementById('lista-tipo-voto');
+
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-tipo-selecionado');
+    input.style.display = 'block';
+  }
+  if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
+  if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
+}
+
+function filtrarRelatoresNovoVoto() {
+  var input = document.getElementById('mvNovoRelator');
+  var listaEl = document.getElementById('lista-relatores');
+  if (!input || !listaEl) return;
+
+  var termo = input.value.trim().toLowerCase();
+  var nomes = Object.keys(_membrosCache).sort(function(a, b) { return a.localeCompare(b, 'pt-BR'); });
+
+  if (!termo) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+    return;
+  }
+
+  var filtrados = nomes.filter(function(nome) { return nome.toLowerCase().indexOf(termo) !== -1; });
+
+  if (filtrados.length === 0) {
+    listaEl.innerHTML = '<div class="votante-opcao" style="color:var(--oab-cinza-md);font-style:italic;">Nenhum membro encontrado</div>';
+    listaEl.style.display = 'block';
+    return;
+  }
+
+  var html = '';
+  filtrados.forEach(function(nome) {
+    html +=
+      '<label class="votante-opcao">' +
+        '<input type="radio" name="novo-voto-relator" value="' + nome + '" onchange="selecionarRelatorNovoVoto(this.value)">' +
+        '<span>' + nome + '</span>' +
+      '</label>';
+  });
+  listaEl.innerHTML = html;
+  listaEl.style.display = 'block';
+}
+
+function selecionarRelatorNovoVoto(nome) {
+  var input = document.getElementById('mvNovoRelator');
+  var chipEl = document.getElementById('votante-chip-relator');
+  var listaEl = document.getElementById('lista-relatores');
+
+  if (input) {
+    input.value = nome;
+    input.setAttribute('data-relator-selecionado', nome);
+    input.style.display = 'none';
+  }
+  if (chipEl) {
+    chipEl.innerHTML =
+      '<span class="chip-nome">' + nome + '</span>' +
+      '<span class="chip-remover" onclick="removerRelatorNovoVoto()" title="Remover">×</span>';
+    chipEl.style.display = 'inline-flex';
+  }
+  if (listaEl) {
+    listaEl.innerHTML = '';
+    listaEl.style.display = 'none';
+  }
+}
+
+function removerRelatorNovoVoto() {
+  var input = document.getElementById('mvNovoRelator');
+  var chipEl = document.getElementById('votante-chip-relator');
+  var listaEl = document.getElementById('lista-relatores');
+
+  if (input) {
+    input.value = '';
+    input.removeAttribute('data-relator-selecionado');
+    input.style.display = 'block';
+  }
+  if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
+  if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
 }

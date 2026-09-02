@@ -597,17 +597,15 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   display: none; background: var(--oab-branco); border: 1.5px solid var(--oab-azul); border-radius: 10px; 
   padding: 18px 20px 14px; margin-top: 16px; box-shadow: 0 3px 12px rgba(0,68,128,.12);
 }
-.mv-select-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-.mv-select-row select, .mv-select-row input {
-  border: 1px solid var(--oab-cinza-md); border-radius: 6px;
-  padding: 8px 12px; font-size: 14px; font-family: var(--fonte);
-  color: var(--oab-grafite); outline: none; background: var(--oab-branco);
-}
-.mv-select-row select { flex: 1; min-width: 140px; }
-.mv-select-row input  { flex: 2; min-width: 160px; }
-.mv-select-row select:focus, .mv-select-row input:focus {
-  border-color: var(--oab-azul); box-shadow: 0 0 0 2px rgba(0,68,128,.1);
-}
+.mv-select-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-start }
+.mv-select-row .votante-search-wrap { margin-bottom: 0; margin-top: 0; flex: 0 0 auto }
+.mv-select-row .votante-search-input { width: 100% !important; box-sizing: border-box }
+
+/* Garante que o chip fique na mesma linha do input */
+.votante-chip { margin-top: 8px; max-width: 100% }
+/* Aumenta a largura do card da lista de radio buttons */
+.votante-lista { min-width: 200px; max-width: 100% }
+
 .mv-novo-actions {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--oab-cinza-bg);
@@ -654,7 +652,7 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 }
 
 /* Campo de busca de votante em formato pílula */
-.votante-search-wrap { margin-top: 20px; margin-bottom: 12px; max-width: 380px; width: 100%; box-sizing: border-box;}
+.votante-search-wrap { margin-top: 20px; margin-bottom: 12px; max-width: 380px; width: 100%; box-sizing: border-box; position: relative;}
 
 .votante-search-label {
     display: block; font-size: 10px; font-weight: 700; color: var(--oab-cinza-label);
@@ -672,9 +670,8 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 
 /* Lista de radio buttons filtrada */
 .votante-lista {
-  margin-top: 8px; max-height: 240px; overflow-y: auto;
-  background: var(--oab-branco); border-radius: 8px;
-  border: 1px solid var(--oab-cinza-bg);
+  margin-top: 8px; max-height: 240px; overflow-y: auto; position: absolute; left: 0; right: 0; z-index: 50;
+  margin: 0; background: var(--oab-branco); border-radius: 8px; border: 1px solid var(--oab-cinza-bg);
 }
 .votante-opcao {
   display: flex; align-items: center; gap: 8px;
@@ -740,7 +737,12 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .btn-install-ios-nav:focus,
 .btn-install-ios-nav:active { background: transparent !important; color: var(--oab-branco); }
 
-/* ── 18. RESPONSIVO ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   18. RESPONSIVIDADE
+   Disposições para telas estreitas e largas
+══════════════════════════════════════════════════════════════ */
+
+/* Telas pequenas (celulares) */
 @media (max-width: 700px) {
   .presenca-main { flex-direction: column; }
   .presenca-col-right { width: 100%; }
@@ -753,7 +755,67 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
   .card-actions { margin-top: 4px; }
 }
 
-@keyframes miaPulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1.2)} }
+/* Telas muito pequenas (ajuste fino do campo de busca de votante) */
+@media (max-width: 580px) {
+  .votante-search-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 0 8px 0 !important;
+  }
+  .votante-search-input {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .votante-lista {
+    max-height: 200px;
+  }
 
-/* Ajuste responsivo para campo de busca de votante */
-@media (max-width: 580px) { .votante-search-wrap { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 20px 0 12px 0 !important; } .votante-search-input { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; } .votante-lista { max-height: 200px; }}
+  /* Formulário de novo voto: empilha os campos */
+  .mv-select-row {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+  .mv-select-row .votante-search-wrap {
+    flex: 1 1 100%;
+    max-width: 100%;
+    min-width: 100%;
+    margin-bottom: 4px;
+  }
+  .mv-select-row .votante-chip {
+    margin-top: 4px; 
+  }
+}
+
+/* Telas grandes (desktop) */
+@media (min-width: 769px) {
+  /* Garante que os dois campos fiquem lado a lado sem sobreposição */
+  .mv-select-row {
+    flex-wrap: nowrap;
+    gap: 35px;
+  }
+  .mv-select-row .votante-search-wrap:first-child {
+    flex: 0 0 180px;
+    max-width: 180px;
+  }
+  .mv-select-row .votante-search-wrap:last-child {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* Corrige alinhamento vertical entre chip e input */
+  .mv-select-row .votante-chip {
+    margin-top: 0;
+  }
+  .mv-select-row .votante-chip,
+  .mv-select-row .votante-search-input {
+    vertical-align: middle;
+  }
+}
+
+/* Animação dos dots do modal IA */
+@keyframes miaPulse {
+  0%, 80%, 100% { opacity: .2; transform: scale(.8); }
+  40%           { opacity: 1;  transform: scale(1.2); }
+}
