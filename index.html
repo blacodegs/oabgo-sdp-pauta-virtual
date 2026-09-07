@@ -279,6 +279,61 @@
     </div>
   </div>
 
+  <!-- MODAL DE PROGRESSO DA IA -->
+  <div class="modal-overlay" id="modalProgressoIA">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-body" id="progressoConteudo" style="padding:20px;">
+        <div class="mia-header" style="display:flex; align-items:center; gap:12px; border-left:4px solid var(--oab-vermelho); padding-left:10px; margin-bottom:14px;">
+          <svg width="28" height="28" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="url(#mia_g1)"/>
+            <path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="url(#mia_g2)"/>
+            <defs>
+              <linearGradient id="mia_g1" x1="96" y1="20" x2="96" y2="172" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#004480"/>
+                <stop offset="100%" stop-color="#002d56"/>
+              </linearGradient>
+              <linearGradient id="mia_g2" x1="20" y1="96" x2="172" y2="96" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#002d56"/>
+                <stop offset="100%" stop-color="#004480"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div>
+            <div class="mia-logo-label">Gemini IA</div>
+            <div class="mia-logo-sub">SDP Agente · Resumo de relatórios</div>
+          </div>
+        </div>
+
+        <!-- Área de carregamento -->
+        <div class="mia-loading" id="progressoLoading" style="display: flex; flex-direction: column; align-items: center; gap:12px;">
+          <svg class="mia-svg-spin" width="36" height="36" viewBox="0 0 192 192" fill="none" style="animation:spin 2s linear infinite;">
+            <path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/>
+            <path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/>
+          </svg>
+          <div class="mia-loading-texto" style="font-size:12px;font-weight:600;color:var(--oab-azul-escuro);">Analisando o documento...</div>
+          <div class="mia-loading-sub" style="font-size:11px;color:var(--oab-cinza-md);">Isso pode levar alguns segundos</div>
+          <div class="mia-dots"><span></span><span></span><span></span></div>
+        </div>
+
+        <!-- Área de erro -->
+        <div id="progressoErro" style="display: none; text-align: center;">
+          <p class="mia-titulo" id="erroTitulo" style="color: #c62828;">Erro na extração</p>
+          <p class="mia-descricao" id="erroMensagem"></p>
+          <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+            <button class="btn-oab" id="btnCancelarErro">Cancelar</button>
+            <button class="btn-oab-confirm dropdown-trigger" id="btnAcoesErro" data-target="dropdownAcoesErro">
+              Ações<i class="material-icons right" style="font-size:16px;margin-left:4px;">arrow_drop_down</i>
+            </button>
+          </div>
+          <ul id="dropdownAcoesErro" class="dropdown-content">
+            <li><a href="#!" id="btnRepetirErro"><i class="material-icons" style="margin-right:8px;">refresh</i>Repetir</a></li>
+            <li><a href="#!" id="btnOutraIAErro"><i class="material-icons" style="margin-right:8px;">swap_horiz</i>Usar outra IA</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div> <!-- FIM DO MODAL DE PROGRESSO DA IA -->
+
   <!-- Modal de Instalação iOS -->
   <div class="modal-overlay" id="modalInstalarIos">
     <div class="modal-box" style="max-width:420px;">

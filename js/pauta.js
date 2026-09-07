@@ -660,78 +660,140 @@ async function mvSalvarNovoVoto() {
 }
 
 function mvPerguntarResumoIA(base64, votoId, targetEditorId) {
-  var token = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-  var container = document.createElement('div');
-  container.innerHTML = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;">' +
-    '<div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.28);">' +
-      '<div id="_miaConteudo" style="padding:20px;">' +
-        '<div style="display:flex;align-items:center;gap:12px;border-left:4px solid var(--oab-vermelho);padding-left:10px;margin-bottom:14px;"><svg width="28" height="28" viewBox="0 0 192 192" fill="none"><path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/><path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/></svg><div><div style="font-size:11px;font-weight:700;color:var(--oab-azul-escuro);text-transform:uppercase;letter-spacing:.06em">Gemini IA</div><div style="font-size:10px;color:var(--oab-cinza-md)">Google · Inteligência Artificial</div></div></div>' +
-        '<p style="font-size:13px;font-weight:700;color:var(--oab-grafite);margin:0 0 6px">Gerar resumo automático do voto?</p><p id="_miaDesc" style="font-size:12px;color:var(--oab-cinza-label);margin:0 0 16px;line-height:1.5">O texto extraído do PDF será inserido no campo do voto para revisão antes de salvar.</p>' +
-      '</div>' +
-      '<div id="_miaLoading" style="display:none;flex-direction:column;align-items:center;padding:24px;gap:12px;"><svg width="36" height="36" viewBox="0 0 192 192" fill="none" style="animation:spin 2s linear infinite"><path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/><path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/></svg><span style="font-size:12px;font-weight:600;color:var(--oab-azul-escuro)">Analisando o documento…</span><span id="_miaProgresso" style="font-size:11px;color:var(--oab-cinza-md)">Aguarde, isso pode levar alguns segundos</span><div><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out infinite"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out .2s infinite"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--oab-azul);margin:0 3px;animation:miaPulse 1.2s ease-in-out .4s infinite"></span></div></div>' +
-      '<div id="_miaFooter" style="padding:10px 20px 16px;display:flex;justify-content:flex-end;gap:10px;"><button id="_miaBtnNao" class="btn-oab" style="font-size:11px;height:30px;">Não, obrigado</button><button id="_miaBtnSim" class="btn-oab-confirm" style="font-size:11px;height:30px;">Gerar resumo</button></div>' +
-    '</div></div>';
-  document.body.appendChild(container);
+  if (!base64 || base64.length === 0) {
+    toast('PDF vazio ou corrompido.', 'erro');
+    return;
+  }
 
-  // ... (as funções internas permanecem as mesmas, não estão sendo alteradas)
-  function fechar() { if (container.parentNode) document.body.removeChild(container); }
+  var taId = targetEditorId || 'mvNovoTexto';
+  var modalEl = document.getElementById('modalProgressoIA');
+  modalEl.classList.add('ativo');
+
+  // Mostra loading e esconde erro
+  document.getElementById('progressoLoading').style.display = 'flex';
+  document.getElementById('progressoErro').style.display = 'none';
+
+  var token = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
   function mostrarLoading(ativo) {
-    document.getElementById('_miaConteudo').style.display = ativo ? 'none' : 'block';
-    document.getElementById('_miaLoading').style.display  = ativo ? 'flex' : 'none';
-    document.getElementById('_miaFooter').style.display   = ativo ? 'none' : 'flex';
+    document.getElementById('progressoLoading').style.display = ativo ? 'flex' : 'none';
+    document.getElementById('progressoErro').style.display = ativo ? 'none' : 'block';
   }
-  function mostrarErro(msg) {
+
+  function mostrarErro(mensagem) {
     mostrarLoading(false);
-    var desc = document.getElementById('_miaDesc'); if (desc) desc.textContent = msg||'Erro ao gerar resumo.';
-    var btnSim = document.getElementById('_miaBtnSim'); if (btnSim) btnSim.textContent = 'Tentar novamente';
-  }
-  function mostrarErro503() {
-    mostrarLoading(false);
-    var desc = document.getElementById('_miaDesc');
-    if (desc) desc.textContent = 'O serviço de IA está temporariamente sobrecarregado. Tente novamente.';
-    var footer = document.getElementById('_miaFooter');
-    if (footer) {
-      footer.style.display = 'flex';
-      footer.innerHTML = '<button id="_miaBtnCancelar503" class="btn-oab" style="font-size:11px;height:30px;">Cancelar</button><button class="btn-oab-confirm" id="_miaBtnRetentar" style="font-size:11px;height:30px;">Tentar novamente</button>';
-      document.getElementById('_miaBtnCancelar503').addEventListener('click', fechar);
-      document.getElementById('_miaBtnRetentar').addEventListener('click', function() {
-        mostrarLoading(true);
-        gasPost({ acao:'resumoIA', base64:base64, fichaId:votoId||'', token:token })
-          .then(function() { iniciarPolling(); })
-          .catch(function(err) { mostrarErro('Erro de rede: '+err.message); });
-      });
+    var titulo = document.getElementById('erroTitulo');
+    var descricao = document.getElementById('erroMensagem');
+    if (mensagem && (mensagem.indexOf('503') !== -1 || mensagem.indexOf('high demand') !== -1 || mensagem.indexOf('indisponível') !== -1 || mensagem.indexOf('sobrecarregado') !== -1)) {
+      titulo.innerText = 'IA temporariamente indisponível';
+      descricao.innerText = 'O serviço de inteligência artificial está sobrecarregado no momento. Você pode tentar novamente ou usar outra IA.';
+    } else {
+      titulo.innerText = 'Não foi possível gerar o resumo';
+      descricao.innerText = mensagem || 'Ocorreu um erro inesperado. Tente novamente.';
     }
+    var dropdownElem = document.getElementById('btnAcoesErro');
+    M.Dropdown.init(dropdownElem, {
+      constrainWidth: false,
+      coverTrigger: false
+    });
   }
-  function inserirTexto(texto) {
-    fechar();
-    var ta = document.getElementById(targetEditorId||'mvNovoTexto');
-    if (ta) { ta.innerHTML = texto; ta.focus(); }
-    toast('Resumo inserido! Revise antes de salvar.');
-    if (votoId && !targetEditorId) mvToggle(votoId);
-  }
+
   function iniciarPolling() {
     var tentativas = 0, maxTentativas = 30;
     var intervalo = setInterval(function() {
       tentativas++;
-      var prog = document.getElementById('_miaProgresso');
-      if (prog) prog.textContent = 'Verificando resultado… (' + tentativas + '/' + maxTentativas + ')';
-      jsonpGet({ acao:'resultadoIA', token:token })
+      jsonpGet({ acao: 'resultadoIA', token: token })
         .then(function(res) {
-          if (res.status === 'ok')       { clearInterval(intervalo); inserirTexto((res.resumo||'').replace(/```[\s\S]*?```/g,'').replace(/`/g,'').trim()); }
-          else if (res.status === 'retentar') { clearInterval(intervalo); mostrarErro503(); }
-          else if (res.status === 'erro')     { clearInterval(intervalo); mostrarErro(res.erro||'A IA retornou um erro.'); }
-          else if (tentativas >= maxTentativas) { clearInterval(intervalo); mostrarErro('Tempo esgotado.'); }
+          if (res.status === 'ok') {
+            clearInterval(intervalo);
+            modalEl.classList.remove('ativo');
+            var texto = (res.resumo || '').replace(/```[\s\S]*?```/g, '').replace(/`/g, '').trim();
+            var ta = document.getElementById(taId);
+            if (ta) {
+              ta.innerHTML = texto;
+              toast('Resumo inserido! Revise antes de salvar.');
+              ta.focus();
+              if (votoId) mvToggle(votoId);
+            }
+          } else if (res.status === 'retentar') {
+            clearInterval(intervalo);
+            mostrarErro('Serviço sobrecarregado. Tente novamente.');
+          } else if (res.status === 'erro') {
+            clearInterval(intervalo);
+            mostrarErro(res.erro || 'A IA retornou um erro.');
+          } else if (tentativas >= maxTentativas) {
+            clearInterval(intervalo);
+            mostrarErro('Tempo esgotado. O servidor demorou mais que o esperado.');
+          }
         })
-        .catch(function(err) { if (tentativas>=maxTentativas) { clearInterval(intervalo); mostrarErro(err.message); } });
+        .catch(function(err) {
+          if (tentativas >= maxTentativas) {
+            clearInterval(intervalo);
+            mostrarErro('Não foi possível obter o resultado: ' + err.message);
+          }
+        });
     }, 3000);
   }
-  document.getElementById('_miaBtnNao').addEventListener('click', fechar);
-  document.getElementById('_miaBtnSim').addEventListener('click', function() {
+
+  function executarResumo() {
     mostrarLoading(true);
-    gasPost({ acao:'resumoIA', base64:base64, fichaId:votoId||'', token:token })
+    gasPost({ acao: 'resumoIA', base64: base64, token: token })
       .then(function() { iniciarPolling(); })
-      .catch(function(err) { mostrarErro('Erro de rede: '+err.message); });
-  });
+      .catch(function(err) { mostrarErro('Erro de rede: ' + err.message); });
+  }
+
+  document.getElementById('btnCancelarErro').onclick = function() {
+    modalEl.classList.remove('ativo');
+  };
+
+  document.getElementById('btnRepetirErro').onclick = function() {
+    executarResumo();
+  };
+
+  document.getElementById('btnOutraIAErro').onclick = function() {
+    mostrarLoading(true);
+    var loadingTexto = document.querySelector('#progressoLoading .mia-loading-texto');
+    var loadingSub = document.querySelector('#progressoLoading .mia-loading-sub');
+    if (loadingTexto) loadingTexto.innerText = 'Montando prompt para outra IA...';
+    if (loadingSub) loadingSub.innerText = 'Preparando texto para copiar';
+
+    jsonpGet({ acao: 'montarTextoIA', token: token })
+      .then(function(res) {
+        if (res && res.sucesso) {
+          navigator.clipboard.writeText(res.textoCompleto).then(function() {
+            mostrarErro('Prompt copiado!');
+            document.getElementById('erroTitulo').style.color = '#2e7d32';
+            document.getElementById('erroMensagem').innerText = 'O texto com o prompt e o conteúdo do relatório foram copiados para a área de transferência. Cole em qualquer chat de IA de sua preferência.';
+            document.getElementById('btnCancelarErro').style.display = 'none';
+            document.getElementById('btnAcoesErro').style.display = 'none';
+
+            setTimeout(function() {
+              modalEl.classList.remove('ativo');
+              document.getElementById('erroTitulo').style.color = '#c62828';
+              document.getElementById('btnCancelarErro').style.display = '';
+              document.getElementById('btnAcoesErro').style.display = '';
+              if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
+              if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
+            }, 30000);
+          }).catch(function(err) {
+            mostrarErro('Não foi possível copiar para a área de transferência.');
+            if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
+            if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
+          });
+        } else {
+          mostrarErro('Erro ao montar texto: ' + (res ? res.erro : 'desconhecido'));
+          if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
+          if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
+        }
+      })
+      .catch(function(err) {
+        mostrarErro('Erro: ' + err.message);
+        if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
+        if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
+      });
+  };
+
+  executarResumo();
 }
 
 function abrirRelatorio(url) {
