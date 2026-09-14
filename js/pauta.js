@@ -3,6 +3,9 @@
    Funções da aba "Pauta Virtual" (inclui modal de votos)
 ══════════════════════════════════════════════════════════════ */
 
+let _pautaForaDoPeriodo = false;
+let _sessaoInfo = null;
+
 async function iniciarPauta() {
   try {
     var estado = await gasGet({ acao: 'estadoAtivo' });
@@ -37,6 +40,18 @@ async function carregarPauta() {
       gasGet      ({ acao: 'pauta',    sessaoId: _sessaoId }),
       gasGetSilent({ acao: 'votantes', sessaoId: _sessaoId }, { votantes: {} }),
     ]);
+
+    _sessaoInfo = pauta.sessao || null;
+
+    var verif = verificarPeriodoSessao();
+    if (!verif.valido) {
+      document.getElementById('listaProcessos').innerHTML =
+        '<div class="estado vazio"><i class="material-icons">schedule</i><p>' + verif.motivo + '</p></div>';
+      document.getElementById('bannerMeta').innerHTML =
+        '<span class="banner-meta-item"><i class="material-icons">info</i>Fora do período</span>';
+      return;
+    }
+
     _votantesCache = (votantesData && votantesData.votantes) ? votantesData.votantes : {};
     _orgaoSessao = pauta.sessao?.orgao ? String(pauta.sessao.orgao).trim().toLowerCase() : '';
     renderBannerPauta(pauta.sessao);
@@ -303,8 +318,14 @@ async function confirmarVoto(idFicha) {
   btn.innerHTML = '<i class="material-icons" style="font-size:15px;animation:spin 1s linear infinite">autorenew</i> Registrando…';
 
   try {
-    await gasPost({ acao: 'votar', nome: nome, voto: radioSel.value, idFicha: idFicha });
-    toast('Voto registrado com sucesso!');
+
+    var verificacao = verificarPeriodoSessao();
+    if (!verificacao.valido) {
+      mostrarAlerta('Fora do período', verificacao.motivo);
+      return;
+    }
+
+    await gasPost({ acao: 'votarPauta', nome: nome, voto: radioSel.value, idFicha: idFicha })
 
     // Fecha o formulário
     document.getElementById('form-' + idFicha).classList.remove('aberto');
@@ -606,6 +627,12 @@ async function mvSalvarNovoVoto() {
   var editor  = document.getElementById('mvNovoTexto');
   var textoHtml  = editor ? editor.innerHTML.trim() : '';
   var textoPlano = editor ? editor.textContent.trim() : '';
+
+  var verificacao = verificarPeriodoSessao();
+  if (!verificacao.valido) {
+    mostrarAlerta('Fora do período', verificacao.motivo);
+    return;
+  }
 
   if (!tipo)     { toast('Selecione o tipo de voto.', 'erro'); return; }
   if (!relator)  { toast('Selecione o relator.', 'erro'); return; }
@@ -1055,4 +1082,37 @@ function removerRelatorNovoVoto() {
   }
   if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
   if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
+}
+
+/**
+ * Verifica se o momento atual está dentro do período da sessão.
+ * @returns {{ valido: boolean, motivo: string }}
+ */
+function verificarPeriodoSessao() {
+  if (!_sessaoInfo) {
+    return { valido: false, motivo: 'Dados da sessão não carregados.' };
+  }
+
+  function montarData(dataStr, horaStr) {
+    if (!dataStr || !horaStr) return null;
+    var partes = dataStr.split('/');
+    var dia = Number(partes[0]);
+    var mes = Number(partes[1]) - 1;
+    var ano = Number(partes[2]);
+    var hh = Number(horaStr.split(':')[0]);
+    var mm = Number(horaStr.split(':')[1]);
+    return new Date(ano, mes, dia, hh, mm, 0);
+  }
+
+  var inicio = montarData(_sessaoInfo.data, _sessaoInfo.horaInicio);
+  var fim    = montarData(_sessaoInfo.dataFim, _sessaoInfo.horaFim);
+  var agora  = new Date();
+
+  if (inicio && agora < inicio) {
+    return { valido: false, motivo: 'A sessão virtual ainda não foi iniciada. Aguarde o horário programado.' };
+  }
+  if (fim && agora > fim) {
+    return { valido: false, motivo: 'A sessão virtual já foi encerrada. Não é possível registrar votos.' };
+  }
+  return { valido: true, motivo: '' };
 }

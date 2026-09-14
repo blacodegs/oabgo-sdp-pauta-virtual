@@ -87,6 +87,12 @@ function fecharModal(id) { document.getElementById(id).classList.remove('ativo')
 
 function esc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
 
+function mostrarAlerta(titulo, mensagem) {
+  document.getElementById('alertaTitulo').textContent = titulo || 'Atenção';
+  document.getElementById('alertaMensagem').textContent = mensagem || '';
+  document.getElementById('modalAlerta').classList.add('ativo');
+}
+
 /* ══════════════════════════════════════════════════════════════
    CAMADA DE REDE
 ══════════════════════════════════════════════════════════════ */

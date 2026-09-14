@@ -334,6 +334,27 @@
     </div>
   </div> <!-- FIM DO MODAL DE PROGRESSO DA IA -->
 
+  <!-- MODAL DE ALERTA GERAL -->
+  <div class="modal-overlay" id="modalAlerta">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-eyebrow">Aviso</span>
+          <h5 id="alertaTitulo">Atenção</h5>
+        </div>
+        <button class="modal-close" onclick="fecharModal('modalAlerta')">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:24px;text-align:center;">
+        <p id="alertaMensagem" style="font-size:14px;color:var(--oab-cinza-txt);margin:0;"></p>
+      </div>
+      <div class="modal-footer-bar">
+        <button class="btn-oab-confirm" onclick="fecharModal('modalAlerta')">Entendi</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Instalação iOS -->
   <div class="modal-overlay" id="modalInstalarIos">
     <div class="modal-box" style="max-width:420px;">
