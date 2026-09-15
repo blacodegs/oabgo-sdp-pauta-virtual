@@ -36,10 +36,7 @@ async function iniciarPauta() {
 
 async function carregarPauta() {
   try {
-    const [pauta, votantesData] = await Promise.all([
-      gasGet      ({ acao: 'pauta',    sessaoId: _sessaoId }),
-      gasGetSilent({ acao: 'votantes', sessaoId: _sessaoId }, { votantes: {} }),
-    ]);
+    const pauta = await gasGet({ acao: 'pauta', sessaoId: _sessaoId });
 
     _sessaoInfo = pauta.sessao || null;
 
@@ -52,7 +49,6 @@ async function carregarPauta() {
       return;
     }
 
-    _votantesCache = (votantesData && votantesData.votantes) ? votantesData.votantes : {};
     _orgaoSessao = pauta.sessao?.orgao ? String(pauta.sessao.orgao).trim().toLowerCase() : '';
     renderBannerPauta(pauta.sessao);
     renderPauta(pauta);
@@ -244,47 +240,36 @@ async function toggleVotoForm(idFicha) {
       nomeInput.style.display = 'block';
     }
 
-    // Remove qualquer chip de nome selecionado
+    // Remove chip de nome
     var chipEl = document.getElementById('votante-chip-' + idFicha);
-    if (chipEl) {
-      chipEl.innerHTML = '';
-      chipEl.style.display = 'none';
-    }
+    if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
 
-    // Limpa a lista de votantes
+    // Limpa lista
     var listaEl = document.getElementById('lista-votantes-' + idFicha);
-    if (listaEl) {
-      listaEl.innerHTML = '';
-      listaEl.style.display = 'none';
-    }
+    if (listaEl) { listaEl.innerHTML = ''; listaEl.style.display = 'none'; }
 
-    // Configura o filtro de votantes
+    // Configura filtro
     if (nomeInput) {
       nomeInput.addEventListener('input', function() {
         filtrarVotantes(idFicha);
       });
     }
 
-    atualizarVotantes(idFicha);
-
-    // Busca os votos da ficha para montar opções dinâmicas
+    // Única requisição: votos + votantes
     try {
-      const res = await gasGet({ acao: 'votos', fichaId: idFicha });
+      const res = await gasGet({ acao: 'votantes', fichaId: idFicha });
+
+      // Renderiza opções de voto
       _votosPorFichaCache[idFicha] = res.votos || [];
       renderOpcoesVoto(idFicha, _votosPorFichaCache[idFicha]);
+
+      // Renderiza chips de votantes
+      const votantesEl = document.getElementById('votantes-' + idFicha);
+      if (votantesEl) votantesEl.innerHTML = renderChipsVotantes(res.votantes || []);
     } catch (err) {
-      console.warn('Erro ao buscar votos para opções:', err);
+      console.warn('Erro ao carregar votos/votantes:', err);
     }
   }
-}
-
-async function atualizarVotantes(idFicha) {
-  try {
-    const data = await gasGet({ acao:'votantes', sessaoId: _sessaoId });
-    _votantesCache = data.votantes || {};
-    const el = document.getElementById('votantes-' + idFicha);
-    if (el) el.innerHTML = renderChipsVotantes(_votantesCache[idFicha] || []);
-  } catch (err) { console.warn('atualizarVotantes:', err.message); }
 }
 
 function selecionarVoto(label) {
