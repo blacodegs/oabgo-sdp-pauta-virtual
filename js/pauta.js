@@ -8,35 +8,40 @@ let _sessaoInfo = null;
 
 async function iniciarPauta() {
   try {
-    var estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.sessaoVirtual) {
+    // Se o cache de membros estiver vazio, sinaliza para incluir membros na requisição da pauta
+    const precisaMembros = Object.keys(_membrosCache).length === 0;
+    carregarPauta(precisaMembros);
+  } catch (err) {
+    console.error('iniciarPauta:', err);
+    document.getElementById('listaProcessos').innerHTML =
+      '<div class="estado erro"><i class="material-icons">error_outline</i><p>Não foi possível iniciar a pauta.<br>' + err.message + '</p></div>';
+  }
+}
+
+async function carregarPauta(incluirMembros) {
+  try {
+    const params = { acao: 'pauta' };
+    if (incluirMembros) params.incluirMembros = 'true';
+
+    const pauta = await gasGet(params);
+
+    if (pauta.semSessao) {
       document.getElementById('listaProcessos').innerHTML =
-        '<div class="estado vazio"><i class="material-icons">event_busy</i><p>Nenhuma sessão virtual ativa no momento.</p></div>';
+        '<div class="estado vazio"><i class="material-icons">event_busy</i><p>' +
+        (pauta.motivo || 'Nenhuma sessão virtual ativa no momento.') + '</p></div>';
       document.getElementById('bannerMeta').innerHTML =
         '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
       return;
     }
-    _sessaoId = estado.sessaoVirtual;
 
-    if (Object.keys(_membrosCache).length === 0) {
-      const membrosData = await gasGet({ acao: 'membros' });
+    // Se o backend incluiu membros, popula o cache local
+    if (pauta.membros && Array.isArray(pauta.membros)) {
       _membrosCache = {};
-      (membrosData.membros || []).forEach(m => {
+      pauta.membros.forEach(function(m) {
         if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
       });
+      console.log('[pauta] membros carregados junto com a pauta:', Object.keys(_membrosCache).length);
     }
-
-    carregarPauta();
-  } catch (err) {
-    console.error('iniciarPauta:', err);
-    document.getElementById('listaProcessos').innerHTML =
-      '<div class="estado erro"><i class="material-icons">error_outline</i><p>Não foi possível identificar a sessão ativa.<br>' + err.message + '</p></div>';
-  }
-}
-
-async function carregarPauta() {
-  try {
-    const pauta = await gasGet({ acao: 'pauta', sessaoId: _sessaoId });
 
     _sessaoInfo = pauta.sessao || null;
 

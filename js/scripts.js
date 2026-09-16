@@ -30,6 +30,7 @@ let _abaAtiva           = 'presenca';
 let _pollingPresenca    = null;   // intervalo de polling da aba 1
 let deferredPrompt;
 let newWorker;
+let _pautaCarregada = false;
 
 /* ══════════════════════════════════════════════════════════════
    NAVEGAÇÃO POR ABAS
@@ -54,7 +55,8 @@ function trocarAba(novaAba, el) {
     window._votacaoIniciada = true;
     iniciarVotacao();
   }
-  if (novaAba === 'pauta' && !_sessaoId) {
+  if (novaAba === 'pauta' && !window._pautaCarregada) {
+    window._pautaCarregada = true;
     iniciarPauta();
   }
 
