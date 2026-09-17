@@ -375,8 +375,14 @@ async function abrirModalVotos(fichaId, processoNum) {
 function mvRenderLista(votos) {
   const body = document.getElementById('mvBody');
   var lista = (votos || []).map(function(v) {
-    return { id: v.id, tipo: v.tipovoto || 'Voto', relator: v.relator || '', texto: v.voto || '', url: v['url relatório'] || '' };
-  });
+  return {
+    id: v.id,
+    tipo: v.tipovoto || 'Voto',
+    relator: v.relator || '',
+    texto: v.voto || '',
+    url: v['url relatório'] || v['url relatorio'] || ''
+  };
+});
 
   var html = '';
   if (!lista.length) {
