@@ -688,135 +688,200 @@ function mvPerguntarResumoIA(base64, votoId, targetEditorId) {
     return;
   }
 
+  var _tokenResumoAtual = null;
   var taId = targetEditorId || 'mvNovoTexto';
   var modalEl = document.getElementById('modalProgressoIA');
   modalEl.classList.add('ativo');
 
-  // Mostra loading e esconde erro
-  document.getElementById('progressoLoading').style.display = 'flex';
-  document.getElementById('progressoErro').style.display = 'none';
+  var elPergunta = document.getElementById('progressoPergunta');
+  var elErro     = document.getElementById('progressoErro');
+  var elLoading  = document.getElementById('progressoLoading');
+  var elTitulo   = document.getElementById('erroTitulo');
+  var elMsg      = document.getElementById('erroMensagem');
+  var btnAcoes   = document.getElementById('btnAcoesErro');
+  var itemRepetir = document.getElementById('btnRepetirErro');
 
-  var token = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  var textoPerguntaTitulo = 'Gerar resumo automático do voto?';
+  var textoPerguntaDesc   = 'O texto extraído do PDF será inserido no campo do voto para revisão antes de salvar.';
 
-  function mostrarLoading(ativo) {
-    document.getElementById('progressoLoading').style.display = ativo ? 'flex' : 'none';
-    document.getElementById('progressoErro').style.display = ativo ? 'none' : 'block';
+  function atualizarRotuloRepetir(estado) {
+    if (!itemRepetir) return;
+    if (estado === 'pergunta') {
+      itemRepetir.innerHTML = '<i class="material-icons" style="margin-right:8px;">auto_awesome</i>Gerar resumo';
+    } else {
+      itemRepetir.innerHTML = '<i class="material-icons" style="margin-right:8px;">refresh</i>Repetir';
+    }
+  }
+
+  function resetParaPergunta() {
+    elPergunta.style.display = 'block';
+    elErro.style.display = 'none';
+    elLoading.style.display = 'none';
+    elTitulo.style.color = '#c62828';
+    elTitulo.innerText = textoPerguntaTitulo;
+    elMsg.innerText = textoPerguntaDesc;
+    var lt = document.getElementById('loadingTexto');
+    var ls = document.getElementById('loadingSub');
+    if (lt) lt.innerText = 'Analisando o documento...';
+    if (ls) ls.innerText = 'Isso pode levar alguns segundos';
+    atualizarRotuloRepetir('pergunta');
+  }
+
+  function mostrarLoading(mensagem, sub) {
+    elPergunta.style.display = 'block';
+    elErro.style.display = 'none';
+    elLoading.style.display = 'flex';
+    var lt = document.getElementById('loadingTexto');
+    var ls = document.getElementById('loadingSub');
+    if (lt) lt.innerText = mensagem || 'Analisando o documento...';
+    if (ls) ls.innerText = sub || 'Isso pode levar alguns segundos';
   }
 
   function mostrarErro(mensagem) {
-    mostrarLoading(false);
-    var titulo = document.getElementById('erroTitulo');
-    var descricao = document.getElementById('erroMensagem');
-    if (mensagem && (mensagem.indexOf('503') !== -1 || mensagem.indexOf('high demand') !== -1 || mensagem.indexOf('indisponível') !== -1 || mensagem.indexOf('sobrecarregado') !== -1)) {
-      titulo.innerText = 'IA temporariamente indisponível';
-      descricao.innerText = 'O serviço de inteligência artificial está sobrecarregado no momento. Você pode tentar novamente ou usar outra IA.';
+    elPergunta.style.display = 'none';
+    elErro.style.display = 'block';
+    elLoading.style.display = 'none';
+    atualizarRotuloRepetir('erro');
+
+    if (mensagem && (mensagem.includes('503') || mensagem.includes('high demand') || mensagem.includes('indisponível') || mensagem.includes('sobrecarregado'))) {
+      elTitulo.innerText = 'IA temporariamente indisponível';
+      elMsg.innerText = 'O serviço de inteligência artificial está sobrecarregado no momento. Você pode repetir ou usar outra IA.';
     } else {
-      titulo.innerText = 'Não foi possível gerar o resumo';
-      descricao.innerText = mensagem || 'Ocorreu um erro inesperado. Tente novamente.';
+      elTitulo.innerText = 'Não foi possível gerar o resumo';
+      elMsg.innerText = mensagem || 'Ocorreu um erro inesperado. Tente novamente.';
     }
-    var dropdownElem = document.getElementById('btnAcoesErro');
-    M.Dropdown.init(dropdownElem, {
-      constrainWidth: false,
-      coverTrigger: false
-    });
   }
 
-  function iniciarPolling() {
-    var tentativas = 0, maxTentativas = 30;
-    var intervalo = setInterval(function() {
-      tentativas++;
-      jsonpGet({ acao: 'resultadoIA', token: token })
-        .then(function(res) {
-          if (res.status === 'ok') {
-            clearInterval(intervalo);
-            modalEl.classList.remove('ativo');
-            var texto = (res.resumo || '').replace(/```[\s\S]*?```/g, '').replace(/`/g, '').trim();
-            var ta = document.getElementById(taId);
-            if (ta) {
-              ta.innerHTML = texto;
-              toast('Resumo inserido! Revise antes de salvar.');
-              ta.focus();
-              if (votoId) mvToggle(votoId);
-            }
-          } else if (res.status === 'retentar') {
-            clearInterval(intervalo);
-            mostrarErro('Serviço sobrecarregado. Tente novamente.');
-          } else if (res.status === 'erro') {
-            clearInterval(intervalo);
-            mostrarErro(res.erro || 'A IA retornou um erro.');
-          } else if (tentativas >= maxTentativas) {
-            clearInterval(intervalo);
-            mostrarErro('Tempo esgotado. O servidor demorou mais que o esperado.');
-          }
-        })
-        .catch(function(err) {
-          if (tentativas >= maxTentativas) {
-            clearInterval(intervalo);
-            mostrarErro('Não foi possível obter o resultado: ' + err.message);
-          }
-        });
-    }, 3000);
-  }
+  function executarChamadaResumo() {
+    mostrarLoading('Analisando o documento...', 'Isso pode levar alguns segundos');
 
-  function executarResumo() {
-    mostrarLoading(true);
+    _tokenResumoAtual = 'ia_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    var token = _tokenResumoAtual;
+
     gasPost({ acao: 'resumoIA', base64: base64, token: token })
-      .then(function() { iniciarPolling(); })
-      .catch(function(err) { mostrarErro('Erro de rede: ' + err.message); });
+      .then(function() {
+        var tentativas = 0, maxTentativas = 30;
+        var intervalo = setInterval(function() {
+          tentativas++;
+          jsonpGet({ acao: 'resultadoIA', token: token })
+            .then(function(res) {
+              if (res.status === 'ok') {
+                clearInterval(intervalo);
+                modalEl.classList.remove('ativo');
+                var texto = (res.resumo || '').replace(/```[\s\S]*?```/g, '').replace(/`/g, '').trim();
+                var ta = document.getElementById(taId);
+                if (ta) {
+                  ta.innerHTML = texto;
+                  toast('Resumo inserido! Revise antes de salvar.');
+                  ta.focus();
+                  if (votoId) mvToggle(votoId);
+                }
+              } else if (res.status === 'retentar') {
+                clearInterval(intervalo);
+                mostrarErro('Serviço sobrecarregado. Tente novamente.');
+              } else if (res.status === 'erro') {
+                clearInterval(intervalo);
+                mostrarErro(res.erro || 'A IA retornou um erro.');
+              } else if (tentativas >= maxTentativas) {
+                clearInterval(intervalo);
+                mostrarErro('Tempo esgotado. O servidor demorou mais que o esperado.');
+              }
+            })
+            .catch(function(err) {
+              if (tentativas >= maxTentativas) {
+                clearInterval(intervalo);
+                mostrarErro('Não foi possível obter o resultado: ' + err.message);
+              }
+            });
+        }, 3000);
+      })
+      .catch(function(err) {
+        mostrarErro('Erro de rede: ' + err.message);
+      });
   }
 
-  document.getElementById('btnCancelarErro').onclick = function() {
-    modalEl.classList.remove('ativo');
-  };
+  // Reset e abertura
+  resetParaPergunta();
+  modalEl.classList.add('ativo');
 
-  document.getElementById('btnRepetirErro').onclick = function() {
-    executarResumo();
+  // Inicializa (ou reinicializa) o dropdown
+  var ddInst = M.Dropdown.getInstance(btnAcoes);
+  if (ddInst) ddInst.destroy();
+  M.Dropdown.init(btnAcoes, { constrainWidth: false, coverTrigger: false, alignment: 'right' });
+
+  // ── Ações do dropdown ──
+  itemRepetir.onclick = function() {
+    executarChamadaResumo();
   };
 
   document.getElementById('btnOutraIAErro').onclick = function() {
-    mostrarLoading(true);
-    var loadingTexto = document.querySelector('#progressoLoading .mia-loading-texto');
-    var loadingSub = document.querySelector('#progressoLoading .mia-loading-sub');
-    if (loadingTexto) loadingTexto.innerText = 'Montando prompt para outra IA...';
-    if (loadingSub) loadingSub.innerText = 'Preparando texto para copiar';
+    elErro.style.display = 'none';
+    mostrarLoading('Montando prompt para outra IA...', 'Preparando texto para copiar');
 
-    jsonpGet({ acao: 'montarTextoIA', token: token })
-      .then(function(res) {
-        if (res && res.sucesso) {
-          navigator.clipboard.writeText(res.textoCompleto).then(function() {
-            mostrarErro('Prompt copiado!');
-            document.getElementById('erroTitulo').style.color = '#2e7d32';
-            document.getElementById('erroMensagem').innerText = 'O texto com o prompt e o conteúdo do relatório foram copiados para a área de transferência. Cole em qualquer chat de IA de sua preferência.';
-            document.getElementById('btnCancelarErro').style.display = 'none';
-            document.getElementById('btnAcoesErro').style.display = 'none';
+    var token = _tokenResumoAtual;
+    var payload = { acao: 'montarTextoIA' };
 
-            setTimeout(function() {
-              modalEl.classList.remove('ativo');
-              document.getElementById('erroTitulo').style.color = '#c62828';
-              document.getElementById('btnCancelarErro').style.display = '';
-              document.getElementById('btnAcoesErro').style.display = '';
-              if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
-              if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
-            }, 30000);
-          }).catch(function(err) {
-            mostrarErro('Não foi possível copiar para a área de transferência.');
-            if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
-            if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
-          });
-        } else {
-          mostrarErro('Erro ao montar texto: ' + (res ? res.erro : 'desconhecido'));
-          if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
-          if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
-        }
+    if (!token) {
+      // Nunca passou por "Gerar resumo": cria novo token e envia o base64
+      token = 'mt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      payload.base64 = base64;
+    }
+    payload.token = token;
+
+    gasPost(payload)
+      .then(function() {
+        var tentativas = 0, maxTentativas = 30;
+        var intervalo = setInterval(function() {
+          tentativas++;
+          jsonpGet({ acao: 'resultadoTextoIA', token: token })
+            .then(function(res) {
+              if (res.status === 'ok') {
+                clearInterval(intervalo);
+                navigator.clipboard.writeText(res.textoCompleto).then(function() {
+                  elPergunta.style.display = 'none';
+                  elLoading.style.display = 'none';
+                  elErro.style.display = 'block';
+                  elTitulo.style.color = 'var(--oab-verde)';
+                  elTitulo.innerText = 'Prompt copiado!';
+                  elMsg.innerText = 'O texto com o prompt e o conteúdo do relatório foram copiados para a área de transferência. Cole em qualquer chat de IA de sua preferência.';
+
+                  // Esconde o botão de ações e seu rodapé
+                  var footer = document.getElementById('progressoFooter');
+                  if (footer) footer.style.display = 'none';
+
+                  // Fecha o modal automaticamente após 15 segundos
+                  setTimeout(function() {
+                    modalEl.classList.remove('ativo');
+                    // Restaura o rodapé para a próxima abertura
+                    if (footer) footer.style.display = 'flex';
+                  }, 15000);
+                }).catch(function() {
+                  mostrarErro('Não foi possível copiar para a área de transferência.');
+                });
+              } else if (res.status === 'erro') {
+                clearInterval(intervalo);
+                mostrarErro(res.erro || 'Erro ao montar texto.');
+              } else if (tentativas >= maxTentativas) {
+                clearInterval(intervalo);
+                mostrarErro('Tempo esgotado. O servidor demorou mais que o esperado.');
+              }
+            })
+            .catch(function(err) {
+              if (tentativas >= maxTentativas) {
+                clearInterval(intervalo);
+                mostrarErro('Não foi possível obter o resultado: ' + err.message);
+              }
+            });
+        }, 3000);
       })
       .catch(function(err) {
-        mostrarErro('Erro: ' + err.message);
-        if (loadingTexto) loadingTexto.innerText = 'Analisando o documento...';
-        if (loadingSub) loadingSub.innerText = 'Isso pode levar alguns segundos';
+        mostrarErro('Erro de rede: ' + err.message);
       });
   };
 
-  executarResumo();
+  document.getElementById('btnFecharErro').onclick = function() {
+    modalEl.classList.remove('ativo');
+  };
 }
 
 function abrirRelatorio(url) {

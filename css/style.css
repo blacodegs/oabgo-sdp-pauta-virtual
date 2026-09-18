@@ -737,6 +737,24 @@ body { background: var(--oab-fundo); margin: 0; padding: 0; }
 .btn-install-ios-nav:focus,
 .btn-install-ios-nav:active { background: transparent !important; color: var(--oab-branco); }
 
+
+/* ── 17.1 MODAL DE PROGRESSO DA IA (BOTÃO AÇÕES E DROPDOWN) ── */
+/* Botão "Ações" do modal de progresso */
+#modalProgressoIA .btn-oab-confirm.mia-btn {
+    height: 32px; padding: 0 16px; display: inline-flex; align-items: center;
+    justify-content: center; line-height: 1; font-size: 11px;
+}
+#modalProgressoIA .btn-oab-confirm.mia-btn .material-icons { font-size: 16px; line-height: 1; display: inline-flex; align-items: center }
+
+/* Dropdown de ações do modal de progresso */
+#dropdownAcoesErro li > a { display: flex; align-items: center; font-size: 12px; padding: 10px 16px; color: var(--oab-grafite); }
+#dropdownAcoesErro li > a:hover { background-color: var(--oab-azul-suave); color: var(--oab-azul) }
+#dropdownAcoesErro li > a .material-icons { font-size: 16px; color: var(--oab-cinza-forte) }
+#dropdownAcoesErro li > a:hover .material-icons { color: var(--oab-azul) }
+
+#btnAcoesErro:focus,
+#btnAcoesErro:active { background-color: var(--oab-vermelho) !important; box-shadow: 0 4px 8px rgba(0,0,0,.18); outline: none !important }
+
 /* ══════════════════════════════════════════════════════════════
    18. RESPONSIVIDADE
    Disposições para telas estreitas e largas
