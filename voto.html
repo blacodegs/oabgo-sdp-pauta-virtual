@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voto do processo — SDP OABGO</title>
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="oab-header">
+    <img class="oab-logo" src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png" alt="OAB Goiás">
+    <span class="oab-header-title">SISTEMA DE DEFESA DAS PRERROGATIVAS</span>
+  </header>
+
+  <!-- BANNER -->
+  <div class="presenca-banner">
+    <div class="presenca-banner-inner">
+      <div class="presenca-brasao">
+        <img class="brasao-img" src="https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png" alt="OAB Goiás">
+      </div>
+      <div class="presenca-banner-texto">
+        <p class="presenca-instancia">ORDEM DOS ADVOGADOS DO BRASIL — SECCIONAL GOIÁS</p>
+        <h1 class="presenca-titulo" id="votoPageTitulo">Voto do processo</h1>
+        <p class="presenca-data" id="votoPageMeta"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <main class="main-container">
+    <section id="mvListaContainer"></section>
+
+    <section class="mv-novo-card" id="mvNovoCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:700;color:var(--oab-azul-escuro);border-left:3px solid var(--oab-vermelho);padding-left:8px;text-transform:uppercase;letter-spacing:.05em">Novo voto</span>
+        <button class="modal-close tooltipped" data-position="bottom" title="Fechar formulário" onclick="mvFecharFormNovo()"><i class="material-icons">close</i></button>
+      </div>
+
+      <div class="mv-select-row">
+        <div class="votante-search-wrap" style="flex:0 0 180px; max-width:180px;">
+          <label class="votante-search-label">Tipo de voto</label>
+          <input type="text" id="mvNovoTipo" class="votante-search-input" autocomplete="off" placeholder="Selecione o tipo…" onfocus="mostrarOpcoesTipoVoto()">
+          <div id="votante-chip-tipo" class="votante-chip" style="display:none;"></div>
+          <div class="votante-lista" id="lista-tipo-voto" style="display:none;"></div>
+        </div>
+        <div class="votante-search-wrap" style="flex:1; min-width:200px;">
+          <label class="votante-search-label">Relator</label>
+          <input type="text" id="mvNovoRelator" class="votante-search-input" autocomplete="off" placeholder="Digite para buscar o relator…" oninput="filtrarRelatoresNovoVoto()">
+          <div id="votante-chip-relator" class="votante-chip" style="display:none;"></div>
+          <div class="votante-lista" id="lista-relatores" style="display:none;"></div>
+        </div>
+      </div>
+
+      <label style="font-size:10px;color:var(--oab-cinza-label);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Voto</label>
+      <div class="editor-wrap">
+        <div class="editor-toolbar" onmousedown="event.preventDefault()">
+          <button class="tooltipped" data-position="top" title="Negrito" onclick="document.execCommand('bold')"><i class="material-icons" style="font-size:16px">format_bold</i></button>
+          <button class="tooltipped" data-position="top" title="Itálico" onclick="document.execCommand('italic')"><i class="material-icons" style="font-size:16px">format_italic</i></button>
+          <button class="tooltipped" data-position="top" title="Sublinhado" onclick="document.execCommand('underline')"><i class="material-icons" style="font-size:16px">format_underlined</i></button>
+        </div>
+        <div class="voto-editor" id="mvNovoTexto" contenteditable="true" data-placeholder="Digite o voto…"></div>
+      </div>
+
+      <div class="mv-novo-actions">
+        <button class="btn-oab-confirm" onclick="mvAnexarPdfNovo()" style="font-size:11px;display:flex;align-items:center;gap:5px;" id="mvBtnPdf">
+          <i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório em PDF
+        </button>
+        <div class="mv-novo-actions-right">
+          <button class="btn-oab" onclick="mvFecharFormNovo()">Cancelar</button>
+          <button class="btn-oab-confirm" id="mvBtnSalvar" onclick="mvSalvarNovoVoto()">Salvar</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="mv-btn-add-wrap" id="btnAddVotoSection">
+      <button class="btn-oab-confirm" onclick="mvMostrarFormNovo()" style="border-radius:50%; width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center;">
+        <i class="material-icons" style="font-size:24px;">add</i>
+      </button>
+    </section>
+  </main>
+
+  <!-- MODAL DE PROGRESSO DA IA (mesma estrutura do index) -->
+  <div class="modal-overlay" id="modalProgressoIA">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-body" style="padding:20px;">
+        <div class="mia-header" style="display:flex; align-items:center; gap:12px; border-left:4px solid var(--oab-vermelho); padding-left:10px; margin-bottom:14px;">
+          <svg width="28" height="28" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/>
+            <path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/>
+          </svg>
+          <div>
+            <div class="mia-logo-label" style="font-size:11px; font-weight:700; color:var(--oab-azul-escuro); text-transform:uppercase; letter-spacing:.06em;">Gemini IA</div>
+            <div class="mia-logo-sub" style="font-size:10px; color:var(--oab-cinza-md);">Google · Inteligência Artificial</div>
+          </div>
+        </div>
+
+        <div id="progressoPergunta" style="text-align: center;">
+          <p class="mia-titulo" id="perguntaTitulo" style="font-size:13px; font-weight:700; color:var(--oab-grafite); margin:0 0 6px;">Gerar resumo automático do voto?</p>
+          <p class="mia-descricao" id="perguntaDescricao" style="font-size:12px; color:var(--oab-cinza-label); margin:0 0 16px; line-height:1.5;">O texto extraído do PDF será inserido no campo do voto para revisão antes de salvar.</p>
+
+          <div class="mia-loading" id="progressoLoading" style="display:none; flex-direction:column; align-items:center; padding:24px; gap:12px;">
+            <svg width="36" height="36" viewBox="0 0 192 192" fill="none" style="animation:spin 2s linear infinite;">
+              <path d="M96 20C96 20 108 72 140 96C108 120 96 172 96 172C96 172 84 120 52 96C84 72 96 20 96 20Z" fill="#004480"/>
+              <path d="M20 96C20 96 72 84 96 52C120 84 172 96 172 96C172 96 120 108 96 140C72 108 20 96 20 96Z" fill="#002d56"/>
+            </svg>
+            <div class="mia-loading-texto" id="loadingTexto" style="font-size:12px;font-weight:600;color:var(--oab-azul-escuro);">Analisando o documento...</div>
+            <div class="mia-loading-sub" id="loadingSub" style="font-size:11px;color:var(--oab-cinza-md);">Isso pode levar alguns segundos</div>
+          </div>
+        </div>
+
+        <div id="progressoErro" style="display: none; text-align: center;">
+          <p class="mia-titulo" id="erroTitulo" style="font-size:13px; font-weight:700; color:var(--oab-vermelho-escuro); margin:0 0 6px;">Erro na extração</p>
+          <p class="mia-descricao" id="erroMensagem" style="font-size:12px; color:var(--oab-cinza-label); margin:0 0 16px; line-height:1.5;"></p>
+        </div>
+      </div>
+
+      <div class="modal-footer-bar" id="progressoFooter" style="justify-content: flex-end; align-items: center;">
+        <button class="btn-oab-confirm dropdown-trigger" id="btnAcoesErro" data-target="dropdownAcoesErro" style="display:inline-flex; align-items:center; justify-content:center; height:32px; padding:0 16px; font-size:11px;">
+          Ações<i class="material-icons right" style="font-size:16px; margin-left:4px;">arrow_drop_down</i>
+        </button>
+      </div>
+
+      <ul id="dropdownAcoesErro" class="dropdown-content">
+        <li><a href="#!" id="btnRepetirErro"><i class="material-icons" style="margin-right:8px;">auto_awesome</i><span class="dd-label">Gerar resumo</span></a></li>
+        <li><a href="#!" id="btnOutraIAErro"><i class="material-icons" style="margin-right:8px;">swap_horiz</i>Usar outra IA</a></li>
+        <li class="divider"></li>
+        <li><a href="#!" id="btnFecharErro"><i class="material-icons" style="margin-right:8px;">close</i>Fechar</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/scripts.js"></script>
+  <script src="js/pauta.js"></script>
+  <script src="js/voto.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
