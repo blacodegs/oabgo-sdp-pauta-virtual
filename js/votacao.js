@@ -10,91 +10,62 @@ async function iniciarVotacao() {
   var estadoEl = document.getElementById('votacaoEstado');
   var mainEl   = document.getElementById('votacaoMain');
 
-  if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado loading'; }
+  if (estadoEl) { estadoEl.style.display = 'flex'; estadoEl.className = 'estado loading'; estadoEl.innerHTML = '<i class="material-icons">autorenew</i><p>Carregando dados do processo…</p>'; }
   if (mainEl)   mainEl.style.display = 'none';
 
   try {
-    // 1. Busca o estado ativo do tipo "Processo em votação"
-    var estado = await gasGet({ acao: 'estadoAtivo' });
-    if (!estado.processoVotacao) {
+    // 1. Uma única requisição: ficha em votação + sessão + processo + votos + votantes + membros (se cache vazio)
+    var precisaMembros = Object.keys(_membrosCache).length === 0;
+    var res = await gasGet({ acao: 'infoVotacao', incluirMembros: precisaMembros });
+
+    if (!res.sucesso || res.semVotacao) {
       if (estadoEl) {
         estadoEl.className = 'estado vazio';
-        estadoEl.innerHTML = '<i class="material-icons">how_to_vote</i><p>Nenhum processo em votação no momento.</p>';
+        estadoEl.innerHTML = '<i class="material-icons">how_to_vote</i><p>' +
+          (res.motivo || 'Nenhum processo em votação no momento.') + '</p>';
       }
       return;
     }
 
-    _votacaoFichaId = estado.processoVotacao;
-
-    // 2. Carrega membros + dados da votação
-    var [dadosVotacao] = await Promise.all([
-      gasGet({ acao: 'infoVotacao', fichaId: _votacaoFichaId }),
-      carregarMembros()
-    ]);
-
-    if (!dadosVotacao.sucesso) throw new Error(dadosVotacao.erro || 'Erro ao carregar dados.');
-
-    // 3. Renderiza o banner da sessão (título + metadados)
-    document.getElementById('votacaoTitulo').textContent = dadosVotacao.titulo || 'Votação';
-
-    var infoSessao = dadosVotacao.sessaoInfo || {};
-    var dataHtml = '';
-
-    // 3.1 Ordem da sessão (ex.: 13ª Sessão)
-    if (infoSessao.ordemOrdinal) {
-      dataHtml += '<i class="material-icons" style="font-size:16px">gavel</i> ' + infoSessao.ordemOrdinal + ' Sessão';
+    // 2. Popula cache de membros se o backend enviou
+    if (res.membros && Array.isArray(res.membros)) {
+      _membrosCache = {};
+      res.membros.forEach(function(m) {
+        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
+      });
+      console.log('[votacao] membros carregados junto com a votação:', Object.keys(_membrosCache).length);
     }
 
-    // 3.2 Data da sessão
-    if (dadosVotacao.dataSessao) {
-      dataHtml += (dataHtml ? ' &nbsp;·&nbsp; ' : '') +
-        '<i class="material-icons" style="font-size:16px">event</i> ' + dadosVotacao.dataSessao;
-    }
+    // 3. Guarda a sessão + ficha
+    _sessaoInfo       = res.sessaoInfo || null;
+    _votacaoFichaId   = res.fichaId    || null;
 
-    // 3.3 Órgão da sessão
-    if (dadosVotacao.orgao) {
-      dataHtml += (dataHtml ? ' &nbsp;·&nbsp; ' : '') + dadosVotacao.orgao;
-    }
+    // 5. Banner — monta o título no front (inclui número do processo)
+    renderBannerVotacao(_sessaoInfo, res.processo);
 
-    document.getElementById('votacaoData').innerHTML = dataHtml;
+    // 6. Cabeçalho do processo (número + requerente + requerido + ementa)
+    renderCabecalhoProcesso(res.processo);
 
-    // 4. Renderiza cabeçalho do processo (requerente, requerido, ementa)
-    var cabecalhoEl = document.getElementById('votacaoCabecalho');
-    if (cabecalhoEl && dadosVotacao) {
-      var html = '';
-      if (dadosVotacao.requerente) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerente</span><span class="votacao-valor">' + dadosVotacao.requerente + '</span></div>';
-      if (dadosVotacao.requerido) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerido</span><span class="votacao-valor">' + dadosVotacao.requerido + '</span></div>';
-      if (dadosVotacao.ementa) html += '<div class="votacao-info-linha votacao-ementa"><span class="votacao-rotulo">Ementa</span><span class="votacao-valor">' + dadosVotacao.ementa + '</span></div>';
-      cabecalhoEl.innerHTML = html;
-    }
+    // 7. Exposição dos votos
+    renderExposicaoVotos(res.votos || []);
 
-    // 5. Renderiza exposição dos votos
-    renderExposicaoVotos(dadosVotacao.votos || []);
+    // 8. Formulário de votação
+    renderFormularioVotacao(res.opcoesVoto || []);
 
-    // 6. Renderiza formulário de votação
-    renderFormularioVotacao(dadosVotacao.opcoesVoto || []);
+    // 9. Chips de "já votaram" (vêm na requisição inicial)
+    renderChipsVotantesVotacao(res.votantes || []);
 
-    // 7. Extrai o idSessao a partir do sessaoInfo
-    var idSessao = (dadosVotacao.sessaoInfo && dadosVotacao.sessaoInfo.id) ? dadosVotacao.sessaoInfo.id : '';
-
-    // 8. Carrega membros que já votaram pela primeira vez e inicia polling
-    if (idSessao) {
-      await atualizarVotantesVotacao(idSessao);
-
-      // Inicia polling automático a cada 15 segundos
-      if (_pollingVotantesVotacao) clearInterval(_pollingVotantesVotacao);
-      _pollingVotantesVotacao = setInterval(function() {
-        if (_abaAtiva === 'votacao' && _votacaoFichaId && idSessao) {
-          atualizarVotantesVotacao(idSessao);
-        }
-      }, 15000);
-    } else {
-      console.warn('[votacao] idSessao não encontrado em dadosVotacao.');
-    }
-
-    // 9. Exibe a interface
+    // 10. Exibe a interface
     if (estadoEl) estadoEl.style.display = 'none';
     if (mainEl)   mainEl.style.display = 'block';
+
+    // 11. Polling leve — só atualiza os chips de votantes
+    if (_pollingVotantesVotacao) clearInterval(_pollingVotantesVotacao);
+    _pollingVotantesVotacao = setInterval(function() {
+      if (_abaAtiva === 'votacao' && _votacaoFichaId) {
+        atualizarVotantesVotacao();
+      }
+    }, 15000);
 
   } catch (err) {
     console.error('[votacao] erro:', err);
@@ -103,6 +74,61 @@ async function iniciarVotacao() {
       estadoEl.innerHTML = '<i class="material-icons">error_outline</i><p>Não foi possível carregar os dados.<br>' + err.message + '</p>';
     }
   }
+}
+
+/**
+ * Monta o título do banner a partir dos dados crus da sessão.
+ * Formato: "<ordemOrdinal> Sessão <Tipo> do <Órgão> em <ano>"
+ * Na linha de metadados, adiciona: data da sessão + "PROCESSO Nº X EM VOTAÇÃO".
+ *
+ * @param {Object} sessao   — res.sessaoInfo
+ * @param {Object} processo — res.processo (opcional)
+ */
+function renderBannerVotacao(sessao, processo) {
+  if (!sessao) return;
+
+  var tituloEl = document.getElementById('votacaoTitulo');
+  var dataEl   = document.getElementById('votacaoData');
+
+  var ordem = (sessao.ordemOrdinal || '').trim();
+  var tipo  = (sessao.tipo  || '').trim();
+  var orgao = (sessao.orgao || '').trim();
+  var ano   = sessao.ano || '';
+
+  var titulo = ordem + ' Sessão ' + tipo + ' do ' + orgao + ' em ' + ano;
+  if (tituloEl) tituloEl.textContent = titulo.trim();
+
+  if (dataEl) {
+    var partes = [];
+
+    if (sessao.dataFormatada) {
+      partes.push('<i class="material-icons" style="font-size:16px">event</i> ' + sessao.dataFormatada);
+    }
+
+    if (processo && processo.numero) {
+      partes.push('<i class="material-icons" style="font-size:16px">gavel</i> PROCESSO Nº ' + processo.numero + ' EM VOTAÇÃO');
+    }
+
+    dataEl.innerHTML = partes.join(' &nbsp;·&nbsp; ');
+  }
+}
+
+/**
+ * Monta o cabeçalho do processo (número + requerente + requerido + ementa).
+ *
+ * @param {Object} processo — res.processo
+ */
+function renderCabecalhoProcesso(processo) {
+  var el = document.getElementById('votacaoCabecalho');
+  if (!el || !processo) return;
+
+  var html = '';
+  if (processo.numero) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Processo</span><span class="votacao-valor"><strong>' + processo.numero + '</strong></span></div>';
+  if (processo.requerente) html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerente</span><span class="votacao-valor">' + processo.requerente + '</span></div>';
+  if (processo.requerido)  html += '<div class="votacao-info-linha"><span class="votacao-rotulo">Requerido</span><span class="votacao-valor">' + processo.requerido + '</span></div>';
+  if (processo.ementa)     html += '<div class="votacao-info-linha votacao-ementa"><span class="votacao-rotulo">Ementa</span><span class="votacao-valor">' + processo.ementa + '</span></div>';
+
+  el.innerHTML = html;
 }
 
 function renderExposicaoVotos(votos) {
@@ -182,6 +208,11 @@ async function confirmarVotoIndividual() {
       input.removeAttribute('data-nome-selecionado');
       input.style.display = 'block';
     }
+
+    // ── Adiciona o chip do votante imediatamente (atualização otimista) ──
+    // O próximo ciclo de polling substitui pela lista oficial do backend.
+    adicionarChipVotanteLocal(nome);
+
     var chipEl = document.getElementById('votante-chip-votacao');
     if (chipEl) { chipEl.innerHTML = ''; chipEl.style.display = 'none'; }
     var listaEl = document.getElementById('lista-votantes-votacao');
@@ -282,12 +313,15 @@ function removerVotanteVotacao() {
   }
 }
 
-async function atualizarVotantesVotacao(sessaoId) {
-  if (!sessaoId || !_votacaoFichaId) return;
+/**
+ * Atualiza apenas os chips de quem já votou.
+ * Usa a rota unificada ?acao=participantes&id=<fichaId>.
+ */
+async function atualizarVotantesVotacao() {
+  if (!_votacaoFichaId) return;
   try {
-    var data = await gasGet({ acao: 'votantes', sessaoId: sessaoId });
-    var votantes = (data && data.votantes) ? (data.votantes[_votacaoFichaId] || []) : [];
-    renderChipsVotantesVotacao(votantes);
+    var data = await gasGet({ acao: 'participantes', fichaId: _votacaoFichaId });
+    renderChipsVotantesVotacao((data && data.participantes) ? data.participantes : []);
   } catch (err) {
     console.warn('[votacao] erro ao atualizar votantes:', err.message);
   }
@@ -308,4 +342,42 @@ function renderChipsVotantesVotacao(lista) {
   chipsEl.innerHTML = lista.map(function(nome) {
     return '<span class="chip-presente"><i class="material-icons">check_circle</i>' + nome + '</span>';
   }).join('');
+}
+
+/**
+ * Adiciona, de forma otimista, o chip de um votante recém-registrado.
+ * Não consulta o backend — apenas insere o nome na lista já renderizada.
+ * No próximo ciclo de polling, a lista é substituída pela versão oficial.
+ *
+ * @param {string} nome
+ */
+function adicionarChipVotanteLocal(nome) {
+  if (!nome) return;
+
+  var chipsEl    = document.getElementById('votacaoChips');
+  var contagemEl = document.getElementById('votacaoContagem');
+  if (!chipsEl) return;
+
+  // Se o placeholder de "vazio" estiver visível, remove
+  var vazio = chipsEl.querySelector('.presenca-vazio');
+  if (vazio) vazio.remove();
+
+  // Evita duplicar o chip se o nome já estiver na lista
+  var jaExiste = Array.from(chipsEl.querySelectorAll('.chip-presente'))
+    .some(function(chip) {
+      return chip.textContent.trim().indexOf(nome) !== -1;
+    });
+  if (jaExiste) return;
+
+  // Cria o chip e insere
+  var chip = document.createElement('span');
+  chip.className = 'chip-presente';
+  chip.innerHTML = '<i class="material-icons">check_circle</i>' + nome;
+  chipsEl.appendChild(chip);
+
+  // Atualiza o contador
+  if (contagemEl) {
+    var atual = parseInt(contagemEl.textContent, 10) || 0;
+    contagemEl.textContent = atual + 1;
+  }
 }

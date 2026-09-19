@@ -7,9 +7,6 @@
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx91dyMa69vT0704BsR9iPiGhLBq884oViaLtepDYF_mWCM3RzJcqyHCPcG5-Chd-Pp/exec';
 const URL_LOGO_OAB        = 'https://www.oabgo.org.br/wp-content/themes/oab/images/logo.png';
 const URL_LOGO_RODAPE     = 'https://www.oabgo.org.br/wp-content/themes/oab/images/logo-rodape.png';
-const URL_QR_PRESENCA     = 'https://blacodegs.github.io/oabgo-sdp-pauta-virtual/?aba=presenca';
-const URL_QR_IMAGEM       = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' +
-                             encodeURIComponent(URL_QR_PRESENCA) + '&color=002d56&bgcolor=ffffff';
 
 console.log('[scripts.js] carregado');
 
@@ -206,11 +203,6 @@ function definirConstantesVisuais() {
   }
   var logoRodape = document.getElementById('logoRodape');
   if (logoRodape) logoRodape.src = URL_LOGO_RODAPE;
-
-  var qrImg = document.getElementById('qrImagem');
-  if (qrImg) qrImg.src = URL_QR_IMAGEM;
-  var qrUrl = document.getElementById('qrUrl');
-  if (qrUrl) qrUrl.textContent = URL_QR_PRESENCA;
 
   console.log('[constantes visuais] aplicadas');
 }
