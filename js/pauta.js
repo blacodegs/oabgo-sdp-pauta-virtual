@@ -624,10 +624,16 @@ async function mvSalvarNovoVoto() {
   var textoHtml  = editor ? editor.innerHTML.trim() : '';
   var textoPlano = editor ? editor.textContent.trim() : '';
 
-  var verificacao = verificarPeriodoSessao();
-  if (!verificacao.valido) {
-    mostrarAlerta('Fora do período', verificacao.motivo);
-    return;
+  // ── Validação de período apenas quando o contexto de sessão existe ──
+  // No index.html, _sessaoInfo é populado → validação ativa.
+  // No voto.html (standalone), _sessaoInfo é null → validação pulada
+  // (a fonte de verdade lá é tabFichas.Votação === "Iniciada").
+  if (_sessaoInfo) {
+    var verificacao = verificarPeriodoSessao();
+    if (!verificacao.valido) {
+      mostrarAlerta('Fora do período', verificacao.motivo);
+      return;
+    }
   }
 
   if (!tipo)     { toast('Selecione o tipo de voto.', 'erro'); return; }

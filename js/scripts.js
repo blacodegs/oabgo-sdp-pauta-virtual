@@ -87,9 +87,19 @@ function fecharModal(id) { document.getElementById(id).classList.remove('ativo')
 function esc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
 
 function mostrarAlerta(titulo, mensagem) {
-  document.getElementById('alertaTitulo').textContent = titulo || 'Atenção';
-  document.getElementById('alertaMensagem').textContent = mensagem || '';
-  document.getElementById('modalAlerta').classList.add('ativo');
+  var elTitulo = document.getElementById('alertaTitulo');
+  var elMsg    = document.getElementById('alertaMensagem');
+  var elModal  = document.getElementById('modalAlerta');
+
+  // Página sem modal de alerta (ex.: voto.html) — cai no toast como fallback.
+  if (!elTitulo || !elMsg || !elModal) {
+    toast((titulo ? titulo + ': ' : '') + (mensagem || ''), 'erro');
+    return;
+  }
+
+  elTitulo.textContent = titulo || 'Atenção';
+  elMsg.textContent = mensagem || '';
+  elModal.classList.add('ativo');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -211,24 +221,16 @@ function definirConstantesVisuais() {
 definirConstantesVisuais();
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then((reg) => {
-    reg.addEventListener('updatefound', () => {
-      newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          toast('Nova versão disponível!', 'sucesso');
-          var atualizarBtn = document.createElement('button');
-          atualizarBtn.textContent = 'Atualizar agora';
-          atualizarBtn.className = 'btn-oab-confirm';
-          atualizarBtn.onclick = function() {
-            newWorker.postMessage({ action: 'skipWaiting' });
-            window.location.reload();
-          };
-          var toastContainer = document.getElementById('toastContainer');
-          toastContainer.appendChild(atualizarBtn);
-        }
-      });
-    });
+  navigator.serviceWorker.register('sw.js').catch(function(err) {
+    console.log('Falha ao registrar o Service Worker:', err);
+  });
+
+  // Recarrega a página uma vez quando o SW novo assume o controle
+  let _recarregandoPorSW = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_recarregandoPorSW) return;
+    _recarregandoPorSW = true;
+    window.location.reload();
   });
 }
 

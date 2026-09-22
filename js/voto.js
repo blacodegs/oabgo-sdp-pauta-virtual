@@ -10,10 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const fichaId = params.get('fichaId');
 
   if (!fichaId) {
-    document.getElementById('mvListaContainer').innerHTML =
-      '<div class="estado erro"><i class="material-icons">error_outline</i><p>Link inválido: informe o parâmetro <strong>fichaId</strong> na URL.</p></div>';
-    document.getElementById('btnAddVotoSection').style.display = 'none';
-    document.getElementById('mvNovoCard').style.display = 'none';
+    mostrarEstadoErro(
+      'Link inválido: informe o parâmetro <strong>fichaId</strong> na URL.'
+    );
     return;
   }
 
@@ -40,28 +39,40 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+/**
+ * Fluxo de carregamento da página de voto.
+ * Ordem:
+ *   1. Mostra estado "loading" (lista + esconde botões)
+ *   2. Busca dados no backend
+ *   3. Em sucesso: renderiza e libera os botões
+ *   4. Em erro: mostra estado de erro e mantém botões escondidos
+ */
 async function carregarTudo() {
+  mostrarEstadoCarregando();
+
   try {
     const res = await gasGet({ acao: 'votoPage', fichaId: _mvFichaId });
     if (!res.sucesso) throw new Error(res.erro || 'Erro ao carregar.');
 
     _mvFichaInfo  = (res.fichaInfo && typeof res.fichaInfo === 'object') ? res.fichaInfo : {};
     _mvVotosCache = res.votos || [];
+    _mvMembros    = res.membros || [];
 
-    // Popula o mesmo cache de membros usado por pauta.js (autocomplete do
-    // relator em "novo voto"). O backend desta página devolve só os nomes,
-    // então gravamos gênero padrão 'Masculino' se ainda não estiver no cache.
-    (res.membros || []).forEach(function(nome) {
-      if (nome && !_membrosCache[nome]) _membrosCache[nome] = 'Masculino';
+    // ── Popula o cache global de membros usado pelos filtros/autocomplete ──
+    // (filtrarRelatoresNovoVoto e outros leem de _membrosCache)
+    _membrosCache = {};
+    _mvMembros.forEach(function(nome) {
+      if (nome) _membrosCache[nome] = 'Masculino';   // votoPage só devolve nomes, sem gênero
     });
 
     renderBannerVoto(_mvFichaInfo);
     mvRenderLista(_mvVotosCache);
+    liberarBotaoAdicionar();
+
   } catch (err) {
-    document.getElementById('mvListaContainer').innerHTML =
-      '<div class="estado erro"><i class="material-icons">error_outline</i><p>' + err.message + '</p></div>';
-    document.getElementById('btnAddVotoSection').style.display = 'none';
-    document.getElementById('mvNovoCard').style.display = 'none';
+    console.error('[votoPage] erro ao carregar:', err);
+    mostrarEstadoErro(err.message);
+    esconderBotaoAdicionar();
   }
 }
 
@@ -145,4 +156,55 @@ function renderBannerVoto(info) {
     : (info.dataSessao || '');
   document.getElementById('votoPageTitulo').textContent = 'Voto do processo ' + numero;
   document.getElementById('votoPageMeta').textContent = data ? ('Sessão de ' + data) : '';
+}
+
+/**
+ * Mostra estado de carregamento na área da lista e esconde botões de ação.
+ */
+function mostrarEstadoCarregando() {
+  const listaEl = document.getElementById('mvListaContainer');
+  if (listaEl) {
+    listaEl.innerHTML =
+      '<div class="estado loading">' +
+        '<i class="material-icons">autorenew</i>' +
+        '<p>Carregando dados do processo…</p>' +
+      '</div>';
+  }
+
+  esconderBotaoAdicionar();
+
+  const cardNovo = document.getElementById('mvNovoCard');
+  if (cardNovo) cardNovo.style.display = 'none';
+}
+
+/**
+ * Mostra estado de erro e mantém os botões de ação escondidos.
+ * @param {string} mensagem
+ */
+function mostrarEstadoErro(mensagem) {
+  const listaEl = document.getElementById('mvListaContainer');
+  if (listaEl) {
+    listaEl.innerHTML =
+      '<div class="estado erro">' +
+        '<i class="material-icons">error_outline</i>' +
+        '<p>' + mensagem + '</p>' +
+      '</div>';
+  }
+  esconderBotaoAdicionar();
+}
+
+/**
+ * Exibe o botão de adicionar voto (apenas após carregamento bem-sucedido).
+ */
+function liberarBotaoAdicionar() {
+  const btn = document.getElementById('btnAddVotoSection');
+  if (btn) btn.style.display = 'block';
+}
+
+/**
+ * Esconde o botão de adicionar voto.
+ */
+function esconderBotaoAdicionar() {
+  const btn = document.getElementById('btnAddVotoSection');
+  if (btn) btn.style.display = 'none';
 }
