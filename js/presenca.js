@@ -39,8 +39,8 @@ async function iniciarPresenca() {
     _sessaoInfo = res.sessao || null;
     _sessaoPresencaId = _sessaoInfo ? _sessaoInfo.id : null;
 
-    // 5. Validação de período (data/hora) e tipo (virtual)
-    var verif = verificarPeriodoSessao();
+    // 5. Validação de sessão ativa (tipo + data + hora de início)
+    var verif = verificarSessaoAtiva();
     if (!verif.valido) {
       if (estadoEl) {
         estadoEl.style.display = 'flex';
@@ -326,4 +326,76 @@ function removerPresenca() {
     listaEl.innerHTML = '';
     listaEl.style.display = 'none';
   }
+}
+
+/**
+ * Verifica se há uma sessão presencial ativa para registro de presença.
+ *
+ * Regras:
+ *   - Sessão deve ser PRESENCIAL (tipo !== 'virtual').
+ *   - Deve ser o DIA da sessão (data atual === data da sessão).
+ *     Se a data for diferente (antes ou depois), bloqueia.
+ *   - No dia da sessão, o horário atual deve ser >= horário de início.
+ *
+ * Não considera dataFim/horaFim — presença é registrada no dia,
+ * a partir do início da sessão.
+ *
+ * @returns {{ valido: boolean, motivo: string }}
+ */
+function verificarSessaoAtiva() {
+  if (!_sessaoInfo) {
+    return { valido: false, motivo: 'Nenhuma sessão ativa no momento.' };
+  }
+
+  // ── Verificação de tipo ──
+  var tipo = String(_sessaoInfo.tipo || '').trim().toLowerCase();
+  if (tipo === 'virtual') {
+    return { valido: false, motivo: 'Nenhuma sessão presencial ativa no momento.' };
+  }
+
+  // ── Verificação de data ──
+  var agora = new Date();
+  var hoje = {
+    dia:  agora.getDate(),
+    mes:  agora.getMonth(),
+    ano:  agora.getFullYear()
+  };
+
+  var partesData = String(_sessaoInfo.data || '').split('/');
+  if (partesData.length !== 3) {
+    return { valido: false, motivo: 'Data da sessão inválida.' };
+  }
+  var dataSessao = {
+    dia: Number(partesData[0]),
+    mes: Number(partesData[1]) - 1,
+    ano: Number(partesData[2])
+  };
+
+  // Data diferente → bloqueia
+  if (hoje.dia !== dataSessao.dia ||
+      hoje.mes !== dataSessao.mes ||
+      hoje.ano !== dataSessao.ano) {
+    return { valido: false, motivo: 'Hoje não não tem sessão presencial.' };
+  }
+
+  // ── Verificação de hora (mesma data) ──
+  var partesHora = String(_sessaoInfo.horaInicio || '').split(':');
+  if (partesHora.length < 2) {
+    return { valido: false, motivo: 'Horário de início da sessão inválido.' };
+  }
+
+  var inicio = new Date(
+    dataSessao.ano,
+    dataSessao.mes,
+    dataSessao.dia,
+    Number(partesHora[0]),
+    Number(partesHora[1]),
+    0
+  );
+
+  if (agora < inicio) {
+    return { valido: false, motivo: 'A sessão ainda não foi iniciada. Aguarde o horário programado.' };
+  }
+
+  return { valido: true, motivo: '' };
 }

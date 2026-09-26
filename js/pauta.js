@@ -25,6 +25,7 @@ async function carregarPauta(incluirMembros) {
 
     const pauta = await gasGet(params);
 
+    // 1. Backend não encontrou sessão ativa → respeita a flag semSessao
     if (pauta.semSessao) {
       document.getElementById('listaProcessos').innerHTML =
         '<div class="estado vazio"><i class="material-icons">event_busy</i><p>' +
@@ -34,17 +35,20 @@ async function carregarPauta(incluirMembros) {
       return;
     }
 
-    // Se o backend incluiu membros, popula o cache local
-    if (pauta.membros && Array.isArray(pauta.membros)) {
-      _membrosCache = {};
-      pauta.membros.forEach(function(m) {
-        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
-      });
-      console.log('[pauta] membros carregados junto com a pauta:', Object.keys(_membrosCache).length);
-    }
-
+    // 2. Popula a sessão ANTES de qualquer validação
     _sessaoInfo = pauta.sessao || null;
 
+    // 3. Valida tipo — pauta virtual só roda em sessão Virtual
+    var tipo = String((_sessaoInfo && _sessaoInfo.tipo) || '').trim().toLowerCase();
+    if (tipo !== 'virtual') {
+      document.getElementById('listaProcessos').innerHTML =
+        '<div class="estado vazio"><i class="material-icons">gavel</i><p>Nenhuma sessão virtual ativa no momento.</p></div>';
+      document.getElementById('bannerMeta').innerHTML =
+        '<span class="banner-meta-item"><i class="material-icons">info</i>Aguardando sessão</span>';
+      return;
+    }
+
+    // 4. Valida período
     var verif = verificarPeriodoSessao();
     if (!verif.valido) {
       document.getElementById('listaProcessos').innerHTML =
@@ -54,6 +58,16 @@ async function carregarPauta(incluirMembros) {
       return;
     }
 
+    // 5. Popula membros (se backend enviou)
+    if (pauta.membros && Array.isArray(pauta.membros)) {
+      _membrosCache = {};
+      pauta.membros.forEach(function(m) {
+        if (m.nome) _membrosCache[m.nome] = m.genero || 'Masculino';
+      });
+      console.log('[pauta] membros carregados junto com a pauta:', Object.keys(_membrosCache).length);
+    }
+
+    // 6. Renderiza
     _orgaoSessao = pauta.sessao?.orgao ? String(pauta.sessao.orgao).trim().toLowerCase() : '';
     renderBannerPauta(pauta.sessao);
     renderPauta(pauta);
@@ -1152,12 +1166,19 @@ function removerRelatorNovoVoto() {
 }
 
 /**
- * Verifica se o momento atual está dentro do período da sessão.
+ * Verifica se o momento atual está dentro do período da sessão
+ * (data/hora de início e fim). Não valida tipo de sessão — essa
+ * checagem é feita por cada contexto que a utiliza.
+ *
+ * As mensagens são propositalmente genéricas: a função é reutilizável
+ * por diferentes fluxos (carregamento, votação, presença). Quem chama
+ * pode complementar com uma mensagem específica, se necessário.
+ *
  * @returns {{ valido: boolean, motivo: string }}
  */
 function verificarPeriodoSessao() {
   if (!_sessaoInfo) {
-    return { valido: false, motivo: 'Dados da sessão não carregados.' };
+    return { valido: false, motivo: 'Nenhuma sessão ativa no momento.' };
   }
 
   function montarData(dataStr, horaStr) {
@@ -1176,10 +1197,10 @@ function verificarPeriodoSessao() {
   var agora  = new Date();
 
   if (inicio && agora < inicio) {
-    return { valido: false, motivo: 'A sessão virtual ainda não foi iniciada. Aguarde o horário programado.' };
+    return { valido: false, motivo: 'A sessão ainda não foi iniciada. Aguarde o horário programado.' };
   }
   if (fim && agora > fim) {
-    return { valido: false, motivo: 'A sessão virtual já foi encerrada. Não é possível registrar votos.' };
+    return { valido: false, motivo: 'A sessão já foi encerrada.' };
   }
   return { valido: true, motivo: '' };
 }
