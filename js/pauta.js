@@ -528,6 +528,10 @@ function mvMostrarFormNovo() {
 
   card.style.display = 'block';
   card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  // Esconde o botão de adicionar enquanto o formulário está aberto
+  var btnAdd = document.getElementById('btnAddVotoSection');
+  if (btnAdd) btnAdd.style.display = 'none';
 }
 
 function mvFecharFormNovo() {
@@ -539,12 +543,17 @@ function mvFecharFormNovo() {
     if (relEl) { var j = M.FormSelect.getInstance(relEl); if (j) j.destroy(); }
     card.style.display = 'none';
   }
+  
   _mvPdfPendente = null;
   var btn = document.getElementById('mvBtnPdf');
   if (btn) {
     btn.innerHTML = '<i class="material-icons" style="font-size:14px">picture_as_pdf</i>Adicionar relatório';
     btn.style.background = '';
   }
+
+  // Restaura o botão de adicionar ao fechar o formulário
+  var btnAdd = document.getElementById('btnAddVotoSection');
+  if (btnAdd) btnAdd.style.display = 'block';
 }
 
 function mvAnexarRelatorio(votoId) {
@@ -627,6 +636,22 @@ function _escolherPdf(callback) {
   input.click();
 }
 
+/**
+ * Substitui o conteúdo do #mvBody por um estado de loading.
+ * Usado entre o salvamento de um voto e a re-renderização da lista.
+ *
+ * @param {string} [mensagem] Texto padrão: "Atualizando lista de votos…"
+ */
+function mvMostrarLoadingLista(mensagem) {
+  var body = document.getElementById('mvBody');
+  if (!body) return;
+  body.innerHTML =
+    '<div class="estado loading" style="padding:32px 20px;">' +
+      '<i class="material-icons" style="font-size:32px;">autorenew</i>' +
+      '<p style="font-size:13px;">' + (mensagem || 'Atualizando lista de votos…') + '</p>' +
+    '</div>';
+}
+
 async function mvSalvarNovoVoto() {
   var inputTipo = document.getElementById('mvNovoTipo');
   var tipo = inputTipo ? (inputTipo.getAttribute('data-tipo-selecionado') || '').trim() : '';
@@ -638,10 +663,7 @@ async function mvSalvarNovoVoto() {
   var textoHtml  = editor ? editor.innerHTML.trim() : '';
   var textoPlano = editor ? editor.textContent.trim() : '';
 
-  // ── Validação de período apenas quando o contexto de sessão existe ──
-  // No index.html, _sessaoInfo é populado → validação ativa.
-  // No voto.html (standalone), _sessaoInfo é null → validação pulada
-  // (a fonte de verdade lá é tabFichas.Votação === "Iniciada").
+  // Validação de período (só quando há contexto de sessão)
   if (_sessaoInfo) {
     var verificacao = verificarPeriodoSessao();
     if (!verificacao.valido) {
@@ -650,13 +672,13 @@ async function mvSalvarNovoVoto() {
     }
   }
 
-  if (!tipo)     { toast('Selecione o tipo de voto.', 'erro'); return; }
-  if (!relator)  { toast('Selecione o relator.', 'erro'); return; }
+  if (!tipo)       { toast('Selecione o tipo de voto.', 'erro'); return; }
+  if (!relator)    { toast('Selecione o relator.', 'erro'); return; }
   if (!textoPlano) { toast('Preencha o texto do voto.', 'erro'); return; }
 
   var btn = document.getElementById('mvBtnSalvar');
   btn.disabled = true;
-  btn.textContent = 'Salvando…';
+  btn.innerHTML = '<i class="material-icons" style="font-size:15px;animation:spin 1s linear infinite">autorenew</i> Salvando…';
 
   try {
     const res = await gasPostViaGet({
@@ -668,16 +690,26 @@ async function mvSalvarNovoVoto() {
     });
 
     if (!res.sucesso) throw new Error(res.erro || 'Erro desconhecido');
-    var novoVotoId = res.id || '';
-    toast('Voto adicionado!');
 
-    if (_mvPdfPendente && novoVotoId) {
+    toast('Voto adicionado!');
+    var novoVotoId = res.id || '';
+
+    // Guarda o PDF pendente ANTES de fechar o formulário
+    // (mvFecharFormNovo zera _mvPdfPendente)
+    var pdfPendente = _mvPdfPendente;
+
+    // POST deu certo → fecha o formulário e mostra loading na lista
+    mvFecharFormNovo();
+    mvMostrarLoadingLista('Salvando voto…');
+
+    // Upload de PDF pendente (se houver)
+    if (pdfPendente && novoVotoId) {
       toast('Enviando relatório…');
       var relatorNovo = relator.trim() || ((_mvFichaInfo && _mvFichaInfo.relator) ? _mvFichaInfo.relator : '');
       await new Promise(function(resolve) {
         mvExecutarUpload(
-          _mvPdfPendente.base64,
-          _mvPdfPendente.fileName,
+          pdfPendente.base64,
+          pdfPendente.fileName,
           novoVotoId,
           relatorNovo,
           function(url) { toast('Relatório anexado!'); resolve(); },
@@ -686,19 +718,17 @@ async function mvSalvarNovoVoto() {
       });
     }
 
-    btn.disabled = false;
-    btn.textContent = 'Salvar';
-    mvFecharFormNovo();
-
-    const resVotos = await gasGet({ acao:'votos', fichaId: _mvFichaId });
-    _mvFichaInfo = (resVotos.fichaInfo && typeof resVotos.fichaInfo === 'object') ? resVotos.fichaInfo : _mvFichaInfo;
+    // Busca a lista atualizada e re-renderiza
+    const resVotos = await gasGet({ acao: 'votos', fichaId: _mvFichaId });
+    _mvFichaInfo  = (resVotos.fichaInfo && typeof resVotos.fichaInfo === 'object')
+                      ? resVotos.fichaInfo : _mvFichaInfo;
     _mvVotosCache = resVotos.votos || [];
-    mvRenderLista(resVotos.votos || []);
+    mvRenderLista(_mvVotosCache);
 
   } catch (err) {
     toast('Erro ao salvar: ' + err.message, 'erro');
     btn.disabled = false;
-    btn.textContent = 'Salvar';
+    btn.innerHTML = 'Salvar';
   }
 }
 
