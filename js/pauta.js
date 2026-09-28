@@ -119,6 +119,98 @@ function renderPauta(pauta) {
   processos.forEach(function(p) { lista.appendChild(criarCard(p)); });
 }
 
+/**
+ * Aplica um mapa { fichaId: boolean } aos chips de "tem voto" da Pauta Virtual.
+ *
+ * Segue o padrão do painel lateral (pl_js_aplicarTemVotoFichas):
+ *   - Percorre TODO o mapa (não apenas uma ficha)
+ *   - Atualiza via querySelector por (data-ficha-id, data-campo="temVoto")
+ *   - Só escreve no DOM se o valor mudou
+ *
+ * @param {Object} mapaTemVoto  Ex.: { '17ot1ywz': true, '18ab12cd': false }
+ */
+function aplicarTemVotoFichas(mapaTemVoto) {
+  if (!mapaTemVoto || typeof mapaTemVoto !== 'object') return;
+
+  for (var fichaId in mapaTemVoto) {
+    if (!Object.prototype.hasOwnProperty.call(mapaTemVoto, fichaId)) continue;
+    var tv = !!mapaTemVoto[fichaId];
+
+    // ── 1. Chip ──
+    var chip = document.querySelector(
+      '.chip-status-voto[data-ficha-id="' + fichaId + '"][data-campo="temVoto"]'
+    );
+    if (chip) {
+      var novoTexto  = tv ? 'com voto' : 'sem voto';
+      var novaClasse = tv ? 'chip-status-voto chip-tem-voto' : 'chip-status-voto chip-sem-voto';
+
+      if (chip.textContent !== novoTexto) {
+        chip.textContent = novoTexto;
+        chip.className   = novaClasse;
+      }
+    }
+
+    // ── 2. Botão de votar ──
+    var wrapper = document.querySelector('.processo-wrapper[data-id-ficha="' + fichaId + '"]');
+    if (!wrapper) continue;
+
+    var btnAtual = wrapper.querySelector('.votar-btn');
+    if (!btnAtual) continue;
+
+    var cardActions = wrapper.querySelector('.card-actions');
+    var alvo = (btnAtual.parentNode === cardActions) ? btnAtual : btnAtual.parentNode;
+
+    // Evita reconstrução se já está no estado correto
+    var estaHabilitado = (alvo.tagName === 'BUTTON' && !alvo.disabled);
+    if (estaHabilitado === tv) continue;
+
+    var novoIcone = _criarIconeVotar(fichaId, tv);
+    alvo.parentNode.replaceChild(novoIcone, alvo);
+
+    // Reinicializa tooltips
+    if (window.M && M.Tooltip) {
+      var tooltips = novoIcone.querySelectorAll('.tooltipped');
+      if (novoIcone.classList && novoIcone.classList.contains('tooltipped')) {
+        tooltips = [novoIcone].concat(Array.from(tooltips));
+      }
+      M.Tooltip.init(tooltips, { enterDelay: 200, exitDelay: 100 });
+    }
+  }
+}
+
+/**
+ * Cria o elemento do ícone de votar (habilitado ou desabilitado).
+ * Usado apenas na atualização pontual (o criarCard continua montando via string HTML).
+ *
+ * @param {string} idFicha
+ * @param {boolean} temVoto
+ * @returns {HTMLElement}
+ */
+function _criarIconeVotar(idFicha, temVoto) {
+  var idFichaEsc = esc(idFicha);
+  if (temVoto) {
+    var btn = document.createElement('button');
+    btn.className = 'action-icon votar-btn tooltipped';
+    btn.setAttribute('data-position', 'bottom');
+    btn.setAttribute('data-tooltip', 'Votar');
+    btn.setAttribute('onclick', 'toggleVotoForm(\'' + idFichaEsc + '\')');
+    btn.innerHTML = '<i class="material-icons" style="font-size:19px">how_to_vote</i>';
+    return btn;
+  } else {
+    var span = document.createElement('span');
+    span.className = 'tooltipped';
+    span.setAttribute('data-position', 'bottom');
+    span.setAttribute('data-tooltip', 'Nenhum voto registrado');
+    var btnOff = document.createElement('button');
+    btnOff.className = 'action-icon votar-btn';
+    btnOff.style.cssText = 'opacity:.5; pointer-events:none; cursor:default;';
+    btnOff.disabled = true;
+    btnOff.innerHTML = '<i class="material-icons" style="font-size:19px">how_to_vote</i>';
+    span.appendChild(btnOff);
+    return span;
+  }
+}
+
 function criarCard(p) {
   const wrapper = document.createElement('div');
   wrapper.className = 'processo-wrapper';
@@ -151,9 +243,10 @@ function criarCard(p) {
     ? '<div style="margin-top: 8px;"></div><div class="dado-linha"><span class="dado-rotulo">Ementa</span><span class="dado-valor">' + p.ementa + '</span></div>'
     : '';
 
+  const idFichaAttr = esc(p.idFicha || '');
   const chipStatus = p.temVoto
-    ? '<span class="chip-status-voto chip-tem-voto">com voto</span>'
-    : '<span class="chip-status-voto chip-sem-voto">sem voto</span>';
+    ? '<span class="chip-status-voto chip-tem-voto" data-ficha-id="' + idFichaAttr + '" data-campo="temVoto">com voto</span>'
+    : '<span class="chip-status-voto chip-sem-voto"  data-ficha-id="' + idFichaAttr + '" data-campo="temVoto">sem voto</span>';
 
   const card = document.createElement('div');
   card.className = 'lista-card';
@@ -329,7 +422,10 @@ async function confirmarVoto(idFicha) {
       return;
     }
 
-    await gasPost({ acao: 'votarPauta', nome: nome, voto: radioSel.value, idFicha: idFicha })
+    const resVoto = await gasPostViaGet({ acao: 'votarPauta', nome: nome, voto: radioSel.value, idFicha: idFicha });
+
+    // Aplica o mapa vindo do backend (todas as fichas da sessão)
+    if (resVoto && resVoto.temVotoFichas) aplicarTemVotoFichas(resVoto.temVotoFichas);
 
     // Fecha o formulário
     document.getElementById('form-' + idFicha).classList.remove('aberto');
@@ -379,7 +475,12 @@ async function abrirModalVotos(fichaId, processoNum) {
     const res = await gasGet({ acao:'votos', fichaId: fichaId });
     _mvFichaInfo = (res.fichaInfo && typeof res.fichaInfo === 'object') ? res.fichaInfo : {};
     _mvVotosCache = res.votos || [];
+
+    // Aplica o mapa vindo do backend (todas as fichas da sessão)
+    if (res.temVotoFichas) aplicarTemVotoFichas(res.temVotoFichas);
+
     mvRenderLista(_mvVotosCache);
+
   } catch (err) {
     document.getElementById('mvBody').innerHTML =
       '<div class="estado erro"><i class="material-icons">error_outline</i><p>' + err.message + '</p></div>';
@@ -693,6 +794,9 @@ async function mvSalvarNovoVoto() {
 
     toast('Voto adicionado!');
     var novoVotoId = res.id || '';
+
+    // Aplica o mapa vindo do backend (todas as fichas da sessão)
+    if (res.temVotoFichas) aplicarTemVotoFichas(res.temVotoFichas);
 
     // Guarda o PDF pendente ANTES de fechar o formulário
     // (mvFecharFormNovo zera _mvPdfPendente)

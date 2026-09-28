@@ -63,7 +63,7 @@ async function iniciarPresenca() {
     if (_pollingPresenca) clearInterval(_pollingPresenca);
     _pollingPresenca = setInterval(function() {
       if (_abaAtiva === 'presenca' && _sessaoPresencaId) atualizarParticipantes();
-    }, 15000);
+    }, 30000);
 
   } catch (err) {
     console.error('[presenca] erro:', err);

@@ -65,7 +65,7 @@ async function iniciarVotacao() {
       if (_abaAtiva === 'votacao' && _votacaoFichaId) {
         atualizarVotantesVotacao();
       }
-    }, 15000);
+    }, 30000);
 
   } catch (err) {
     console.error('[votacao] erro:', err);
